@@ -1,0 +1,18 @@
+using Company.Template.Application.Products;
+
+namespace Company.Template.Api.Endpoints.Products;
+
+internal static class ProductEndpointMapper
+{
+    public static ProductResponse ToResponse(ProductDto product)
+    {
+        return new ProductResponse(
+            product.Id,
+            product.Name,
+            product.Price,
+            product.Currency,
+            product.Status.ToString(),
+            product.CreatedAt,
+            product.DiscontinuedAt);
+    }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Codefox",
+  "classifications": [ "Web", "WebAPI", "Clean Architecture", "DDD", "Aspire" ],
+  "identity": "Codefox.CleanApi.Template",
+  "name": "Clean Architecture Web API",
+  "shortName": "cleanapi",
+  "sourceName": "Company.Template",
+  "preferNameDirectory": true,
+  "description": "Production-oriented Clean Architecture Web API template with EF Core, Aspire, Keycloak JWT bearer wiring, Testcontainers and sample DDD code.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "db": {
+      "type": "parameter",
+      "datatype": "choice",
+      "description": "Database provider used by the generated application.",
+      "defaultValue": "PostgreSql",
+      "replaces": "__DB_PROVIDER__",
+      "choices": [
+        { "choice": "PostgreSql", "description": "Use PostgreSQL with Npgsql." },
+        { "choice": "SqlServer", "description": "Use SQL Server." },
+        { "choice": "MySql", "description": "Use MySQL/MariaDB with Pomelo." }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        ".template_config/**/*"
+      ]
+    }
+  ]
+}

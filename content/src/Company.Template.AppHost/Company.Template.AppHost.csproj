@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="10.0.0" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj" />
+    <ProjectReference Include="..\Company.Template.Infrastructure\Company.Template.Infrastructure.csproj" />
+    <ProjectReference Include="..\Company.Template.ServiceDefaults\Company.Template.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Providers\PostgreSqlAspireDatabase.cs" Condition="'__DB_PROVIDER__' != 'PostgreSql'" />
+    <Compile Remove="Providers\SqlServerAspireDatabase.cs" Condition="'__DB_PROVIDER__' != 'SqlServer'" />
+    <Compile Remove="Providers\MySqlAspireDatabase.cs" Condition="'__DB_PROVIDER__' != 'MySql'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Condition="'__DB_PROVIDER__' == 'PostgreSql'" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Condition="'__DB_PROVIDER__' == 'SqlServer'" />
+    <PackageReference Include="Aspire.Hosting.MySql" Condition="'__DB_PROVIDER__' == 'MySql'" />
+    <PackageReference Include="Aspire.Hosting.Keycloak" />
+  </ItemGroup>
+
+</Project>
