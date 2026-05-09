@@ -1,9 +1,5 @@
-using System.Security.Claims;
 using Company.Template.Api.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using StringSplitOptions = System.StringSplitOptions;
 
 namespace Company.Template.Api.Security;
 
@@ -88,8 +84,7 @@ public static class AuthenticationExtensions
             return false;
         }
 
-        return claim.Value
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Contains(requiredValue, StringComparer.Ordinal);
+        return Enumerable.Contains(claim.Value
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries), requiredValue, StringComparer.Ordinal);
     }
 }

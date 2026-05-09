@@ -1,48 +1,49 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
-using Company.Template.Domain.Products;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+
 
 namespace Company.Template.Infrastructure.Persistence;
 
-public sealed class ApplicationDbContext : DbContext, IUnitOfWork
+public sealed partial class ApplicationDbContext : DbContext, IApplicationDbContext
 {
-    private readonly IDomainEventDispatcher? _domainEventDispatcher;
+    private readonly IDomainEventDispatcher _domainEventDispatcher;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-        IDomainEventDispatcher? domainEventDispatcher = null)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        IDomainEventDispatcher domainEventDispatcher)
         : base(options)
     {
         _domainEventDispatcher = domainEventDispatcher;
     }
 
-    public DbSet<Product> Products => Set<Product>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        IDomainEvent[] domainEvents = ChangeTracker
+        IReadOnlyCollection<IDomainEvent> domainEvents = ChangeTracker
             .Entries<AggregateRoot>()
             .SelectMany(entry => entry.Entity.DomainEvents)
             .ToArray();
 
-        var result = await base.SaveChangesAsync(cancellationToken);
+        int result = await base.SaveChangesAsync(cancellationToken);
 
-        if (_domainEventDispatcher is not null && domainEvents.Length > 0)
+        if (domainEvents.Count > 0)
         {
             await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
+        }
 
-            foreach (EntityEntry<AggregateRoot> entry in ChangeTracker.Entries<AggregateRoot>())
-            {
-                entry.Entity.ClearDomainEvents();
-            }
+        foreach (EntityEntry<AggregateRoot> entry in ChangeTracker.Entries<AggregateRoot>())
+        {
+            entry.Entity.ClearDomainEvents();
         }
 
         return result;
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

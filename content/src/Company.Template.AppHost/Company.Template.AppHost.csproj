@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <Compile Remove="Providers\PostgreSqlAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
         <Compile Remove="Providers\SqlServerAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
         <Compile Remove="Providers\MySqlAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'MySql'"/>
@@ -23,6 +19,10 @@
         <PackageReference Include="Aspire.Hosting.SqlServer" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
         <PackageReference Include="Aspire.Hosting.MySql" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
         <PackageReference Include="Aspire.Hosting.Keycloak"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,8 +1,6 @@
+using System;
 using Company.Template.Infrastructure.Options;
 using Company.Template.Infrastructure.Persistence.Providers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Company.Template.Infrastructure.Persistence;
 
@@ -27,7 +25,7 @@ public static class DatabaseRegistrationExtensions
                 .GetRequiredService<IOptions<DatabaseOptions>>()
                 .Value;
 
-            var connectionString = configuration.GetConnectionString(databaseOptions.ConnectionStringName);
+            string? connectionString = configuration.GetConnectionString(databaseOptions.ConnectionStringName);
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
@@ -37,6 +35,10 @@ public static class DatabaseRegistrationExtensions
 
             DatabaseProviderConfigurator.Configure(optionsBuilder, connectionString);
         });
+
+        services
+            .AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>();
 
         return services;
     }

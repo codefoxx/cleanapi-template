@@ -1,5 +1,4 @@
 using Company.Template.Domain.Products;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Company.Template.Infrastructure.Persistence.Configurations;

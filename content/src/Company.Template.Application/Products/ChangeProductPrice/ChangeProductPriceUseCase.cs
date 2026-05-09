@@ -7,13 +7,12 @@ namespace Company.Template.Application.Products.ChangeProductPrice;
 public sealed class ChangeProductPriceUseCase
 {
     private readonly IClock _clock;
-    private readonly IProductRepository _products;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IProductDbContext _dbContext;
 
-    public ChangeProductPriceUseCase(IProductRepository products, IUnitOfWork unitOfWork, IClock clock)
+
+    public ChangeProductPriceUseCase(IProductDbContext dbContext, IClock clock)
     {
-        _products = products;
-        _unitOfWork = unitOfWork;
+        _dbContext = dbContext;
         _clock = clock;
     }
 
@@ -30,7 +29,10 @@ public sealed class ChangeProductPriceUseCase
             return Result<ProductDto>.Failure(Error.Validation("Price cannot be negative."));
         }
 
-        Product? product = await _products.GetByIdAsync(ProductId.From(command.ProductId), cancellationToken);
+        var productId = ProductId.From(command.ProductId);
+        Product? product = await _dbContext.Products
+            .WithId(productId)
+            .SingleOrDefaultAsync(cancellationToken);
 
         if (product is null)
         {
@@ -46,7 +48,7 @@ public sealed class ChangeProductPriceUseCase
             return Result<ProductDto>.Failure(Error.Validation(exception.Message));
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result<ProductDto>.Success(ProductMapper.ToDto(product));
     }

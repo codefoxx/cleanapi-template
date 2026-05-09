@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Company.Template.Application.Abstractions;
 
 namespace Company.Template.Api.CurrentUser;

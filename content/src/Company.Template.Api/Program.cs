@@ -7,8 +7,6 @@ using Company.Template.Api.Security;
 using Company.Template.Application;
 using Company.Template.Application.Abstractions;
 using Company.Template.Infrastructure;
-using Microsoft.Extensions.Options;
-using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

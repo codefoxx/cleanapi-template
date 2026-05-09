@@ -2,7 +2,6 @@ using Company.Template.Application.Products.ChangeProductPrice;
 using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Application.Products.DiscontinueProduct;
 using Company.Template.Application.Products.GetProductById;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Company.Template.Application;
 

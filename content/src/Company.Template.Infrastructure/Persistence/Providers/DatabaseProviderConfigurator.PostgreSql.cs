@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace Company.Template.Infrastructure.Persistence.Providers;
 
 internal static class DatabaseProviderConfigurator

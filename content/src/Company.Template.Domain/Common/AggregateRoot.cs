@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Company.Template.Domain.Common;
 
 public abstract class AggregateRoot

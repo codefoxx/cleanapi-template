@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-
 namespace Company.Template.Api.Middleware;
 
 internal sealed class GlobalExceptionHandler : IExceptionHandler

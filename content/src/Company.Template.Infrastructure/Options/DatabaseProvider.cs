@@ -1,3 +1,5 @@
+using System;
+
 namespace Company.Template.Infrastructure.Options;
 
 public static class DatabaseProvider

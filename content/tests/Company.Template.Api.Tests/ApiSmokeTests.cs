@@ -1,3 +1,7 @@
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 namespace Company.Template.Api.Tests;
 
 public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>

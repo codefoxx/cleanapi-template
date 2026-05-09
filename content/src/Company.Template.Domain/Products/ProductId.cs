@@ -1,3 +1,5 @@
+using System;
+
 namespace Company.Template.Domain.Products;
 
 public readonly record struct ProductId(Guid Value)

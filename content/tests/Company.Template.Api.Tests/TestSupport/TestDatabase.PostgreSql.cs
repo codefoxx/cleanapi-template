@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
-using Xunit;
 
 namespace Company.Template.Api.Tests.TestSupport;
 

@@ -1,7 +1,6 @@
+using System.Threading.Tasks;
 using Company.Template.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
-using Xunit;
 
 namespace Company.Template.Infrastructure.Tests.TestSupport;
 

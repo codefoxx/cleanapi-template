@@ -1,5 +1,3 @@
-using Microsoft.OpenApi;
-
 namespace Company.Template.Api.OpenApi;
 
 public static class OpenApiExtensions
