@@ -4,7 +4,7 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.CreateProduct;
 
-public sealed class CreateProductUseCase
+public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, ProductDto>
 {
     private readonly IClock _clock;
     private readonly IProductDbContext _dbContext;

@@ -1,9 +1,10 @@
+using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.GetProductById;
 
-public sealed class GetProductByIdUseCase
+public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, ProductDto>
 {
     private readonly IProductDbContext _dbContext;
 

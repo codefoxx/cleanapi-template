@@ -9,8 +9,7 @@ internal static class ProductMapper
         return new ProductDto(
             product.Id.Value,
             product.Name.Value,
-            product.Price.Amount,
-            product.Price.Currency,
+            product.Price,
             product.Status,
             product.CreatedAt,
             product.DiscontinuedAt);

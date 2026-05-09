@@ -12,10 +12,10 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasKey(product => product.Id);
 
         builder.Property(product => product.Id)
-            .HasConversion(id => id.Value, value => ProductId.From(value))
-            .ValueGeneratedNever();
+               .HasConversion(id => id.Value, value => ProductId.From(value))
+               .ValueGeneratedNever();
 
-        builder.OwnsOne(product => product.Name, name =>
+        builder.ComplexProperty(product => product.Name, name =>
         {
             name.Property(value => value.Value)
                 .HasColumnName("name")
@@ -23,26 +23,31 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                 .IsRequired();
         });
 
-        builder.OwnsOne(product => product.Price, price =>
+        builder.ComplexProperty(product => product.Price, price =>
         {
             price.Property(value => value.Amount)
-                .HasColumnName("price_amount")
-                .HasPrecision(18, 2)
-                .IsRequired();
+                 .HasColumnName("price_amount")
+                 .HasPrecision(18, 2)
+                 .IsRequired();
 
             price.Property(value => value.Currency)
-                .HasColumnName("price_currency")
-                .HasMaxLength(Money.CurrencyMaxLength)
+                 .HasColumnName("price_currency")
+                 .HasMaxLength(Currency.CodeLength)
+                 .HasConversion(
+                    currency => currency.Code,
+                    code => string.IsNullOrEmpty(code)
+                        ? Currency.Empty
+                        : Currency.Create(code))
                 .IsRequired();
         });
 
         builder.Property(product => product.Status)
-            .HasConversion<string>()
-            .HasMaxLength(32)
-            .IsRequired();
+               .HasConversion<string>()
+               .HasMaxLength(32)
+               .IsRequired();
 
         builder.Property(product => product.CreatedAt)
-            .IsRequired();
+               .IsRequired();
 
         builder.Property(product => product.DiscontinuedAt);
 

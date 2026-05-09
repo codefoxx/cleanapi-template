@@ -1,5 +1,3 @@
-using System;
-
 namespace Company.Template.Domain.Products;
 
 public sealed record ProductName

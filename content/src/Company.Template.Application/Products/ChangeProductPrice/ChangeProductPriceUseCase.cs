@@ -4,7 +4,7 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.ChangeProductPrice;
 
-public sealed class ChangeProductPriceUseCase
+public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceCommand, ProductDto>
 {
     private readonly IClock _clock;
     private readonly IProductDbContext _dbContext;

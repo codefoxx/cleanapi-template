@@ -11,3 +11,7 @@ TestResults/
 *.trx
 .env
 appsettings.Local.json
+
+# EF Core / design-time build artifacts
+BuildHost-*/
+**/BuildHost-*/

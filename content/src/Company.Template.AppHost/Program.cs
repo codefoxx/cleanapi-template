@@ -10,10 +10,17 @@ var startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak"
 
 IResourceBuilder<IResourceWithConnectionString> database = AspireDatabase.Create(builder);
 
+IResourceBuilder<ProjectResource> migrationService = builder
+    .AddProject<Company_Template_MigrationService>(AppHostNames.MigrationServiceResourceName)
+    .WithReference(database)
+    .WaitFor(database)
+    .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
+
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Company_Template_Api>(AppHostNames.ApiResourceName)
     .WithReference(database)
     .WaitFor(database)
+    .WaitForCompletion(migrationService)
     .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
 if (startPgAdmin)

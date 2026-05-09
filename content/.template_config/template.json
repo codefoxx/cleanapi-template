@@ -18,6 +18,14 @@
         "language": "C#",
         "type": "project"
     },
+    "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        "**/BuildHost-*/**",
+        ".template_config/**/*",
+        ".idea/**/*",
+        "*.DotSettings.user"
+    ],
     "symbols": {
         "apiResourceName": {
             "type": "generated",
@@ -125,6 +133,24 @@
                 ]
             },
             "replaces": "__KEYCLOAK_RESOURCE_NAME__"
+        },
+        "migrationServiceResourceName": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-migrations"
+                    }
+                ]
+            },
+            "replaces": "__MIGRATION_SERVICE_RESOURCE_NAME__"
         },
         "pgAdminResourceName": {
             "type": "generated",

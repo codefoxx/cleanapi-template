@@ -1,4 +1,3 @@
-using System;
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;

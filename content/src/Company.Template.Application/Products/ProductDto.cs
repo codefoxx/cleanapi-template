@@ -5,8 +5,7 @@ namespace Company.Template.Application.Products;
 public sealed record ProductDto(
     Guid Id,
     string Name,
-    decimal Price,
-    string Currency,
+    Money Price,
     ProductStatus Status,
     DateTimeOffset CreatedAt,
     DateTimeOffset? DiscontinuedAt);

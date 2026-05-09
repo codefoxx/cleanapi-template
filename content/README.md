@@ -10,6 +10,7 @@ src/
   Company.Template.Application
   Company.Template.Domain
   Company.Template.Infrastructure
+  Company.Template.MigrationService
   Company.Template.ServiceDefaults
   Company.Template.AppHost
 
@@ -26,12 +27,15 @@ tests/
 - `Application` references `Domain` and EF Core abstractions.
 - `Infrastructure` references `Application` and `Domain`.
 - `Api` references `Application`, `Infrastructure`, and `ServiceDefaults`.
+- `MigrationService` references `Infrastructure` and `ServiceDefaults`.
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
 
 The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, or any other infrastructure concern.
 
 The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
+
+The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the API starts.
 
 ## Persistence style
 
@@ -121,6 +125,38 @@ src/Company.Template.Infrastructure/Persistence/Providers/
 
 Only the selected provider is compiled into the generated project.
 
+## Initial setup
+
+After creating a new project, restore packages:
+
+~~~bash
+dotnet restore
+~~~
+
+Then create the initial EF Core migration:
+
+~~~bash
+dotnet ef migrations add InitialCreate \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
+~~~
+
+The migration files are created in:
+
+~~~text
+src/Company.Template.Infrastructure/Persistence/Migrations/
+~~~
+
+Creating migration files does not require the database container to be running. EF Core only needs to build the project, create the DbContext at design time, and compare the current model with the model snapshot.
+
+After the initial migration exists, run the AppHost:
+
+~~~bash
+dotnet run --project src/Company.Template.AppHost
+~~~
+
 ## Running with Aspire
 
 Run:
@@ -129,7 +165,17 @@ Run:
 dotnet run --project src/Company.Template.AppHost
 ~~~
 
-Aspire starts the selected database container and wires the connection string to the API.
+Aspire starts the selected database container, runs the migration service, and then starts the API.
+
+The local startup order is:
+
+~~~text
+database
+  -> migration service
+  -> api
+~~~
+
+The migration service applies pending EF Core migrations and exits. The API waits until the migration service has completed successfully.
 
 Local development tools can be enabled in:
 
@@ -207,19 +253,99 @@ The OpenAPI document includes bearer-token metadata for secured endpoint testing
 
 ## Migrations
 
-Add migrations from the Infrastructure project with the API as startup project:
+The template uses EF Core migrations for relational schema management.
+
+The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API starts.
+
+### Creating the initial migration
+
+After generating a project, create the initial migration once:
 
 ~~~bash
-dotnet ef migrations add InitialCreate --project src/Company.Template.Infrastructure --startup-project src/Company.Template.Api --output-dir Persistence/Migrations
+dotnet ef migrations add InitialCreate \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
 ~~~
 
-Apply migrations:
+Then start the AppHost:
 
 ~~~bash
-dotnet ef database update --project src/Company.Template.Infrastructure --startup-project src/Company.Template.Api
+dotnet run --project src/Company.Template.AppHost
 ~~~
 
-For local Aspire runs, keep migration execution explicit unless your team intentionally adds development-only automatic migration execution.
+The migration service will apply the migration automatically during Aspire startup.
+
+### Adding later migrations
+
+After changing the EF Core model, add a new migration:
+
+~~~bash
+dotnet ef migrations add DescribeYourChange \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
+~~~
+
+Then restart the AppHost. The migration service applies the pending migration.
+
+### Applying migrations manually
+
+You can also apply migrations manually:
+
+~~~bash
+dotnet ef database update \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext
+~~~
+
+When running with Aspire locally, manual migration execution is usually not needed because the migration service handles it.
+
+### Migration bundles
+
+For release pipelines, prefer EF Core migration bundles over running migrations from the API at startup.
+
+Create a migration bundle:
+
+~~~bash
+dotnet ef migrations bundle \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output artifacts/efbundle
+~~~
+
+For a Linux self-contained bundle:
+
+~~~bash
+dotnet ef migrations bundle \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --self-contained \
+  --runtime linux-x64 \
+  --output artifacts/efbundle
+~~~
+
+Run the bundle with a deployment connection string:
+
+~~~bash
+./artifacts/efbundle --connection "$CONNECTION_STRING"
+~~~
+
+Recommended production flow:
+
+~~~text
+build application
+build migration bundle
+apply migration bundle to database
+deploy or start api
+~~~
+
+The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations explicitly before the API is deployed or started.
 
 ## Tests
 

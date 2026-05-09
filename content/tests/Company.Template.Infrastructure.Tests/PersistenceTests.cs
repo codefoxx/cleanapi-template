@@ -40,13 +40,13 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
 
         dbContext.ChangeTracker.Clear();
 
-        Product loaded = await dbContext.Products.SingleAsync(entity => entity.Id == product.Id);
+        Product loaded = await dbContext.ProductsForRead.SingleAsync(entity => entity.Id == product.Id);
 
         // Assert
         loaded.Id.ShouldBe(product.Id);
         loaded.Name.Value.ShouldBe("Keyboard");
         loaded.Price.Amount.ShouldBe(99.99m);
-        loaded.Price.Currency.ShouldBe("USD");
+        loaded.Price.Currency.Code.ShouldBe("USD");
     }
 
     private sealed class NoOpDomainEventDispatcher : IDomainEventDispatcher
