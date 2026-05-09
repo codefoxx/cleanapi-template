@@ -36,5 +36,8 @@ public sealed record Money
         return new Money(amount, normalizedCurrency);
     }
 
-    public static Money Zero(string currency) => Create(0, currency);
+    public static Money Zero(string currency)
+    {
+        return Create(0, currency);
+    }
 }

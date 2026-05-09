@@ -2,7 +2,8 @@
 
 This repository contains a `dotnet new` template for a Clean Architecture Web API.
 
-The outer repository is only the template authoring container. The generated template content lives in `content/` and is packaged by `template-package/`.
+The outer repository is only the template authoring container. The generated template content lives in `content/` and is
+packaged by `template-package/`.
 
 ## Build the template package
 
@@ -30,6 +31,9 @@ Supported database provider values:
 
 ## Notes
 
-The template includes all EF Core providers centrally. The generated application selects the active provider through configuration.
+The template includes all EF Core providers centrally. The generated application selects the active provider through
+configuration.
 
-Aspire, tests, and Keycloak JWT bearer wiring are included in this first version. Keycloak is disabled by default and can be enabled through configuration. This avoids half-working template parameters that exclude folders but leave stale solution/project references behind. Once the base template is stable, optional pruning can be added deliberately.
+Aspire, tests, and Keycloak JWT bearer wiring are included in this first version. Keycloak is disabled by default and
+can be enabled through configuration. This avoids half-working template parameters that exclude folders but leave stale
+solution/project references behind. Once the base template is stable, optional pruning can be added deliberately.

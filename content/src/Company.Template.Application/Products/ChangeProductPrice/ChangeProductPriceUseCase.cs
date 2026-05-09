@@ -6,9 +6,9 @@ namespace Company.Template.Application.Products.ChangeProductPrice;
 
 public sealed class ChangeProductPriceUseCase
 {
+    private readonly IClock _clock;
     private readonly IProductRepository _products;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IClock _clock;
 
     public ChangeProductPriceUseCase(IProductRepository products, IUnitOfWork unitOfWork, IClock clock)
     {
@@ -17,7 +17,8 @@ public sealed class ChangeProductPriceUseCase
         _clock = clock;
     }
 
-    public async Task<Result<ProductDto>> ExecuteAsync(ChangeProductPriceCommand command, CancellationToken cancellationToken)
+    public async Task<Result<ProductDto>> ExecuteAsync(ChangeProductPriceCommand command,
+        CancellationToken cancellationToken)
     {
         if (command.ProductId == Guid.Empty)
         {
@@ -29,7 +30,7 @@ public sealed class ChangeProductPriceUseCase
             return Result<ProductDto>.Failure(Error.Validation("Price cannot be negative."));
         }
 
-        var product = await _products.GetByIdAsync(ProductId.From(command.ProductId), cancellationToken);
+        Product? product = await _products.GetByIdAsync(ProductId.From(command.ProductId), cancellationToken);
 
         if (product is null)
         {

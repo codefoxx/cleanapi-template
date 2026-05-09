@@ -19,7 +19,7 @@ public sealed class Product : AggregateRoot
         CreatedAt = createdAt;
     }
 
-    public ProductId Id { get; private set; }
+    public ProductId Id { get; }
 
     public ProductName Name { get; private set; }
 
@@ -68,7 +68,7 @@ public sealed class Product : AggregateRoot
             return;
         }
 
-        var oldPrice = Price;
+        Money oldPrice = Price;
         Price = newPrice;
 
         AddDomainEvent(new ProductPriceChangedDomainEvent(Id, oldPrice, newPrice, changedAt));

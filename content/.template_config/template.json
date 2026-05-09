@@ -1,40 +1,187 @@
 {
-  "$schema": "http://json.schemastore.org/template",
-  "author": "Codefox",
-  "classifications": [ "Web", "WebAPI", "Clean Architecture", "DDD", "Aspire" ],
-  "identity": "Codefox.CleanApi.Template",
-  "name": "Clean Architecture Web API",
-  "shortName": "cleanapi",
-  "sourceName": "Company.Template",
-  "preferNameDirectory": true,
-  "description": "Production-oriented Clean Architecture Web API template with EF Core, Aspire, Keycloak JWT bearer wiring, Testcontainers and sample DDD code.",
-  "tags": {
-    "language": "C#",
-    "type": "project"
-  },
-  "symbols": {
-    "db": {
-      "type": "parameter",
-      "datatype": "choice",
-      "description": "Database provider used by the generated application.",
-      "defaultValue": "PostgreSql",
-      "replaces": "__DB_PROVIDER__",
-      "choices": [
-        { "choice": "PostgreSql", "description": "Use PostgreSQL with Npgsql." },
-        { "choice": "SqlServer", "description": "Use SQL Server." },
-        { "choice": "MySql", "description": "Use MySQL/MariaDB with Pomelo." }
-      ]
-    }
-  },
-  "sources": [
-    {
-      "source": "./",
-      "target": "./",
-      "exclude": [
-        "**/[Bb]in/**",
-        "**/[Oo]bj/**",
-        ".template_config/**/*"
-      ]
-    }
-  ]
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Codefox",
+    "classifications": [
+        "Web",
+        "WebAPI",
+        "Clean Architecture",
+        "DDD",
+        "Aspire"
+    ],
+    "identity": "Codefox.CleanApi.Template",
+    "name": "Clean Architecture Web API",
+    "shortName": "cleanapi",
+    "sourceName": "Company.Template",
+    "preferNameDirectory": true,
+    "description": "Production-oriented Clean Architecture Web API template with EF Core, Aspire, Keycloak JWT bearer wiring, Testcontainers and sample DDD code.",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "symbols": {
+        "apiResourceName": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-api"
+                    }
+                ]
+            },
+            "replaces": "__API_RESOURCE_NAME__"
+        },
+        "authAudience": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-api"
+                    }
+                ]
+            },
+            "replaces": "__AUTH_AUDIENCE__"
+        },
+        "databaseResourceName": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-db"
+                    }
+                ]
+            },
+            "replaces": "__DATABASE_RESOURCE_NAME__"
+        },
+        "db": {
+            "type": "parameter",
+            "datatype": "choice",
+            "description": "Database provider used by the generated application.",
+            "defaultValue": "PostgreSql",
+            "replaces": "__DB_PROVIDER__",
+            "choices": [
+                {
+                    "choice": "PostgreSql",
+                    "description": "Use PostgreSQL with Npgsql."
+                },
+                {
+                    "choice": "SqlServer",
+                    "description": "Use SQL Server."
+                },
+                {
+                    "choice": "MySql",
+                    "description": "Use MySQL/MariaDB with Pomelo."
+                }
+            ]
+        },
+        "keycloakRealm": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    }
+                ]
+            },
+            "replaces": "__KEYCLOAK_REALM__"
+        },
+        "keycloakResourceName": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-keycloak"
+                    }
+                ]
+            },
+            "replaces": "__KEYCLOAK_RESOURCE_NAME__"
+        },
+        "pgAdminResourceName": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "-"
+                    },
+                    {
+                        "regex": "^(.*)$",
+                        "replacement": "$1-pgadmin"
+                    }
+                ]
+            },
+            "replaces": "__PGADMIN_RESOURCE_NAME__"
+        }
+    },
+    "sources": [
+        {
+            "source": "./",
+            "target": "./",
+            "exclude": [
+                "**/[Bb]in/**",
+                "**/[Oo]bj/**",
+                ".template_config/**/*",
+                ".idea/**/*",
+                "*.DotSettings.user"
+            ],
+            "modifiers": [
+                {
+                    "condition": "(db != \"PostgreSql\")",
+                    "exclude": [
+                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
+                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs",
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs"
+                    ]
+                },
+                {
+                    "condition": "(db != \"SqlServer\")",
+                    "exclude": [
+                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
+                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs",
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs"
+                    ]
+                },
+                {
+                    "condition": "(db != \"MySql\")",
+                    "exclude": [
+                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.MySql.cs",
+                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.MySql.cs",
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.MySql.cs"
+                    ]
+                }
+            ]
+        }
+    ]
 }

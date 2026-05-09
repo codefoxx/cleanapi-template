@@ -2,13 +2,15 @@ using Company.Template.Api.CurrentUser;
 using Company.Template.Api.Endpoints.Products;
 using Company.Template.Api.Middleware;
 using Company.Template.Api.OpenApi;
+using Company.Template.Api.Options;
 using Company.Template.Api.Security;
 using Company.Template.Application;
 using Company.Template.Application.Abstractions;
 using Company.Template.Infrastructure;
+using Microsoft.Extensions.Options;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
@@ -29,11 +31,11 @@ builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddTemplateAuthentication(builder.Configuration);
-builder.Services.AddTemplateAuthorization(builder.Configuration);
+builder.Services.AddTemplateAuthentication();
+builder.Services.AddTemplateAuthorization();
 builder.Services.AddTemplateOpenApi();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
@@ -43,7 +45,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-var authenticationOptions = app.Services.GetRequiredService<Company.Template.Api.Options.AuthenticationOptions>();
+AuthenticationOptions authenticationOptions = app.Services
+    .GetRequiredService<IOptions<AuthenticationOptions>>()
+    .Value;
 
 if (authenticationOptions.Enabled)
 {

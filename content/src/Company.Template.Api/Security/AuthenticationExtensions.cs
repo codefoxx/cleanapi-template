@@ -1,63 +1,60 @@
+using System.Security.Claims;
 using Company.Template.Api.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Company.Template.Api.Security;
 
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection AddTemplateAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTemplateAuthentication(this IServiceCollection services)
     {
-        var options = configuration
-            .GetSection(AuthenticationOptions.SectionName)
-            .Get<AuthenticationOptions>() ?? new AuthenticationOptions();
-
-        services.AddSingleton(options);
-
-        if (!options.Enabled)
-        {
-            return services;
-        }
-
-        if (string.IsNullOrWhiteSpace(options.Authority))
-        {
-            throw new InvalidOperationException("Authentication:Authority is required when authentication is enabled.");
-        }
-
-        if (string.IsNullOrWhiteSpace(options.Audience))
-        {
-            throw new InvalidOperationException("Authentication:Audience is required when authentication is enabled.");
-        }
+        services
+            .AddOptions<AuthenticationOptions>()
+            .BindConfiguration(AuthenticationOptions.SectionName)
+            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Authority),
+                "Authentication:Authority is required when authentication is enabled.")
+            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Audience),
+                "Authentication:Audience is required when authentication is enabled.")
+            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.RoleClaimType),
+                "Authentication:RoleClaimType is required when authentication is enabled.")
+            .ValidateOnStart();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(jwt =>
+            .AddJwtBearer();
+
+        services
+            .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<IOptions<AuthenticationOptions>>((jwt, authentication) =>
             {
+                AuthenticationOptions options = authentication.Value;
+
                 jwt.Authority = options.Authority;
                 jwt.Audience = options.Audience;
                 jwt.RequireHttpsMetadata = options.RequireHttpsMetadata;
-                jwt.TokenValidationParameters.RoleClaimType = options.RoleClaimType;
+                jwt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    RoleClaimType = options.RoleClaimType
+                };
             });
 
         return services;
     }
 
-    public static IServiceCollection AddTemplateAuthorization(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTemplateAuthorization(this IServiceCollection services)
     {
-        var options = configuration
-            .GetSection(AuthenticationOptions.SectionName)
-            .Get<AuthenticationOptions>() ?? new AuthenticationOptions();
-
-        if (!options.Enabled)
-        {
-            services.AddAuthorization();
-            return services;
-        }
-
         services.AddAuthorization(authorization =>
         {
-            authorization.AddPolicy(TemplatePolicies.ProductsRead, policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsRead));
-            authorization.AddPolicy(TemplatePolicies.ProductsWrite, policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsWrite));
+            authorization.AddPolicy(
+                TemplatePolicies.ProductsRead,
+                policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsRead));
+
+            authorization.AddPolicy(
+                TemplatePolicies.ProductsWrite,
+                policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsWrite));
         });
 
         return services;
@@ -66,9 +63,9 @@ public static class AuthenticationExtensions
     public static RouteHandlerBuilder RequireTemplatePolicy(
         this RouteHandlerBuilder builder,
         string policy,
-        AuthenticationOptions authenticationOptions)
+        bool authenticationEnabled)
     {
-        return authenticationOptions.Enabled
+        return authenticationEnabled
             ? builder.RequireAuthorization(policy)
             : builder;
     }
@@ -76,10 +73,23 @@ public static class AuthenticationExtensions
     private static void RequireScopeOrRole(AuthorizationPolicyBuilder policy, string requiredValue)
     {
         policy.RequireAuthenticatedUser();
+
         policy.RequireAssertion(context =>
             context.User.IsInRole(requiredValue) ||
             context.User.Claims.Any(claim =>
-                (claim.Type is "scope" or "scp" && claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Contains(requiredValue)) ||
+                IsRequiredScopeClaim(claim, requiredValue) ||
                 claim.Value == requiredValue));
+    }
+
+    private static bool IsRequiredScopeClaim(Claim claim, string requiredValue)
+    {
+        if (claim.Type is not ("scope" or "scp"))
+        {
+            return false;
+        }
+
+        return claim.Value
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Contains(requiredValue, StringComparer.Ordinal);
     }
 }

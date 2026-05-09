@@ -41,9 +41,9 @@ The template includes a small Catalog/Product domain:
 - `Money` value object
 - `ProductStatus`
 - domain events:
-  - `ProductCreatedDomainEvent`
-  - `ProductPriceChangedDomainEvent`
-  - `ProductDiscontinuedDomainEvent`
+    - `ProductCreatedDomainEvent`
+    - `ProductPriceChangedDomainEvent`
+    - `ProductDiscontinuedDomainEvent`
 
 Business rules live in the domain model:
 
@@ -158,7 +158,8 @@ Apply migrations:
 dotnet ef database update --project src/Company.Template.Infrastructure --startup-project src/Company.Template.Api
 ~~~
 
-For local Aspire runs, keep migration execution explicit unless your team intentionally adds development-only automatic migration execution.
+For local Aspire runs, keep migration execution explicit unless your team intentionally adds development-only automatic
+migration execution.
 
 ## Tests
 

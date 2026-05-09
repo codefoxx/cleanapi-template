@@ -8,7 +8,7 @@ internal static class AspireDatabase
     public static IResourceBuilder<IResourceWithConnectionString> Create(IDistributedApplicationBuilder builder)
     {
         return builder
-            .AddSqlServer("sqlserver")
+            .AddSqlServer(AppHostNames.DatabaseResourceName)
             .AddDatabase("DefaultConnection");
     }
 }

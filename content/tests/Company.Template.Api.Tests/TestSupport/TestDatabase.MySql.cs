@@ -23,7 +23,7 @@ public sealed class TestDatabase : IAsyncLifetime
         return _container.DisposeAsync().AsTask();
     }
 
-    public void Configure(DbContextOptionsBuilder<ApplicationDbContext> builder)
+    public void Configure(DbContextOptionsBuilder builder)
     {
         var connectionString = _container.GetConnectionString();
         builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));

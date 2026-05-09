@@ -2,6 +2,7 @@ using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Company.Template.Infrastructure.Persistence;
 
@@ -9,7 +10,8 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 {
     private readonly IDomainEventDispatcher? _domainEventDispatcher;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IDomainEventDispatcher? domainEventDispatcher = null)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
+        IDomainEventDispatcher? domainEventDispatcher = null)
         : base(options)
     {
         _domainEventDispatcher = domainEventDispatcher;
@@ -19,7 +21,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var domainEvents = ChangeTracker
+        IDomainEvent[] domainEvents = ChangeTracker
             .Entries<AggregateRoot>()
             .SelectMany(entry => entry.Entity.DomainEvents)
             .ToArray();
@@ -30,7 +32,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
         {
             await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
 
-            foreach (var entry in ChangeTracker.Entries<AggregateRoot>())
+            foreach (EntityEntry<AggregateRoot> entry in ChangeTracker.Entries<AggregateRoot>())
             {
                 entry.Entity.ClearDomainEvents();
             }

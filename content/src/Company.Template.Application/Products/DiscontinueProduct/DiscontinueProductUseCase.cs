@@ -6,9 +6,9 @@ namespace Company.Template.Application.Products.DiscontinueProduct;
 
 public sealed class DiscontinueProductUseCase
 {
+    private readonly IClock _clock;
     private readonly IProductRepository _products;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IClock _clock;
 
     public DiscontinueProductUseCase(IProductRepository products, IUnitOfWork unitOfWork, IClock clock)
     {
@@ -24,7 +24,7 @@ public sealed class DiscontinueProductUseCase
             return Result.Failure(Error.Validation("Product id is required."));
         }
 
-        var product = await _products.GetByIdAsync(ProductId.From(command.ProductId), cancellationToken);
+        Product? product = await _products.GetByIdAsync(ProductId.From(command.ProductId), cancellationToken);
 
         if (product is null)
         {

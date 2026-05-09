@@ -20,7 +20,7 @@ public sealed class GetProductByIdUseCase
             return Result<ProductDto>.Failure(Error.Validation("Product id is required."));
         }
 
-        var product = await _products.GetByIdAsync(ProductId.From(query.ProductId), cancellationToken);
+        Product? product = await _products.GetByIdAsync(ProductId.From(query.ProductId), cancellationToken);
 
         return product is null
             ? Result<ProductDto>.Failure(Error.NotFound("Product was not found."))

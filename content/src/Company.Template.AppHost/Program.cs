@@ -1,31 +1,32 @@
-using Aspire.Hosting.ApplicationModel;
+using Company.Template.AppHost;
+using Company.Template.AppHost.Containers;
 using Company.Template.AppHost.Providers;
+using Microsoft.Extensions.Configuration;
+using Projects;
 
-var builder = DistributedApplication.CreateBuilder(args);
+IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-const string databaseProvider = "__DB_PROVIDER__";
-const bool enableKeycloak = false;
+var startPgAdmin = builder.Configuration.GetValue<bool>("AppHost:StartPgAdmin");
+var startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak");
 
 IResourceBuilder<IResourceWithConnectionString> database = AspireDatabase.Create(builder);
 
-var api = builder
-    .AddProject<Projects.Company_Template_Api>("company-template-api")
+IResourceBuilder<ProjectResource> api = builder
+    .AddProject<Company_Template_Api>(AppHostNames.ApiResourceName)
     .WithReference(database)
     .WaitFor(database)
-    .WithEnvironment("Database__Provider", databaseProvider);
+    .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
-if (enableKeycloak)
+if (startPgAdmin)
 {
-    var keycloak = builder
-        .AddKeycloak("keycloak", 8080)
-        .WithDataVolume();
+    builder.AddPgAdminContainer();
+}
 
-    api
-        .WithReference(keycloak)
-        .WaitFor(keycloak)
-        .WithEnvironment("Authentication__Enabled", "true")
-        .WithEnvironment("Authentication__Authority", "http://localhost:8080/realms/company-template")
-        .WithEnvironment("Authentication__Audience", "company-template-api");
+if (startKeycloak)
+{
+    KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
+
+    api.WithTemplateKeycloakAuthentication(keycloak);
 }
 
 builder.Build().Run();

@@ -15,7 +15,7 @@ internal sealed class LoggingDomainEventDispatcher : IDomainEventDispatcher
 
     public Task DispatchAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
     {
-        foreach (var domainEvent in domainEvents)
+        foreach (IDomainEvent domainEvent in domainEvents)
         {
             _logger.LogInformation("Domain event dispatched: {DomainEvent}", domainEvent.GetType().Name);
         }

@@ -28,5 +28,8 @@ public sealed record ProductName
         return new ProductName(trimmed);
     }
 
-    public override string ToString() => Value;
+    public override string ToString()
+    {
+        return Value;
+    }
 }

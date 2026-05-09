@@ -2,10 +2,6 @@ using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Company.Template.Api.Tests;
 
@@ -17,8 +13,8 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
     {
         await _database.InitializeAsync();
 
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        using IServiceScope scope = Services.CreateScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.EnsureCreatedAsync();
     }
 
@@ -34,8 +30,8 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
 
         builder.ConfigureServices(services =>
         {
-            var dbContextDescriptor = services.SingleOrDefault(
-                descriptor => descriptor.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            ServiceDescriptor? dbContextDescriptor = services.SingleOrDefault(descriptor =>
+                descriptor.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
 
             if (dbContextDescriptor is not null)
             {

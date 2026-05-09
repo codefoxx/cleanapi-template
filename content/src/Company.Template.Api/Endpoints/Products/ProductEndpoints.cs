@@ -1,9 +1,12 @@
 using Company.Template.Api.Options;
 using Company.Template.Api.Security;
+using Company.Template.Application.Common;
+using Company.Template.Application.Products;
 using Company.Template.Application.Products.ChangeProductPrice;
 using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Application.Products.DiscontinueProduct;
 using Company.Template.Application.Products.GetProductById;
+using Microsoft.Extensions.Options;
 
 namespace Company.Template.Api.Endpoints.Products;
 
@@ -11,35 +14,33 @@ public static class ProductEndpoints
 {
     public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder app)
     {
-        var authenticationOptions = app.ServiceProvider.GetRequiredService<AuthenticationOptions>();
+        AuthenticationOptions authenticationOptions = app.ServiceProvider
+            .GetRequiredService<IOptions<AuthenticationOptions>>()
+            .Value;
 
-        var group = app
+        RouteGroupBuilder group = app
             .MapGroup("/api/products")
             .WithTags("Products");
 
         group
             .MapPost("/", CreateProductAsync)
             .WithName("CreateProduct")
-            .WithOpenApi()
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions);
+            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
             .MapGet("/{id:guid}", GetProductByIdAsync)
             .WithName("GetProductById")
-            .WithOpenApi()
-            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions);
+            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
             .MapPut("/{id:guid}/price", ChangeProductPriceAsync)
             .WithName("ChangeProductPrice")
-            .WithOpenApi()
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions);
+            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
             .MapPost("/{id:guid}/discontinue", DiscontinueProductAsync)
             .WithName("DiscontinueProduct")
-            .WithOpenApi()
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions);
+            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         return app;
     }
@@ -49,7 +50,7 @@ public static class ProductEndpoints
         CreateProductUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(
+        Result<ProductDto> result = await useCase.ExecuteAsync(
             new CreateProductCommand(request.Name, request.Price, request.Currency),
             cancellationToken);
 
@@ -62,7 +63,7 @@ public static class ProductEndpoints
         GetProductByIdUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new GetProductByIdQuery(id), cancellationToken);
+        Result<ProductDto> result = await useCase.ExecuteAsync(new GetProductByIdQuery(id), cancellationToken);
 
         return result.ToHttpResult(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
     }
@@ -73,7 +74,7 @@ public static class ProductEndpoints
         ChangeProductPriceUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(
+        Result<ProductDto> result = await useCase.ExecuteAsync(
             new ChangeProductPriceCommand(id, request.Price, request.Currency),
             cancellationToken);
 
@@ -85,7 +86,7 @@ public static class ProductEndpoints
         DiscontinueProductUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(new DiscontinueProductCommand(id), cancellationToken);
+        Result result = await useCase.ExecuteAsync(new DiscontinueProductCommand(id), cancellationToken);
 
         return result.ToHttpResult();
     }

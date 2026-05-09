@@ -8,7 +8,7 @@ internal static class AspireDatabase
     public static IResourceBuilder<IResourceWithConnectionString> Create(IDistributedApplicationBuilder builder)
     {
         return builder
-            .AddMySql("mysql")
+            .AddMySql(AppHostNames.DatabaseResourceName)
             .AddDatabase("DefaultConnection");
     }
 }

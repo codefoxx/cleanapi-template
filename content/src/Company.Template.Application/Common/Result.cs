@@ -2,11 +2,20 @@ namespace Company.Template.Application.Common;
 
 public sealed record Error(string Code, string Message)
 {
-    public static Error NotFound(string message) => new("not_found", message);
+    public static Error NotFound(string message)
+    {
+        return new Error("not_found", message);
+    }
 
-    public static Error Validation(string message) => new("validation_error", message);
+    public static Error Validation(string message)
+    {
+        return new Error("validation_error", message);
+    }
 
-    public static Error Conflict(string message) => new("conflict", message);
+    public static Error Conflict(string message)
+    {
+        return new Error("conflict", message);
+    }
 }
 
 public sealed class Result<T>
@@ -23,9 +32,15 @@ public sealed class Result<T>
 
     public bool IsSuccess => Error is null;
 
-    public static Result<T> Success(T value) => new(value, null);
+    public static Result<T> Success(T value)
+    {
+        return new Result<T>(value, null);
+    }
 
-    public static Result<T> Failure(Error error) => new(default, error);
+    public static Result<T> Failure(Error error)
+    {
+        return new Result<T>(default, error);
+    }
 }
 
 public sealed class Result
@@ -39,7 +54,13 @@ public sealed class Result
 
     public bool IsSuccess => Error is null;
 
-    public static Result Success() => new(null);
+    public static Result Success()
+    {
+        return new Result(null);
+    }
 
-    public static Result Failure(Error error) => new(error);
+    public static Result Failure(Error error)
+    {
+        return new Result(error);
+    }
 }

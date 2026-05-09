@@ -6,9 +6,9 @@ namespace Company.Template.Application.Products.CreateProduct;
 
 public sealed class CreateProductUseCase
 {
+    private readonly IClock _clock;
     private readonly IProductRepository _products;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IClock _clock;
 
     public CreateProductUseCase(IProductRepository products, IUnitOfWork unitOfWork, IClock clock)
     {
@@ -17,7 +17,8 @@ public sealed class CreateProductUseCase
         _clock = clock;
     }
 
-    public async Task<Result<ProductDto>> ExecuteAsync(CreateProductCommand command, CancellationToken cancellationToken)
+    public async Task<Result<ProductDto>> ExecuteAsync(CreateProductCommand command,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {

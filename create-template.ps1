@@ -113,84 +113,84 @@ New-Item -ItemType Directory -Path $PackageRoot -Force | Out-Null
 Push-Location $ContentRoot
 try {
 
-    Write-Status "Checking installed .NET SDKs..."
-    dotnet --list-sdks
+Write-Status "Checking installed .NET SDKs..."
+dotnet --list-sdks
 
+$SolutionFile = Resolve-SolutionFile
+
+if (-not $SolutionFile) {
+    Write-Status "Creating solution $SolutionName..."
+    dotnet new sln -n $SolutionName
     $SolutionFile = Resolve-SolutionFile
+}
 
-    if (-not $SolutionFile) {
-        Write-Status "Creating solution $SolutionName..."
-        dotnet new sln -n $SolutionName
-        $SolutionFile = Resolve-SolutionFile
-    }
+if (-not $SolutionFile) {
+    throw "dotnet new sln did not create $SolutionName.slnx or $SolutionName.sln."
+}
 
-    if (-not $SolutionFile) {
-        throw "dotnet new sln did not create $SolutionName.slnx or $SolutionName.sln."
-    }
+Write-Status "Using solution file $SolutionFile"
 
-    Write-Status "Using solution file $SolutionFile"
+Write-Status "Creating folder structure..."
+New-Item -ItemType Directory -Path "src" -Force | Out-Null
+New-Item -ItemType Directory -Path "tests" -Force | Out-Null
 
-    Write-Status "Creating folder structure..."
-    New-Item -ItemType Directory -Path "src" -Force | Out-Null
-    New-Item -ItemType Directory -Path "tests" -Force | Out-Null
+Write-Status "Creating projects..."
+dotnet new classlib -n Company.Template.Domain -o src/Company.Template.Domain --framework net10.0
+dotnet new classlib -n Company.Template.Application -o src/Company.Template.Application --framework net10.0
+dotnet new classlib -n Company.Template.Infrastructure -o src/Company.Template.Infrastructure --framework net10.0
+dotnet new webapi -n Company.Template.Api -o src/Company.Template.Api --framework net10.0 --no-https
+dotnet new aspire-servicedefaults -n Company.Template.ServiceDefaults -o src/Company.Template.ServiceDefaults --framework net10.0
+dotnet new aspire-apphost -n Company.Template.AppHost -o src/Company.Template.AppHost --framework net10.0
 
-    Write-Status "Creating projects..."
-    dotnet new classlib -n Company.Template.Domain -o src/Company.Template.Domain --framework net10.0
-    dotnet new classlib -n Company.Template.Application -o src/Company.Template.Application --framework net10.0
-    dotnet new classlib -n Company.Template.Infrastructure -o src/Company.Template.Infrastructure --framework net10.0
-    dotnet new webapi -n Company.Template.Api -o src/Company.Template.Api --framework net10.0 --no-https
-    dotnet new aspire-servicedefaults -n Company.Template.ServiceDefaults -o src/Company.Template.ServiceDefaults --framework net10.0
-    dotnet new aspire-apphost -n Company.Template.AppHost -o src/Company.Template.AppHost --framework net10.0
+dotnet new xunit -n Company.Template.Domain.Tests -o tests/Company.Template.Domain.Tests --framework net10.0
+dotnet new xunit -n Company.Template.Application.Tests -o tests/Company.Template.Application.Tests --framework net10.0
+dotnet new xunit -n Company.Template.Infrastructure.Tests -o tests/Company.Template.Infrastructure.Tests --framework net10.0
+dotnet new xunit -n Company.Template.Api.Tests -o tests/Company.Template.Api.Tests --framework net10.0
 
-    dotnet new xunit -n Company.Template.Domain.Tests -o tests/Company.Template.Domain.Tests --framework net10.0
-    dotnet new xunit -n Company.Template.Application.Tests -o tests/Company.Template.Application.Tests --framework net10.0
-    dotnet new xunit -n Company.Template.Infrastructure.Tests -o tests/Company.Template.Infrastructure.Tests --framework net10.0
-    dotnet new xunit -n Company.Template.Api.Tests -o tests/Company.Template.Api.Tests --framework net10.0
+Remove-GeneratedDefaultFiles
 
-    Remove-GeneratedDefaultFiles
+Write-Status "Adding projects to solution..."
+Add-ProjectToSolution "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-ProjectToSolution "src/Company.Template.Application/Company.Template.Application.csproj"
+Add-ProjectToSolution "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
+Add-ProjectToSolution "src/Company.Template.Api/Company.Template.Api.csproj"
+Add-ProjectToSolution "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
+Add-ProjectToSolution "src/Company.Template.AppHost/Company.Template.AppHost.csproj"
+Add-ProjectToSolution "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj"
+Add-ProjectToSolution "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj"
+Add-ProjectToSolution "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj"
+Add-ProjectToSolution "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj"
 
-    Write-Status "Adding projects to solution..."
-    Add-ProjectToSolution "src/Company.Template.Domain/Company.Template.Domain.csproj"
-    Add-ProjectToSolution "src/Company.Template.Application/Company.Template.Application.csproj"
-    Add-ProjectToSolution "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
-    Add-ProjectToSolution "src/Company.Template.Api/Company.Template.Api.csproj"
-    Add-ProjectToSolution "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
-    Add-ProjectToSolution "src/Company.Template.AppHost/Company.Template.AppHost.csproj"
-    Add-ProjectToSolution "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj"
-    Add-ProjectToSolution "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj"
-    Add-ProjectToSolution "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj"
-    Add-ProjectToSolution "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj"
+Write-Status "Adding project references..."
+Add-Reference "src/Company.Template.Application/Company.Template.Application.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
 
-    Write-Status "Adding project references..."
-    Add-Reference "src/Company.Template.Application/Company.Template.Application.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-Reference "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
+Add-Reference "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
 
-    Add-Reference "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
-    Add-Reference "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
+Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
+Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
 
-    Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
-    Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
-    Add-Reference "src/Company.Template.Api/Company.Template.Api.csproj" "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
+Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.Api/Company.Template.Api.csproj"
+Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
+Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
 
-    Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.Api/Company.Template.Api.csproj"
-    Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
-    Add-Reference "src/Company.Template.AppHost/Company.Template.AppHost.csproj" "src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"
+Add-Reference "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
 
-    Add-Reference "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-Reference "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
+Add-Reference "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
 
-    Add-Reference "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
-    Add-Reference "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
+Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
+Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
 
-    Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
-    Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
-    Add-Reference "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" "src/Company.Template.Domain/Company.Template.Domain.csproj"
+Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Api/Company.Template.Api.csproj"
+Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
+Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
 
-    Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Api/Company.Template.Api.csproj"
-    Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"
-    Add-Reference "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" "src/Company.Template.Application/Company.Template.Application.csproj"
+Write-Status "Writing central build configuration..."
 
-    Write-Status "Writing central build configuration..."
-
-    Write-File ".editorconfig" @'
+Write-File ".editorconfig" @'
 root = true
 
 [*]
@@ -224,7 +224,7 @@ csharp_style_expression_bodied_properties = when_on_single_line:suggestion
 csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
 '@
 
-    Write-File ".gitignore" @'
+Write-File ".gitignore" @'
 bin/
 obj/
 .vs/
@@ -240,7 +240,7 @@ TestResults/
 appsettings.Local.json
 '@
 
-    Write-File "Directory.Build.props" @'
+Write-File "Directory.Build.props" @'
 <Project>
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -259,19 +259,18 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "Directory.Packages.props" @'
+Write-File "Directory.Packages.props" @'
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageVersion Include="Aspire.AppHost.Sdk" Version="10.0.0" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="10.0.0" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="10.0.0" Condition="'__DB_PROVIDER__' == 'PostgreSql'" />
-    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="10.0.0" Condition="'__DB_PROVIDER__' == 'SqlServer'" />
-    <PackageVersion Include="Aspire.Hosting.MySql" Version="10.0.0" Condition="'__DB_PROVIDER__' == 'MySql'" />
-    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="10.0.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.0.0" Condition="'__DB_PROVIDER__' == 'PostgreSql'" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.0.0" Condition="'__DB_PROVIDER__' == 'SqlServer'" />
+    <PackageVersion Include="Aspire.Hosting.MySql" Version="13.0.0" Condition="'__DB_PROVIDER__' == 'MySql'" />
+    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.0.0" />
 
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
@@ -309,13 +308,13 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-Status "Writing project files..."
+Write-Status "Writing project files..."
 
-    Write-File "src/Company.Template.Domain/Company.Template.Domain.csproj" @'
+Write-File "src/Company.Template.Domain/Company.Template.Domain.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk" />
 '@
 
-    Write-File "src/Company.Template.Application/Company.Template.Application.csproj" @'
+Write-File "src/Company.Template.Application/Company.Template.Application.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
@@ -329,7 +328,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" @'
+Write-File "src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
@@ -362,7 +361,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "src/Company.Template.Api/Company.Template.Api.csproj" @'
+Write-File "src/Company.Template.Api/Company.Template.Api.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
@@ -386,10 +385,10 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "src/Company.Template.AppHost/Company.Template.AppHost.csproj" @'
+Write-File "src/Company.Template.AppHost/Company.Template.AppHost.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="10.0.0" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.0.0" />
 
   <ItemGroup>
     <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj" />
@@ -414,7 +413,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj" @'
+Write-File "tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -440,7 +439,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" @'
+Write-File "tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -467,7 +466,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" @'
+Write-File "tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -504,7 +503,7 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" @'
+Write-File "tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" @'
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -542,9 +541,9 @@ appsettings.Local.json
 </Project>
 '@
 
-    Write-Status "Writing Domain layer..."
+Write-Status "Writing Domain layer..."
 
-    Write-File "src/Company.Template.Domain/Common/IDomainEvent.cs" @'
+Write-File "src/Company.Template.Domain/Common/IDomainEvent.cs" @'
 namespace Company.Template.Domain.Common;
 
 public interface IDomainEvent
@@ -553,7 +552,7 @@ public interface IDomainEvent
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Common/AggregateRoot.cs" @'
+Write-File "src/Company.Template.Domain/Common/AggregateRoot.cs" @'
 namespace Company.Template.Domain.Common;
 
 public abstract class AggregateRoot
@@ -575,7 +574,7 @@ public abstract class AggregateRoot
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductId.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductId.cs" @'
 namespace Company.Template.Domain.Products;
 
 public readonly record struct ProductId(Guid Value)
@@ -596,7 +595,7 @@ public readonly record struct ProductId(Guid Value)
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductName.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductName.cs" @'
 namespace Company.Template.Domain.Products;
 
 public sealed record ProductName
@@ -631,7 +630,7 @@ public sealed record ProductName
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Products/Money.cs" @'
+Write-File "src/Company.Template.Domain/Products/Money.cs" @'
 namespace Company.Template.Domain.Products;
 
 public sealed record Money
@@ -674,7 +673,7 @@ public sealed record Money
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductStatus.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductStatus.cs" @'
 namespace Company.Template.Domain.Products;
 
 public enum ProductStatus
@@ -685,7 +684,7 @@ public enum ProductStatus
 }
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductCreatedDomainEvent.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductCreatedDomainEvent.cs" @'
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;
@@ -693,7 +692,7 @@ namespace Company.Template.Domain.Products;
 public sealed record ProductCreatedDomainEvent(ProductId ProductId, DateTimeOffset OccurredOn) : IDomainEvent;
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductPriceChangedDomainEvent.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductPriceChangedDomainEvent.cs" @'
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;
@@ -705,7 +704,7 @@ public sealed record ProductPriceChangedDomainEvent(
     DateTimeOffset OccurredOn) : IDomainEvent;
 '@
 
-    Write-File "src/Company.Template.Domain/Products/ProductDiscontinuedDomainEvent.cs" @'
+Write-File "src/Company.Template.Domain/Products/ProductDiscontinuedDomainEvent.cs" @'
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;
@@ -713,7 +712,7 @@ namespace Company.Template.Domain.Products;
 public sealed record ProductDiscontinuedDomainEvent(ProductId ProductId, DateTimeOffset OccurredOn) : IDomainEvent;
 '@
 
-    Write-File "src/Company.Template.Domain/Products/Product.cs" @'
+Write-File "src/Company.Template.Domain/Products/Product.cs" @'
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;
@@ -805,9 +804,9 @@ public sealed class Product : AggregateRoot
 }
 '@
 
-    Write-Status "Writing Application layer..."
+Write-Status "Writing Application layer..."
 
-    Write-File "src/Company.Template.Application/Abstractions/IClock.cs" @'
+Write-File "src/Company.Template.Application/Abstractions/IClock.cs" @'
 namespace Company.Template.Application.Abstractions;
 
 public interface IClock
@@ -816,7 +815,7 @@ public interface IClock
 }
 '@
 
-    Write-File "src/Company.Template.Application/Abstractions/ICurrentUser.cs" @'
+Write-File "src/Company.Template.Application/Abstractions/ICurrentUser.cs" @'
 namespace Company.Template.Application.Abstractions;
 
 public interface ICurrentUser
@@ -829,7 +828,7 @@ public interface ICurrentUser
 }
 '@
 
-    Write-File "src/Company.Template.Application/Abstractions/IDomainEventDispatcher.cs" @'
+Write-File "src/Company.Template.Application/Abstractions/IDomainEventDispatcher.cs" @'
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Application.Abstractions;
@@ -840,7 +839,7 @@ public interface IDomainEventDispatcher
 }
 '@
 
-    Write-File "src/Company.Template.Application/Abstractions/IProductRepository.cs" @'
+Write-File "src/Company.Template.Application/Abstractions/IProductRepository.cs" @'
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Abstractions;
@@ -853,7 +852,7 @@ public interface IProductRepository
 }
 '@
 
-    Write-File "src/Company.Template.Application/Abstractions/IUnitOfWork.cs" @'
+Write-File "src/Company.Template.Application/Abstractions/IUnitOfWork.cs" @'
 namespace Company.Template.Application.Abstractions;
 
 public interface IUnitOfWork
@@ -862,7 +861,7 @@ public interface IUnitOfWork
 }
 '@
 
-    Write-File "src/Company.Template.Application/Common/Result.cs" @'
+Write-File "src/Company.Template.Application/Common/Result.cs" @'
 namespace Company.Template.Application.Common;
 
 public sealed record Error(string Code, string Message)
@@ -910,7 +909,7 @@ public sealed class Result
 }
 '@
 
-    Write-File "src/Company.Template.Application/Products/ProductDto.cs" @'
+Write-File "src/Company.Template.Application/Products/ProductDto.cs" @'
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products;
@@ -925,7 +924,7 @@ public sealed record ProductDto(
     DateTimeOffset? DiscontinuedAt);
 '@
 
-    Write-File "src/Company.Template.Application/Products/ProductMapper.cs" @'
+Write-File "src/Company.Template.Application/Products/ProductMapper.cs" @'
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products;
@@ -946,13 +945,13 @@ internal static class ProductMapper
 }
 '@
 
-    Write-File "src/Company.Template.Application/Products/CreateProduct/CreateProductCommand.cs" @'
+Write-File "src/Company.Template.Application/Products/CreateProduct/CreateProductCommand.cs" @'
 namespace Company.Template.Application.Products.CreateProduct;
 
 public sealed record CreateProductCommand(string Name, decimal Price, string Currency);
 '@
 
-    Write-File "src/Company.Template.Application/Products/CreateProduct/CreateProductUseCase.cs" @'
+Write-File "src/Company.Template.Application/Products/CreateProduct/CreateProductUseCase.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
@@ -1006,13 +1005,13 @@ public sealed class CreateProductUseCase
 }
 '@
 
-    Write-File "src/Company.Template.Application/Products/GetProductById/GetProductByIdQuery.cs" @'
+Write-File "src/Company.Template.Application/Products/GetProductById/GetProductByIdQuery.cs" @'
 namespace Company.Template.Application.Products.GetProductById;
 
 public sealed record GetProductByIdQuery(Guid ProductId);
 '@
 
-    Write-File "src/Company.Template.Application/Products/GetProductById/GetProductByIdUseCase.cs" @'
+Write-File "src/Company.Template.Application/Products/GetProductById/GetProductByIdUseCase.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
@@ -1044,13 +1043,13 @@ public sealed class GetProductByIdUseCase
 }
 '@
 
-    Write-File "src/Company.Template.Application/Products/ChangeProductPrice/ChangeProductPriceCommand.cs" @'
+Write-File "src/Company.Template.Application/Products/ChangeProductPrice/ChangeProductPriceCommand.cs" @'
 namespace Company.Template.Application.Products.ChangeProductPrice;
 
 public sealed record ChangeProductPriceCommand(Guid ProductId, decimal Price, string Currency);
 '@
 
-    Write-File "src/Company.Template.Application/Products/ChangeProductPrice/ChangeProductPriceUseCase.cs" @'
+Write-File "src/Company.Template.Application/Products/ChangeProductPrice/ChangeProductPriceUseCase.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
@@ -1105,13 +1104,13 @@ public sealed class ChangeProductPriceUseCase
 }
 '@
 
-    Write-File "src/Company.Template.Application/Products/DiscontinueProduct/DiscontinueProductCommand.cs" @'
+Write-File "src/Company.Template.Application/Products/DiscontinueProduct/DiscontinueProductCommand.cs" @'
 namespace Company.Template.Application.Products.DiscontinueProduct;
 
 public sealed record DiscontinueProductCommand(Guid ProductId);
 '@
 
-    Write-File "src/Company.Template.Application/Products/DiscontinueProduct/DiscontinueProductUseCase.cs" @'
+Write-File "src/Company.Template.Application/Products/DiscontinueProduct/DiscontinueProductUseCase.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
@@ -1154,7 +1153,7 @@ public sealed class DiscontinueProductUseCase
 }
 '@
 
-    Write-File "src/Company.Template.Application/DependencyInjection.cs" @'
+Write-File "src/Company.Template.Application/DependencyInjection.cs" @'
 using Company.Template.Application.Products.ChangeProductPrice;
 using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Application.Products.DiscontinueProduct;
@@ -1177,9 +1176,9 @@ public static class DependencyInjection
 }
 '@
 
-    Write-Status "Writing Infrastructure layer..."
+Write-Status "Writing Infrastructure layer..."
 
-    Write-File "src/Company.Template.Infrastructure/Options/DatabaseOptions.cs" @'
+Write-File "src/Company.Template.Infrastructure/Options/DatabaseOptions.cs" @'
 namespace Company.Template.Infrastructure.Options;
 
 public sealed class DatabaseOptions
@@ -1190,7 +1189,7 @@ public sealed class DatabaseOptions
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Options/DatabaseProvider.cs" @'
+Write-File "src/Company.Template.Infrastructure/Options/DatabaseProvider.cs" @'
 namespace Company.Template.Infrastructure.Options;
 
 public static class DatabaseProvider
@@ -1204,7 +1203,7 @@ public static class DatabaseProvider
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Time/SystemClock.cs" @'
+Write-File "src/Company.Template.Infrastructure/Time/SystemClock.cs" @'
 using Company.Template.Application.Abstractions;
 
 namespace Company.Template.Infrastructure.Time;
@@ -1215,7 +1214,7 @@ internal sealed class SystemClock : IClock
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/DomainEvents/LoggingDomainEventDispatcher.cs" @'
+Write-File "src/Company.Template.Infrastructure/DomainEvents/LoggingDomainEventDispatcher.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Microsoft.Extensions.Logging;
@@ -1243,7 +1242,7 @@ internal sealed class LoggingDomainEventDispatcher : IDomainEventDispatcher
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/ApplicationDbContext.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/ApplicationDbContext.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
@@ -1292,7 +1291,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/Configurations/ProductConfiguration.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/Configurations/ProductConfiguration.cs" @'
 using Company.Template.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -1347,7 +1346,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/ProductRepository.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/ProductRepository.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Products;
 using Microsoft.EntityFrameworkCore;
@@ -1375,7 +1374,7 @@ internal sealed class ProductRepository : IProductRepository
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/DatabaseRegistrationExtensions.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/DatabaseRegistrationExtensions.cs" @'
 using Company.Template.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -1408,7 +1407,7 @@ public static class DatabaseRegistrationExtensions
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/Providers/PostgreSqlDatabaseProvider.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/Providers/PostgreSqlDatabaseProvider.cs" @'
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -1426,7 +1425,7 @@ internal static class SelectedDatabaseProvider
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/Providers/SqlServerDatabaseProvider.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/Providers/SqlServerDatabaseProvider.cs" @'
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -1444,7 +1443,7 @@ internal static class SelectedDatabaseProvider
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/Persistence/Providers/MySqlDatabaseProvider.cs" @'
+Write-File "src/Company.Template.Infrastructure/Persistence/Providers/MySqlDatabaseProvider.cs" @'
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -1464,7 +1463,7 @@ internal static class SelectedDatabaseProvider
 }
 '@
 
-    Write-File "src/Company.Template.Infrastructure/DependencyInjection.cs" @'
+Write-File "src/Company.Template.Infrastructure/DependencyInjection.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;
@@ -1490,9 +1489,9 @@ public static class DependencyInjection
 }
 '@
 
-    Write-Status "Writing API layer..."
+Write-Status "Writing API layer..."
 
-    Write-File "src/Company.Template.Api/Options/AuthenticationOptions.cs" @'
+Write-File "src/Company.Template.Api/Options/AuthenticationOptions.cs" @'
 namespace Company.Template.Api.Options;
 
 public sealed class AuthenticationOptions
@@ -1511,7 +1510,7 @@ public sealed class AuthenticationOptions
 }
 '@
 
-    Write-File "src/Company.Template.Api/Security/TemplatePolicies.cs" @'
+Write-File "src/Company.Template.Api/Security/TemplatePolicies.cs" @'
 namespace Company.Template.Api.Security;
 
 public static class TemplatePolicies
@@ -1522,7 +1521,7 @@ public static class TemplatePolicies
 }
 '@
 
-    Write-File "src/Company.Template.Api/Security/AuthenticationExtensions.cs" @'
+Write-File "src/Company.Template.Api/Security/AuthenticationExtensions.cs" @'
 using Company.Template.Api.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -1610,7 +1609,7 @@ public static class AuthenticationExtensions
 }
 '@
 
-    Write-File "src/Company.Template.Api/CurrentUser/HttpCurrentUser.cs" @'
+Write-File "src/Company.Template.Api/CurrentUser/HttpCurrentUser.cs" @'
 using System.Security.Claims;
 using Company.Template.Application.Abstractions;
 
@@ -1636,7 +1635,7 @@ internal sealed class HttpCurrentUser : ICurrentUser
 }
 '@
 
-    Write-File "src/Company.Template.Api/Endpoints/EndpointResultExtensions.cs" @'
+Write-File "src/Company.Template.Api/Endpoints/EndpointResultExtensions.cs" @'
 using Company.Template.Application.Common;
 
 namespace Company.Template.Api.Endpoints;
@@ -1690,7 +1689,7 @@ internal static class EndpointResultExtensions
 }
 '@
 
-    Write-File "src/Company.Template.Api/Endpoints/Products/ProductContracts.cs" @'
+Write-File "src/Company.Template.Api/Endpoints/Products/ProductContracts.cs" @'
 namespace Company.Template.Api.Endpoints.Products;
 
 public sealed record CreateProductRequest(string Name, decimal Price, string Currency);
@@ -1707,7 +1706,7 @@ public sealed record ProductResponse(
     DateTimeOffset? DiscontinuedAt);
 '@
 
-    Write-File "src/Company.Template.Api/Endpoints/Products/ProductEndpointMapper.cs" @'
+Write-File "src/Company.Template.Api/Endpoints/Products/ProductEndpointMapper.cs" @'
 using Company.Template.Application.Products;
 
 namespace Company.Template.Api.Endpoints.Products;
@@ -1728,7 +1727,7 @@ internal static class ProductEndpointMapper
 }
 '@
 
-    Write-File "src/Company.Template.Api/Endpoints/Products/ProductEndpoints.cs" @'
+Write-File "src/Company.Template.Api/Endpoints/Products/ProductEndpoints.cs" @'
 using Company.Template.Api.Options;
 using Company.Template.Api.Security;
 using Company.Template.Application.Products.ChangeProductPrice;
@@ -1823,7 +1822,7 @@ public static class ProductEndpoints
 }
 '@
 
-    Write-File "src/Company.Template.Api/OpenApi/OpenApiExtensions.cs" @'
+Write-File "src/Company.Template.Api/OpenApi/OpenApiExtensions.cs" @'
 using Microsoft.OpenApi.Models;
 
 namespace Company.Template.Api.OpenApi;
@@ -1855,7 +1854,7 @@ public static class OpenApiExtensions
 }
 '@
 
-    Write-File "src/Company.Template.Api/Middleware/GlobalExceptionHandler.cs" @'
+Write-File "src/Company.Template.Api/Middleware/GlobalExceptionHandler.cs" @'
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -1893,7 +1892,7 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
 }
 '@
 
-    Write-File "src/Company.Template.Api/Program.cs" @'
+Write-File "src/Company.Template.Api/Program.cs" @'
 using Company.Template.Api.CurrentUser;
 using Company.Template.Api.Endpoints.Products;
 using Company.Template.Api.Middleware;
@@ -1962,7 +1961,7 @@ app.Run();
 public partial class Program;
 '@
 
-    Write-File "src/Company.Template.Api/appsettings.json" @'
+Write-File "src/Company.Template.Api/appsettings.json" @'
 {
   "Database": {
     "Provider": "__DB_PROVIDER__"
@@ -2006,7 +2005,7 @@ public partial class Program;
 }
 '@
 
-    Write-File "src/Company.Template.Api/appsettings.Development.json" @'
+Write-File "src/Company.Template.Api/appsettings.Development.json" @'
 {
   "Serilog": {
     "MinimumLevel": {
@@ -2019,7 +2018,7 @@ public partial class Program;
 }
 '@
 
-    Write-File "src/Company.Template.Api/Properties/launchSettings.json" @'
+Write-File "src/Company.Template.Api/Properties/launchSettings.json" @'
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
@@ -2037,9 +2036,9 @@ public partial class Program;
 }
 '@
 
-    Write-Status "Writing Aspire AppHost..."
+Write-Status "Writing Aspire AppHost..."
 
-    Write-File "src/Company.Template.AppHost/Program.cs" @'
+Write-File "src/Company.Template.AppHost/Program.cs" @'
 using Aspire.Hosting.ApplicationModel;
 using Company.Template.AppHost.Providers;
 
@@ -2073,7 +2072,7 @@ if (enableKeycloak)
 builder.Build().Run();
 '@
 
-    Write-File "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs" @'
+Write-File "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs" @'
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
@@ -2090,7 +2089,7 @@ internal static class AspireDatabase
 }
 '@
 
-    Write-File "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs" @'
+Write-File "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs" @'
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
@@ -2107,7 +2106,7 @@ internal static class AspireDatabase
 }
 '@
 
-    Write-File "src/Company.Template.AppHost/Providers/MySqlAspireDatabase.cs" @'
+Write-File "src/Company.Template.AppHost/Providers/MySqlAspireDatabase.cs" @'
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
@@ -2124,7 +2123,7 @@ internal static class AspireDatabase
 }
 '@
 
-    Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs" @'
+Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
@@ -2159,7 +2158,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs" @'
+Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
@@ -2191,7 +2190,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.MySql.cs" @'
+Write-File "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.MySql.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MySql;
@@ -2228,7 +2227,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Infrastructure.Tests/PersistenceTests.cs" @'
+Write-File "tests/Company.Template.Infrastructure.Tests/PersistenceTests.cs" @'
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
@@ -2285,7 +2284,7 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
 }
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs" @'
+Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
@@ -2318,7 +2317,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs" @'
+Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
@@ -2348,7 +2347,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.MySql.cs" @'
+Write-File "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.MySql.cs" @'
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MySql;
@@ -2382,7 +2381,7 @@ public sealed class TestDatabase : IAsyncLifetime
 }
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/ApiTestFactory.cs" @'
+Write-File "tests/Company.Template.Api.Tests/ApiTestFactory.cs" @'
 using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
@@ -2442,7 +2441,7 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
 }
 '@
 
-    Write-File "tests/Company.Template.Api.Tests/ApiSmokeTests.cs" @'
+Write-File "tests/Company.Template.Api.Tests/ApiSmokeTests.cs" @'
 using System.Net;
 using System.Net.Http.Json;
 
@@ -2516,9 +2515,9 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
 }
 '@
 
-    Write-Status "Writing README..."
+Write-Status "Writing README..."
 
-    Write-File "README.md" @'
+Write-File "README.md" @'
 # Company.Template
 
 Production-oriented Clean Architecture Web API generated from the `cleanapi` template.
@@ -2714,9 +2713,9 @@ Project files reference packages without versions.
 Keep endpoint handlers thin. Do not expose domain entities or EF entities directly from the API.
 '@
 
-    Write-Status "Writing dotnet template configuration..."
+Write-Status "Writing dotnet template configuration..."
 
-    Write-File ".template_config/template.json" @'
+Write-File ".template_config/template.json" @'
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "Codefox",
@@ -2759,8 +2758,7 @@ Keep endpoint handlers thin. Do not expose domain entities or EF entities direct
 }
 '@
 
-}
-finally {
+} finally {
     Pop-Location
 }
 

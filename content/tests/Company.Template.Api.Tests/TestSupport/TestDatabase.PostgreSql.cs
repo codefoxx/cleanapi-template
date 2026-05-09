@@ -1,6 +1,6 @@
-using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
+using Xunit;
 
 namespace Company.Template.Api.Tests.TestSupport;
 
@@ -23,7 +23,7 @@ public sealed class TestDatabase : IAsyncLifetime
         return _container.DisposeAsync().AsTask();
     }
 
-    public void Configure(DbContextOptionsBuilder<ApplicationDbContext> builder)
+    public void Configure(DbContextOptionsBuilder builder)
     {
         builder.UseNpgsql(_container.GetConnectionString());
     }
