@@ -5,8 +5,8 @@ using Projects;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-var startPgAdmin = builder.Configuration.GetValue<bool>("AppHost:StartPgAdmin");
-var startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak");
+bool startPgAdmin = builder.Configuration.GetValue<bool>("AppHost:StartPgAdmin");
+bool startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak");
 
 IResourceBuilder<IResourceWithConnectionString> database = AspireDatabase.Create(builder);
 

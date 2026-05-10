@@ -1,5 +1,3 @@
-
-
 namespace Company.Template.Application.Abstractions;
 
 public interface IApplicationDbContext

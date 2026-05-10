@@ -30,26 +30,25 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
         }
 
         var productId = ProductId.From(command.ProductId);
-        Product? product = await _dbContext.Products
-            .WithId(productId)
-            .SingleOrDefaultAsync(cancellationToken);
+        Option<Product> maybe = await _dbContext.Products
+                                                .WithId(productId)
+                                                .SingleOrNoneAsync(cancellationToken);
 
-        if (product is null)
-        {
-            return Result<ProductDto>.Failure(Error.NotFound("Product was not found."));
-        }
+        return await maybe.MatchAsync(
+            some: async product =>
+            {
+                try
+                {
+                    product.ChangePrice(Money.Create(command.Price, command.Currency), _clock.UtcNow);
+                }
+                catch (ArgumentException exception)
+                {
+                    return Result<ProductDto>.Failure(Error.Validation(exception.Message));
+                }
 
-        try
-        {
-            product.ChangePrice(Money.Create(command.Price, command.Currency), _clock.UtcNow);
-        }
-        catch (ArgumentException exception)
-        {
-            return Result<ProductDto>.Failure(Error.Validation(exception.Message));
-        }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Result<ProductDto>.Success(ProductMapper.ToDto(product));
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                return Result<ProductDto>.Success(ProductMapper.ToDto(product));
+            },
+            none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
     }
 }

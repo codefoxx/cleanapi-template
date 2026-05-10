@@ -23,19 +23,19 @@ public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductComma
         }
 
         var productId = ProductId.From(command.ProductId);
-        Product? product = await _dbContext.Products
+        Option<Product> maybe = await _dbContext.Products
             .WithId(productId)
-            .SingleOrDefaultAsync(cancellationToken);
+            .SingleOrNoneAsync(cancellationToken);
 
-        if (product is null)
-        {
-            return Result.Failure(Error.NotFound("Product was not found."));
-        }
+        return await maybe.MatchAsync(
+            some: async product =>
+            {
+                product.Discontinue(_clock.UtcNow);
 
-        product.Discontinue(_clock.UtcNow);
+                await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
+                return Result.Success();
+            },
+            none: () => Result.Failure(Error.NotFound("Product was not found.")));
     }
 }

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Company.Template.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;
 

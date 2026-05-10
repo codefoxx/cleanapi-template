@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace Company.Template.Domain.Products;
 
 public sealed record Money : IComparable<Money>
@@ -49,7 +47,7 @@ public sealed record Money : IComparable<Money>
     {
         ArgumentNullException.ThrowIfNull(currency);
 
-        var roundedAmount = decimal.Round(
+        decimal roundedAmount = decimal.Round(
             amount,
             Scale,
             MidpointRounding.AwayFromZero);

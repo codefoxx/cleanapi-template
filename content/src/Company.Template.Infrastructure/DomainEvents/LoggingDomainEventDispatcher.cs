@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Microsoft.Extensions.Logging;

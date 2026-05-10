@@ -24,7 +24,7 @@ public sealed record Currency
     {
         Guard.ThrowIfNullOrWhiteSpace(code, nameof(code), "Currency is required.");
 
-        var normalizedCode = code.Trim().ToUpperInvariant();
+        string normalizedCode = code.Trim().ToUpperInvariant();
 
         if (normalizedCode.Length != CodeLength)
         {
@@ -39,8 +39,8 @@ public sealed record Currency
         Guard.ThrowIfNullOrWhiteSpace(code, nameof(code), "Currency is required.");
         Guard.ThrowIfNullOrWhiteSpace(symbol, nameof(symbol), "Currency symbol is required.");
 
-        var normalizedCode = code.Trim().ToUpperInvariant();
-        var normalizedSymbol = symbol.Trim();
+        string normalizedCode = code.Trim().ToUpperInvariant();
+        string normalizedSymbol = symbol.Trim();
 
         if (normalizedCode.Length != CodeLength)
         {

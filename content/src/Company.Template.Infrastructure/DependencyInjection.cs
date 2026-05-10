@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Company.Template.Application.Abstractions;
 using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;

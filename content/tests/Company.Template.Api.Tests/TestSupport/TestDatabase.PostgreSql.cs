@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
 
 namespace Company.Template.Api.Tests.TestSupport;

@@ -10,7 +10,7 @@ public static class StronglyTypedId
     public static Guid EnsureNotEmpty(Guid value, string parameterName)
     {
         return value == Guid.Empty
-            ? throw new ArgumentException("Id cannot be empty.", parameterName) 
+            ? throw new ArgumentException("Id cannot be empty.", parameterName)
             : value;
     }
 }

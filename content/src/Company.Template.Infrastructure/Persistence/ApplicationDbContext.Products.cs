@@ -1,4 +1,3 @@
-using System.Linq;
 using Company.Template.Application.Products;
 using Company.Template.Domain.Products;
 

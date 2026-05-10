@@ -18,7 +18,7 @@ public sealed record ProductName
             throw new ArgumentException("Product name is required.", nameof(value));
         }
 
-        var trimmed = value.Trim();
+        string trimmed = value.Trim();
 
         if (trimmed.Length > MaxLength)
         {

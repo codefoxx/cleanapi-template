@@ -22,7 +22,7 @@ internal static class AppHostNames
 
     private static string Normalize(string value)
     {
-        var normalized = value
+        string normalized = value
             .Trim()
             .Replace(".", "-", StringComparison.Ordinal)
             .Replace("_", "-", StringComparison.Ordinal)

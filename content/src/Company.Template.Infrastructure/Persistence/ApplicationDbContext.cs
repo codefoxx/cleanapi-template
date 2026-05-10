@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 
 
 namespace Company.Template.Infrastructure.Persistence;
 
-public sealed partial class ApplicationDbContext : DbContext, IApplicationDbContext
+public sealed partial class ApplicationDbContext : DbContext
 {
     private readonly IDomainEventDispatcher _domainEventDispatcher;
 

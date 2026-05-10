@@ -1,20 +1,17 @@
+using Company.Template.Domain.Common;
+
 namespace Company.Template.Domain.Products;
 
-public readonly record struct ProductId(Guid Value)
+public readonly record struct ProductId(Guid Value) : IStronglyTypedId
 {
     public static ProductId New()
     {
-        return new ProductId(Guid.NewGuid());
+        return new ProductId(StronglyTypedId.New());
     }
 
     public static ProductId From(Guid value)
     {
-        if (value == Guid.Empty)
-        {
-            throw new ArgumentException("Product id cannot be empty.", nameof(value));
-        }
-
-        return new ProductId(value);
+        return new ProductId(StronglyTypedId.EnsureNotEmpty(value, nameof(value)));
     }
 
     public override string ToString()

@@ -1,4 +1,3 @@
-using System;
 using Company.Template.Infrastructure.Options;
 using Company.Template.Infrastructure.Persistence.Providers;
 

@@ -1,4 +1,5 @@
 namespace Company.Template.AppHost.Containers;
+
 public static class KeycloakContainerExtensions
 {
     public static KeycloakResourceRegistration AddTemplateKeycloak(

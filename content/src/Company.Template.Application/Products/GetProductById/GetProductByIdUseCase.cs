@@ -22,12 +22,12 @@ public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, Produc
 
         var productId = ProductId.From(query.ProductId);
 
-        Product? product = await _dbContext.ProductsForRead
+        Option<Product> maybe = await _dbContext.ProductsForRead
             .WithId(productId)
-            .SingleOrDefaultAsync(cancellationToken);
+            .SingleOrNoneAsync(cancellationToken);
 
-        return product is null
-            ? Result<ProductDto>.Failure(Error.NotFound("Product was not found."))
-            : Result<ProductDto>.Success(ProductMapper.ToDto(product));
+        return maybe.Match(
+            some: product => Result<ProductDto>.Success(ProductMapper.ToDto(product)),
+            none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
     }
 }
