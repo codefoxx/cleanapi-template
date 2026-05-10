@@ -7,7 +7,7 @@ public sealed class KeycloakContainerOptions
     public string Realm { get; set; } = AppHostNames.KeycloakRealm;
     public string Audience { get; set; } = AppHostNames.AuthAudience;
     public bool UseDataVolume { get; set; } = true;
-
+    public string RealmImportPath { get; set; } = "../../infra/keycloak/realms";
     public string Authority => $"http://localhost:{Port}/realms/{Realm}";
 }
 

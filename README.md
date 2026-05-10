@@ -189,9 +189,9 @@ pack       Build the template NuGet package.
 install    Pack and install the template locally.
 create     Create a test project from the installed template.
 migrate    Create an EF Core migration in the test project.
-build      Restore and build the generated test project.
-test       Install, create, migrate and build the generated project.
-all        Same as test.
+build      Install, create, migrate and build the generated project.
+test       Build the generated project and run all tests.
+all        Pack the template, build the generated project and run all tests.
 clean      Remove generated test output.
 ~~~
 
@@ -201,7 +201,9 @@ Examples:
 ./scripts/template.sh pack
 ./scripts/template.sh install
 ./scripts/template.sh create --db PostgreSql
+./scripts/template.sh build --db PostgreSql
 ./scripts/template.sh test --db PostgreSql
+./scripts/template.sh all --db PostgreSql
 ./scripts/template.sh test --db SqlServer --name Acme.Orders
 ./scripts/template.sh test --db MySql
 ~~~
@@ -223,7 +225,13 @@ The script verifies:
 - initial EF Core migration generation
 - absence of EF Core design-time `BuildHost-*` artifacts
 - solution build
+- generated project tests
 
+Use `build` when you only want to verify that a generated project builds.
+
+Use `test` when you want to verify that the generated project builds and all tests pass.
+
+Use `all` when you want the full local validation flow, including explicitly packing the template before building and testing a generated project.
 ## Build the template package manually
 
 ~~~bash

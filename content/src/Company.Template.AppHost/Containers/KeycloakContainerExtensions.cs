@@ -11,7 +11,9 @@ public static class KeycloakContainerExtensions
 
         Validate(options);
 
-        IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak(options.ResourceName, options.Port);
+        IResourceBuilder<KeycloakResource> keycloak = builder
+            .AddKeycloak(options.ResourceName, options.Port)
+            .WithRealmImport(options.RealmImportPath);;
 
         if (options.UseDataVolume)
         {

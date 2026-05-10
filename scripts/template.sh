@@ -19,9 +19,9 @@ Commands:
   install    Pack and install the template locally.
   create     Create a test project from the installed template.
   migrate    Create an EF Core migration in the test project.
-  build      Restore and build the generated test project.
-  test       Install, create, migrate and build the generated project.
-  all        Same as test.
+  build      Install, create, migrate and build the generated project.
+  test       Build the generated project and run all tests.
+  all        Pack the template, build the generated project and run all tests.
   clean      Remove generated test output.
 
 Options:
@@ -42,7 +42,9 @@ Examples:
   ./scripts/template.sh pack
   ./scripts/template.sh install
   ./scripts/template.sh create --db PostgreSql
+  ./scripts/template.sh build --db PostgreSql
   ./scripts/template.sh test --db PostgreSql
+  ./scripts/template.sh all --db PostgreSql
   ./scripts/template.sh test --db SqlServer --name Acme.Orders
 EOF
 }
@@ -260,13 +262,34 @@ build_test_project() {
   dotnet build --no-restore
 }
 
-run_template_test() {
+run_generated_tests() {
+  echo "==> Test"
+
+  cd "$(generated_project_dir)"
+  dotnet test --no-build
+}
+
+run_template_build() {
   install_template
   create_test_project
   create_initial_migration
   build_test_project
 
+  echo "==> Template build succeeded"
+}
+
+run_template_test() {
+  run_template_build
+  run_generated_tests
+
   echo "==> Template test succeeded"
+}
+
+run_all() {
+  pack_template
+  run_template_test
+
+  echo "==> Full template validation succeeded"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -315,11 +338,13 @@ case "$COMMAND" in
     create_initial_migration
     ;;
   build)
-    restore_test_project
-    build_test_project
+    run_template_build
     ;;
-  test|all)
+  test)
     run_template_test
+    ;;
+  all)
+    run_all
     ;;
   clean)
     clean_test_output
