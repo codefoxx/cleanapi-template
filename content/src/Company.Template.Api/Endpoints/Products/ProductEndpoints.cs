@@ -1,5 +1,6 @@
 using Company.Template.Api.Options;
 using Company.Template.Api.Security;
+using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Application.Products;
 using Company.Template.Application.Products.ChangeProductPrice;
@@ -46,7 +47,7 @@ public static class ProductEndpoints
 
     private static async Task<IResult> CreateProductAsync(
         CreateProductRequest request,
-        CreateProductUseCase useCase,
+        IUseCase<CreateProductCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
         Result<ProductDto> result = await useCase.ExecuteAsync(
@@ -59,7 +60,7 @@ public static class ProductEndpoints
 
     private static async Task<IResult> GetProductByIdAsync(
         Guid id,
-        GetProductByIdUseCase useCase,
+        IUseCase<GetProductByIdQuery, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
         Result<ProductDto> result = await useCase.ExecuteAsync(new GetProductByIdQuery(id), cancellationToken);
@@ -70,7 +71,7 @@ public static class ProductEndpoints
     private static async Task<IResult> ChangeProductPriceAsync(
         Guid id,
         ChangeProductPriceRequest request,
-        ChangeProductPriceUseCase useCase,
+        IUseCase<ChangeProductPriceCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
         Result<ProductDto> result = await useCase.ExecuteAsync(
@@ -82,7 +83,7 @@ public static class ProductEndpoints
 
     private static async Task<IResult> DiscontinueProductAsync(
         Guid id,
-        DiscontinueProductUseCase useCase,
+        IUseCase<DiscontinueProductCommand> useCase,
         CancellationToken cancellationToken)
     {
         Result result = await useCase.ExecuteAsync(new DiscontinueProductCommand(id), cancellationToken);

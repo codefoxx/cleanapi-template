@@ -5,55 +5,58 @@ namespace Company.Template.Api.Security;
 
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection AddTemplateAuthentication(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services
-            .AddOptions<AuthenticationOptions>()
-            .BindConfiguration(AuthenticationOptions.SectionName)
-            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Authority),
-                "Authentication:Authority is required when authentication is enabled.")
-            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Audience),
-                "Authentication:Audience is required when authentication is enabled.")
-            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.RoleClaimType),
-                "Authentication:RoleClaimType is required when authentication is enabled.")
-            .ValidateOnStart();
+        public IServiceCollection AddTemplateAuthentication()
+        {
+            services
+                .AddOptions<AuthenticationOptions>()
+                .BindConfiguration(AuthenticationOptions.SectionName)
+                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Authority),
+                    "Authentication:Authority is required when authentication is enabled.")
+                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Audience),
+                    "Authentication:Audience is required when authentication is enabled.")
+                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.RoleClaimType),
+                    "Authentication:RoleClaimType is required when authentication is enabled.")
+                .ValidateOnStart();
 
-        services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer();
 
-        services
-            .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<IOptions<AuthenticationOptions>>((jwt, authentication) =>
-            {
-                AuthenticationOptions options = authentication.Value;
-
-                jwt.Authority = options.Authority;
-                jwt.Audience = options.Audience;
-                jwt.RequireHttpsMetadata = options.RequireHttpsMetadata;
-                jwt.TokenValidationParameters = new TokenValidationParameters
+            services
+                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<AuthenticationOptions>>((jwt, authentication) =>
                 {
-                    RoleClaimType = options.RoleClaimType
-                };
+                    AuthenticationOptions options = authentication.Value;
+
+                    jwt.Authority = options.Authority;
+                    jwt.Audience = options.Audience;
+                    jwt.RequireHttpsMetadata = options.RequireHttpsMetadata;
+                    jwt.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        RoleClaimType = options.RoleClaimType
+                    };
+                });
+
+            return services;
+        }
+
+        public IServiceCollection AddTemplateAuthorization()
+        {
+            services.AddAuthorization(authorization =>
+            {
+                authorization.AddPolicy(
+                    TemplatePolicies.ProductsRead,
+                    policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsRead));
+
+                authorization.AddPolicy(
+                    TemplatePolicies.ProductsWrite,
+                    policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsWrite));
             });
 
-        return services;
-    }
-
-    public static IServiceCollection AddTemplateAuthorization(this IServiceCollection services)
-    {
-        services.AddAuthorization(authorization =>
-        {
-            authorization.AddPolicy(
-                TemplatePolicies.ProductsRead,
-                policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsRead));
-
-            authorization.AddPolicy(
-                TemplatePolicies.ProductsWrite,
-                policy => RequireScopeOrRole(policy, TemplatePolicies.ProductsWrite));
-        });
-
-        return services;
+            return services;
+        }
     }
 
     public static RouteHandlerBuilder RequireTemplatePolicy(

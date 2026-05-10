@@ -24,18 +24,109 @@ tests/
 ## Architecture rules
 
 - `Domain` references no other project.
-- `Application` references `Domain` and EF Core abstractions.
+- `Application` references `Domain`, EF Core abstractions, and application-level infrastructure contracts.
 - `Infrastructure` references `Application` and `Domain`.
 - `Api` references `Application`, `Infrastructure`, and `ServiceDefaults`.
 - `MigrationService` references `Infrastructure` and `ServiceDefaults`.
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
 
-The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, or any other infrastructure concern.
+The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other infrastructure concern.
 
 The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
 
 The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the API starts.
+
+## Application style
+
+Application behavior is implemented as explicit use cases.
+
+Use cases implement one of these interfaces:
+
+~~~csharp
+public interface IUseCase<in TRequest, TResult>
+{
+    Task<Result<TResult>> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
+}
+
+public interface IUseCase<in TRequest>
+{
+    Task<Result> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
+}
+~~~
+
+Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry, logging, metrics, and tracing.
+
+Example:
+
+~~~csharp
+private static async Task<IResult> DiscontinueProductAsync(
+    Guid id,
+    IUseCase<DiscontinueProductCommand> useCase,
+    CancellationToken cancellationToken)
+{
+    Result result = await useCase.ExecuteAsync(
+        new DiscontinueProductCommand(id),
+        cancellationToken);
+
+    return result.ToHttpResult();
+}
+~~~
+
+Use cases are registered automatically via Scrutor. The template decorates them with telemetry behavior.
+
+## Results and optional values
+
+Expected application outcomes are represented with `Result` / `Result<T>`.
+
+Use this for:
+
+- validation failures
+- not found
+- conflicts
+- successful command/query results
+
+Unexpected failures should still throw and be handled by the API boundary.
+
+Optional query results can be represented with `Option<T>`.
+
+Example:
+
+~~~csharp
+Option<Product> maybeProduct = await _dbContext.Products
+    .WithId(productId)
+    .SingleOrNoneAsync(cancellationToken);
+~~~
+
+Use `Option<T>` when absence is an expected state and should be made explicit.
+
+## Strongly typed IDs
+
+Domain IDs use strongly typed ID structs.
+
+Example:
+
+~~~csharp
+public readonly record struct ProductId(Guid Value) : IStronglyTypedId
+{
+    public static ProductId New()
+    {
+        return new ProductId(StronglyTypedId.New());
+    }
+
+    public static ProductId From(Guid value)
+    {
+        return new ProductId(StronglyTypedId.EnsureNotEmpty(value, nameof(value)));
+    }
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
+}
+~~~
+
+The shared `StronglyTypedId` helper centralizes ID creation and validation. IDs use UUID v7 for new values.
 
 ## Persistence style
 
@@ -66,6 +157,76 @@ await _dbContext.SaveChangesAsync(cancellationToken);
 ~~~
 
 This keeps EF Core visible where it is useful, while keeping the Domain layer persistence-free.
+
+## Observability
+
+The template uses OpenTelemetry and structured logging as first-class production concerns.
+
+Service defaults configure:
+
+- OpenTelemetry logging
+- OpenTelemetry tracing
+- OpenTelemetry metrics
+- ASP.NET Core instrumentation
+- HTTP client instrumentation
+- runtime instrumentation
+- OTLP export when `OTEL_EXPORTER_OTLP_ENDPOINT` is configured
+
+Application use cases are decorated with telemetry behavior.
+
+The use-case telemetry decorator records:
+
+- use-case start
+- use-case completion
+- use-case failure
+- use-case duration
+- unexpected exceptions
+- cancellation
+- OpenTelemetry spans
+- OpenTelemetry metrics
+- structured logs
+
+Generic execution telemetry belongs in:
+
+~~~text
+src/Company.Template.Application/Telemetry/
+~~~
+
+Application telemetry definitions belong in:
+
+~~~text
+src/Company.Template.Application/Diagnostics/
+~~~
+
+Feature-specific business logs should live with the feature, for example:
+
+~~~text
+src/Company.Template.Application/Products/
+~~~
+
+### Logging rules
+
+- Use structured logging.
+- Do not use string interpolation in log messages.
+- Use logs to explain application decisions, not every method call.
+- Use OpenTelemetry traces to understand execution flow.
+- Use metrics for rates, counts, and durations.
+- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric tags.
+- Log unexpected exceptions once at the boundary or in cross-cutting telemetry.
+- Expected failures should normally be represented as `Result` values.
+
+### Telemetry signal roles
+
+~~~text
+Logs
+  Explain what the application decided and why.
+
+Traces
+  Show request, use-case, dependency, and database flow.
+
+Metrics
+  Show rates, counts, failures, and duration distributions.
+~~~
 
 ## Sample domain
 
@@ -382,11 +543,13 @@ Project files reference packages without versions.
 ## Adding a new feature
 
 1. Put business invariants and behavior in `Domain`.
-2. Add use cases in `Application`.
-3. Add feature-specific DbContext interfaces and query extensions in `Application` when persistence access is needed.
-4. Add EF Core mapping in `Infrastructure`.
-5. Implement feature-specific DbContext partials in `Infrastructure`.
-6. Add API request/response DTOs and endpoints under `Api/Endpoints/{Feature}`.
-7. Add tests at the appropriate layer.
+2. Add request records and use cases in `Application`.
+3. Implement `IUseCase<TRequest, TResult>` or `IUseCase<TRequest>`.
+4. Add feature-specific DbContext interfaces and query extensions in `Application` when persistence access is needed.
+5. Add EF Core mapping in `Infrastructure`.
+6. Implement feature-specific DbContext partials in `Infrastructure`.
+7. Add API request/response DTOs and endpoints under `Api/Endpoints/{Feature}`.
+8. Add tests at the appropriate layer.
+9. Add feature-specific logs only for meaningful business decisions.
 
 Keep endpoint handlers thin. Do not expose domain entities or EF entities directly from the API.

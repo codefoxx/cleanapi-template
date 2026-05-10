@@ -7,49 +7,50 @@ namespace Company.Template.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        services.AddTemplateDatabase(configuration);
-        services.AddDbContextAbstractions<ApplicationDbContext>();
-
-        services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
-        services.AddSingleton<IClock, SystemClock>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddDbContextAbstractions<TDbContext>(this IServiceCollection services)
-        where TDbContext : class, IApplicationDbContext
-    {
-        services.AddScoped<IApplicationDbContext>(provider =>
-            provider.GetRequiredService<TDbContext>());
-
-        Type dbContextType = typeof(TDbContext);
-        Type baseAbstractionType = typeof(IApplicationDbContext);
-
-        Type[] dbContextAbstractionTypes = baseAbstractionType
-            .Assembly
-            .GetTypes()
-            .Where(type =>
-                type.IsInterface &&
-                type != baseAbstractionType &&
-                baseAbstractionType.IsAssignableFrom(type))
-            .ToArray();
-
-        foreach (Type abstractionType in dbContextAbstractionTypes)
+        public IServiceCollection AddInfrastructure(IConfiguration configuration)
         {
-            if (!abstractionType.IsAssignableFrom(dbContextType))
-            {
-                throw new InvalidOperationException(
-                    $"{dbContextType.Name} must implement {abstractionType.Name} because it derives from {baseAbstractionType.Name}.");
-            }
+            services.AddTemplateDatabase(configuration);
+            services.AddDbContextAbstractions<ApplicationDbContext>();
 
-            services.AddScoped(abstractionType, provider =>
-                provider.GetRequiredService<TDbContext>());
+            services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
+            services.AddSingleton<IClock, SystemClock>();
+
+            return services;
         }
 
-        return services;
+        private IServiceCollection AddDbContextAbstractions<TDbContext>()
+            where TDbContext : class, IApplicationDbContext
+        {
+            services.AddScoped<IApplicationDbContext>(provider =>
+                provider.GetRequiredService<TDbContext>());
+
+            Type dbContextType = typeof(TDbContext);
+            Type baseAbstractionType = typeof(IApplicationDbContext);
+
+            Type[] dbContextAbstractionTypes = baseAbstractionType
+                .Assembly
+                .GetTypes()
+                .Where(type =>
+                    type.IsInterface &&
+                    type != baseAbstractionType &&
+                    baseAbstractionType.IsAssignableFrom(type))
+                .ToArray();
+
+            foreach (Type abstractionType in dbContextAbstractionTypes)
+            {
+                if (!abstractionType.IsAssignableFrom(dbContextType))
+                {
+                    throw new InvalidOperationException(
+                        $"{dbContextType.Name} must implement {abstractionType.Name} because it derives from {baseAbstractionType.Name}.");
+                }
+
+                services.AddScoped(abstractionType, provider =>
+                    provider.GetRequiredService<TDbContext>());
+            }
+
+            return services;
+        }
     }
 }

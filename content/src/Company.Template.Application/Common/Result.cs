@@ -1,20 +1,27 @@
 namespace Company.Template.Application.Common;
 
-public sealed record Error(string Code, string Message)
+public enum ErrorType
+{
+    Validation,
+    NotFound,
+    Conflict
+}
+
+public sealed record Error(ErrorType Type, string Code, string Message)
 {
     public static Error NotFound(string message)
     {
-        return new Error("not_found", message);
+        return new Error(ErrorType.NotFound, "not_found", message);
     }
 
     public static Error Validation(string message)
     {
-        return new Error("validation_error", message);
+        return new Error(ErrorType.Validation, "validation_error", message);
     }
 
     public static Error Conflict(string message)
     {
-        return new Error("conflict", message);
+        return new Error(ErrorType.Conflict, "conflict", message);
     }
 }
 

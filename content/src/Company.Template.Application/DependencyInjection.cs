@@ -1,46 +1,35 @@
 using System.Reflection;
 using Company.Template.Application.Abstractions;
+using Company.Template.Application.Telemetry;
 
 namespace Company.Template.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddUseCasesFromAssembly(typeof(DependencyInjection).Assembly);
-
-        return services;
-    }
-
-    private static IServiceCollection AddUseCasesFromAssembly(
-        this IServiceCollection services,
-        Assembly assembly)
-    {
-        Type[] useCaseTypes = assembly
-            .GetTypes()
-            .Where(type =>
-                type is { IsClass: true, IsAbstract: false, IsPublic: true } &&
-                type.GetInterfaces().Any(IsUseCaseInterface))
-            .ToArray();
-
-        foreach (Type useCaseType in useCaseTypes)
+        public IServiceCollection AddApplication()
         {
-            services.AddScoped(useCaseType);
+            services.AddUseCasesFromAssembly(typeof(DependencyInjection).Assembly);
+
+            return services;
         }
 
-        return services;
-    }
-
-    private static bool IsUseCaseInterface(Type type)
-    {
-        if (!type.IsGenericType)
+        private IServiceCollection AddUseCasesFromAssembly(Assembly assembly)
         {
-            return false;
+            services.Scan(scan => scan
+                .FromAssemblyDependencies(assembly)
+                .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<,>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+                .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            services.Decorate(typeof(IUseCase<,>), typeof(TelemetryUseCaseDecorator<,>));
+            services.Decorate(typeof(IUseCase<>), typeof(TelemetryUseCaseDecorator<>));
+
+            return services;
         }
-
-        Type genericTypeDefinition = type.GetGenericTypeDefinition();
-
-        return genericTypeDefinition == typeof(IUseCase<>) ||
-               genericTypeDefinition == typeof(IUseCase<,>);
     }
 }

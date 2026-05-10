@@ -2,12 +2,12 @@ using Company.Template.Application.Common;
 
 namespace Company.Template.Application.Abstractions;
 
-internal interface IUseCase<in TCommand, TResult>
+public interface IUseCase<in TRequest, TResult>
 {
-    Task<Result<TResult>> ExecuteAsync(TCommand command, CancellationToken cancellationToken);
+    Task<Result<TResult>> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
 }
 
-internal interface IUseCase<in TCommand>
+public interface IUseCase<in TRequest>
 {
-    Task<Result> ExecuteAsync(TCommand command, CancellationToken cancellationToken);
+    Task<Result> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
 }

@@ -6,12 +6,9 @@ internal static class EndpointResultExtensions
 {
     public static IResult ToHttpResult<T>(this Result<T> result, Func<T, IResult> onSuccess)
     {
-        if (result.IsSuccess && result.Value is not null)
-        {
-            return onSuccess(result.Value);
-        }
-
-        return ToProblem(result.Error);
+        return result is { IsSuccess: true, Value: not null }
+            ? onSuccess(result.Value)
+            : ToProblem(result.Error);
     }
 
     public static IResult ToHttpResult(this Result result)
