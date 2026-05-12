@@ -11,5 +11,5 @@ namespace Company.Template.Domain.Common;
 /// </remarks>
 public interface IDomainEvent
 {
-    DateTimeOffset OccurredOn { get; }
+    DateTimeOffset OccurredAt { get; }
 }

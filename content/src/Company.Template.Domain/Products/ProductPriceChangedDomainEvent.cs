@@ -11,4 +11,4 @@ public sealed record ProductPriceChangedDomainEvent(
     ProductId ProductId,
     Money OldPrice,
     Money NewPrice,
-    DateTimeOffset OccurredOn) : IDomainEvent;
+    DateTimeOffset OccurredAt) : IDomainEvent;

@@ -1,13 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Codefox",
-    "classifications": [
-        "Web",
-        "WebAPI",
-        "Clean Architecture",
-        "DDD",
-        "Aspire"
-    ],
+    "classifications": ["Web", "WebAPI", "Clean Architecture", "DDD", "Aspire"],
     "identity": "Codefox.CleanApi.Template",
     "name": "Clean Architecture Web API",
     "shortName": "cleanapi",
@@ -75,6 +69,30 @@
             "valueTransform": "lowerCaseForm",
             "replaces": "__AUTH_AUDIENCE__"
         },
+        "databaseNameRaw": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "_"
+                    },
+                    {
+                        "regex": "-",
+                        "replacement": "_"
+                    }
+                ]
+            }
+        },
+        "databaseName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "databaseNameRaw",
+            "valueTransform": "lowerCaseForm",
+            "replaces": "__DATABASE_NAME__"
+        },
         "databaseResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
@@ -113,10 +131,6 @@
                 {
                     "choice": "SqlServer",
                     "description": "Use SQL Server."
-                },
-                {
-                    "choice": "MySql",
-                    "description": "Use MySQL/MariaDB with Pomelo."
                 }
             ]
         },
@@ -217,9 +231,7 @@
     "forms": {
         "lowerCaseForm": {
             "identifier": "chain",
-            "steps": [
-                "lowerCaseInvariant"
-            ]
+            "steps": ["lowerCaseInvariant"]
         }
     },
     "sources": [
@@ -229,9 +241,11 @@
             "exclude": [
                 "**/[Bb]in/**",
                 "**/[Oo]bj/**",
+                "**/BuildHost-*/**",
                 ".template_config/**/*",
                 ".idea/**/*",
-                "*.DotSettings.user"
+                "*.DotSettings.user",
+                "Directory.Build.local.props"
             ],
             "modifiers": [
                 {
@@ -239,7 +253,8 @@
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
                         "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs"
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs",
+                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.PostgreSql.cs"
                     ]
                 },
                 {
@@ -247,15 +262,8 @@
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
                         "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs"
-                    ]
-                },
-                {
-                    "condition": "(db != \"MySql\")",
-                    "exclude": [
-                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.MySql.cs",
-                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.MySql.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.MySql.cs"
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs",
+                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.SqlServer.cs"
                     ]
                 }
             ]

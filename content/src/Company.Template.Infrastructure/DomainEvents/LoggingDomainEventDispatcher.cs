@@ -1,6 +1,5 @@
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Company.Template.Infrastructure.DomainEvents;
 

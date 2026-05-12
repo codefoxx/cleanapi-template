@@ -25,7 +25,7 @@ Commands:
   clean      Remove generated test output.
 
 Options:
-  --db <provider>       Database provider: PostgreSql, SqlServer, MySql
+  --db <provider>       Database provider: PostgreSql, SqlServer
   --name <name>         Generated project name
   --test-root <path>    Test output folder
   -c|--configuration    Build configuration
@@ -98,11 +98,11 @@ require_option_value() {
 
 validate_db_provider() {
   case "$DB_PROVIDER" in
-    PostgreSql|SqlServer|MySql)
+    PostgreSql|SqlServer)
       ;;
     *)
       echo "ERROR: Unsupported DB provider: $DB_PROVIDER"
-      echo "Supported providers: PostgreSql, SqlServer, MySql"
+      echo "Supported providers: PostgreSql, SqlServer"
       exit 1
       ;;
   esac
@@ -198,9 +198,6 @@ configure_design_time_database() {
       ;;
     SqlServer)
       export ConnectionStrings__DefaultConnection="Server=localhost;Database=dummy;User Id=sa;Password=Dummy_password123;TrustServerCertificate=True"
-      ;;
-    MySql)
-      export ConnectionStrings__DefaultConnection="Server=localhost;Port=3306;Database=dummy;User=dummy;Password=dummy"
       ;;
   esac
 }
