@@ -4,6 +4,14 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.DiscontinueProduct;
 
+/// <summary>
+/// Coordinates the workflow for discontinuing a product.
+/// </summary>
+/// <remarks>
+/// The use case validates the request identifier, loads the aggregate through the application persistence boundary,
+/// and asks the domain model to apply lifecycle rules. Expected validation and not-found outcomes are returned as
+/// explicit results rather than exceptions.
+/// </remarks>
 public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductCommand>
 {
     private readonly IClock _clock;

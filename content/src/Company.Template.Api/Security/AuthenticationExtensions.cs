@@ -3,6 +3,13 @@ using StringSplitOptions = System.StringSplitOptions;
 
 namespace Company.Template.Api.Security;
 
+/// <summary>
+/// Composes authentication and authorization for the API hosting boundary.
+/// </summary>
+/// <remarks>
+/// The registrations keep token validation, role/scope policy evaluation, and template-level opt-in behavior outside
+/// application use cases so expected authorization decisions remain an API concern.
+/// </remarks>
 public static class AuthenticationExtensions
 {
     extension(IServiceCollection services)

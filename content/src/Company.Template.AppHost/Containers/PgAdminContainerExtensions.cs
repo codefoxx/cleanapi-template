@@ -1,5 +1,12 @@
 namespace Company.Template.AppHost.Containers;
 
+/// <summary>
+/// Adds the optional pgAdmin container used by local Aspire orchestration.
+/// </summary>
+/// <remarks>
+/// The helper isolates development-time database administration from the application runtime so enabling the container
+/// does not alter application persistence behavior or domain code.
+/// </remarks>
 public static class PgAdminContainerExtensions
 {
     public static IResourceBuilder<ContainerResource> AddPgAdminContainer(

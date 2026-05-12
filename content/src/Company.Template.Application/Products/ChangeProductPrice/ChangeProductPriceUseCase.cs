@@ -4,6 +4,14 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.ChangeProductPrice;
 
+/// <summary>
+/// Coordinates the workflow for changing a product price.
+/// </summary>
+/// <remarks>
+/// The use case performs request-level validation, loads the target aggregate through the EF Core-shaped
+/// application boundary, delegates price validation and state changes to <see cref="Money"/> and
+/// <see cref="Product"/>, and returns explicit validation or not-found failures for expected outcomes.
+/// </remarks>
 public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceCommand, ProductDto>
 {
     private readonly IClock _clock;

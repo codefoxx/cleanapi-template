@@ -5,6 +5,13 @@ using Company.Template.Infrastructure.Time;
 
 namespace Company.Template.Infrastructure;
 
+/// <summary>
+/// Wires infrastructure implementations to application-layer abstractions.
+/// </summary>
+/// <remarks>
+/// The registration keeps composition concerns in infrastructure: database setup, domain-event dispatching, and the
+/// clock implementation are provided here while application use cases depend on abstractions.
+/// </remarks>
 public static class DependencyInjection
 {
     extension(IServiceCollection services)

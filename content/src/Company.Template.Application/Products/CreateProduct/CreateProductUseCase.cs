@@ -4,6 +4,15 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.CreateProduct;
 
+/// <summary>
+/// Coordinates the process of creating a new product.
+/// </summary>
+/// <remarks>
+/// This use case handles request-level validation, delegates domain construction to
+/// <see cref="Product"/>, <see cref="ProductName"/>, and <see cref="Money"/>, and persists
+/// the new aggregate. It returns a <see cref="Result{T}"/> which callers can translate
+/// at their own boundary.
+/// </remarks>
 public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, ProductDto>
 {
     private readonly IClock _clock;

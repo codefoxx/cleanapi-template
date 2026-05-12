@@ -2,6 +2,14 @@ using Company.Template.Domain.Common;
 
 namespace Company.Template.Domain.Products;
 
+/// <summary>
+/// A value object that normalizes currency codes and supports safe 
+/// <see cref="Money"/> equality and operations.
+/// </summary>
+/// <remarks>
+/// It ensures that currencies are consistently formatted as three-letter uppercase codes, 
+/// facilitating reliable comparison without requiring full ISO 4217 validation.
+/// </remarks>
 public sealed record Currency
 {
     public const int CodeLength = 3;

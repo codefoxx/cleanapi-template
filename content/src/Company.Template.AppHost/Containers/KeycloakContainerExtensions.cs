@@ -1,5 +1,12 @@
 namespace Company.Template.AppHost.Containers;
 
+/// <summary>
+/// Adds the optional local Keycloak resource used by the Aspire AppHost.
+/// </summary>
+/// <remarks>
+/// These helpers keep identity-provider wiring at the local orchestration boundary: the API receives authentication
+/// settings through environment variables while application workflows remain independent of the container resource.
+/// </remarks>
 public static class KeycloakContainerExtensions
 {
     public static KeycloakResourceRegistration AddTemplateKeycloak(

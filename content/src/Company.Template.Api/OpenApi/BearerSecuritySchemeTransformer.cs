@@ -2,6 +2,13 @@ using Microsoft.AspNetCore.OpenApi;
 
 namespace Company.Template.Api.OpenApi;
 
+/// <summary>
+/// Adds a bearer-token security scheme to generated OpenAPI documents.
+/// </summary>
+/// <remarks>
+/// This keeps interactive documentation aligned with the API authentication boundary without changing runtime
+/// authorization policy evaluation.
+/// </remarks>
 internal sealed class BearerSecuritySchemeTransformer : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(

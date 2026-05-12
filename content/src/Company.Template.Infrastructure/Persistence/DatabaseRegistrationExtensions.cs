@@ -3,6 +3,13 @@ using Company.Template.Infrastructure.Persistence.Providers;
 
 namespace Company.Template.Infrastructure.Persistence;
 
+/// <summary>
+/// Registers the EF Core database implementation selected by infrastructure configuration.
+/// </summary>
+/// <remarks>
+/// Provider choice and connection-string lookup are resolved during composition. Missing or unsupported configuration is
+/// treated as a startup failure rather than leaking provider decisions into application or domain code.
+/// </remarks>
 public static class DatabaseRegistrationExtensions
 {
     public static IServiceCollection AddTemplateDatabase(

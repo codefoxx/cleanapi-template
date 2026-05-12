@@ -2,6 +2,13 @@ using Microsoft.AspNetCore.OpenApi;
 
 namespace Company.Template.Api.OpenApi;
 
+/// <summary>
+/// Projects endpoint authorization metadata into OpenAPI operation security requirements.
+/// </summary>
+/// <remarks>
+/// Runtime authorization remains enforced by ASP.NET Core policies; this transformer only documents the required
+/// policies and possible authentication or authorization failures for consumers.
+/// </remarks>
 internal sealed class AuthorizationOperationTransformer : IOpenApiOperationTransformer
 {
     public Task TransformAsync(

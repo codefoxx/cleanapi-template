@@ -1,5 +1,9 @@
 namespace Company.Template.Api.Options;
 
+/// <summary>
+/// API configuration for enabling JWT bearer authentication and aligning token validation with the identity provider.
+/// These options are consumed at the hosting boundary rather than by application use cases or domain models.
+/// </summary>
 public sealed class AuthenticationOptions
 {
     public const string SectionName = "Authentication";

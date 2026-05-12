@@ -4,6 +4,13 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.GetProductById;
 
+/// <summary>
+/// Coordinates the read workflow for retrieving a product snapshot by identifier.
+/// </summary>
+/// <remarks>
+/// This use case keeps query validation and not-found handling at the application boundary while returning
+/// a stable <see cref="ProductDto"/> instead of exposing the aggregate directly to callers.
+/// </remarks>
 public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, ProductDto>
 {
     private readonly IProductDbContext _dbContext;

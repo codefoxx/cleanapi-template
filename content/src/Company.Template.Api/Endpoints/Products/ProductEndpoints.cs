@@ -10,6 +10,13 @@ using Company.Template.Application.Products.GetProductById;
 
 namespace Company.Template.Api.Endpoints.Products;
 
+/// <summary>
+/// Defines the HTTP boundary for product workflows.
+/// </summary>
+/// <remarks>
+/// Endpoints translate transport contracts into application commands and queries, delegate workflow coordination to use
+/// cases, and map explicit application results back to HTTP responses.
+/// </remarks>
 public static class ProductEndpoints
 {
     public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder app)
