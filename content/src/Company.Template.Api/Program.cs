@@ -1,4 +1,6 @@
+using Company.Template.Api;
 using Company.Template.Api.CurrentUser;
+using Company.Template.Api.Endpoints;
 using Company.Template.Api.Endpoints.Products;
 using Company.Template.Api.Middleware;
 using Company.Template.Api.OpenApi;
@@ -63,6 +65,6 @@ app.MapGet("/",
         Status = "Running"
     }));
 
-app.MapProductEndpoints();
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
 
 app.Run();

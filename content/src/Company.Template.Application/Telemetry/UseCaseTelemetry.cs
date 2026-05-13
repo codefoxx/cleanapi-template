@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Company.Template.Application.Common;
 using Company.Template.Application.Diagnostics;
 
 namespace Company.Template.Application.Telemetry;

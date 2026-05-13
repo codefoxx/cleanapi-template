@@ -39,7 +39,7 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         HttpResponseMessage response = await client.PostAsJsonAsync(TestApi.Products, request);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        response.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -66,8 +66,8 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         created.ShouldNotBeNull();
         created.Id.ShouldNotBe(Guid.Empty);
         created.Name.ShouldBe(request.Name);
-        created.Price.ShouldBe(request.Price);
-        created.Currency.ShouldBe(request.Currency);
+        created.Price.Amount.ShouldBe(request.Price);
+        created.Price.Currency.ShouldBe(request.Currency);
         created.Status.ShouldBe("Active");
     }
 
@@ -90,8 +90,8 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         fetched.ShouldNotBeNull();
         fetched.Id.ShouldBe(created.Id);
         fetched.Name.ShouldBe(created.Name);
-        fetched.Price.ShouldBe(created.Price);
-        fetched.Currency.ShouldBe(created.Currency);
+        fetched.Price.Amount.ShouldBe(created.Price.Amount);
+        fetched.Price.Currency.ShouldBe(created.Price.Currency);
         fetched.Status.ShouldBe(created.Status);
     }
 }

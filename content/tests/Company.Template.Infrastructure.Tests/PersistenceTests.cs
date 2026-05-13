@@ -2,6 +2,8 @@ using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
+using Company.Template.Infrastructure.Tests.TestSupport;
+
 
 namespace Company.Template.Infrastructure.Tests;
 

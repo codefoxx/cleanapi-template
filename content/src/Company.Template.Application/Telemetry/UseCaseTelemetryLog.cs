@@ -1,5 +1,3 @@
-using Company.Template.Application.Common;
-
 namespace Company.Template.Application.Telemetry;
 
 internal static partial class UseCaseTelemetryLog

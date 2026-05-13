@@ -3,8 +3,9 @@
 internal sealed record ProductResponse(
     Guid Id,
     string Name,
-    decimal Price,
-    string Currency,
+    MoneyResponse Price,
     string Status,
     DateTimeOffset CreatedAt,
     DateTimeOffset? DiscontinuedAt);
+
+internal sealed record MoneyResponse(decimal Amount, string Currency);

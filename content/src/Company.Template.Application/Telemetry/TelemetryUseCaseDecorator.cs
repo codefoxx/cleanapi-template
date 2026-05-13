@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Company.Template.Application.Abstractions;
-using Company.Template.Application.Common;
 
 namespace Company.Template.Application.Telemetry;
 

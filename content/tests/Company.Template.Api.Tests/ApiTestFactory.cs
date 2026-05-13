@@ -1,3 +1,4 @@
+using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;

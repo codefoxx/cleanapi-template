@@ -79,6 +79,79 @@ private static async Task<IResult> DiscontinueProductAsync(
 
 Use cases are registered automatically via Scrutor. The template decorates them with telemetry behavior.
 
+## API style
+
+The API uses ASP.NET Core Minimal APIs.
+
+Endpoint handlers should stay thin. They translate HTTP request data into application commands or queries, execute a use
+case, and map the application result back to HTTP.
+
+Do not put business logic into endpoint handlers. Business rules belong in the domain model or application use cases.
+
+### Endpoint modules
+
+Endpoints are grouped into endpoint modules.
+
+Each module implements `IEndpointModule` and registers its own routes:
+
+```csharp
+internal sealed class ProductEndpoints : IEndpointModule
+{
+    public void MapEndpoints(IEndpointRouteBuilder app)
+    {
+        RouteGroupBuilder group = app
+            .MapGroup("/api/products")
+            .WithTags("Products");
+
+        group.MapGet("/", GetProductsAsync);
+    }
+}
+```
+
+`Program.cs` scans endpoint modules from the API assembly:
+
+```csharp
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
+```
+
+This keeps `Program.cs` small while still using standard ASP.NET Core Minimal APIs.
+
+If endpoints are split across multiple assemblies later, map each assembly explicitly:
+
+```csharp
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>()
+   .MapEndpointModulesFromAssembly<AdminApiAssemblyMarker>();
+```
+
+Endpoint modules are created by reflection and should have a parameterless constructor. Handler methods can still use
+normal Minimal API parameter injection for services, commands, route values, query values, and cancellation tokens.
+
+### HTTP result mapping
+
+Use cases return `Result` / `Result<T>`. The API layer maps these results to HTTP responses.
+
+The template uses this distinction:
+
+```text
+400 Bad Request
+  The request could not be parsed or bound by ASP.NET Core.
+
+422 Unprocessable Entity
+  The request was syntactically valid, but rejected by application validation.
+
+404 Not Found
+  The requested resource does not exist.
+
+409 Conflict
+  The request conflicts with the current domain state.
+
+500 Internal Server Error
+  An unexpected exception escaped application result handling.
+```
+
+Expected application failures should be returned as `Result` values. Unexpected failures should throw and are handled by
+the global exception handler.
+
 ## Results and optional values
 
 Expected application outcomes are represented with `Result` / `Result<T>`.
@@ -92,7 +165,15 @@ Use this for:
 
 Unexpected failures should still throw and be handled by the API boundary.
 
-Optional query results can be represented with `Option<T>`.
+Optional values are represented with `Option<T>`.
+
+Use `Option<T>` when absence is an expected state and should be made explicit.
+
+Good examples:
+
+- loading an entity that may not exist
+- resolving an optional value from configuration or context
+- representing an optional application-level filter after validation and normalization
 
 Example:
 
@@ -102,7 +183,43 @@ Option<Product> maybeProduct = await _dbContext.Products
     .SingleOrNoneAsync(cancellationToken);
 ```
 
-Use `Option<T>` when absence is an expected state and should be made explicit.
+Use `Map` or `Bind` while staying in the option world.
+
+Use `Match`, `TryGetValue`, or `OrElse` when leaving the option world.
+
+Examples:
+
+```csharp
+Option<ProductDto> maybeDto = maybeProduct.Map(ProductMapper.ToDto);
+```
+
+```csharp
+return maybeProduct.Match(
+    some: product => Result<ProductDto>.Success(ProductMapper.ToDto(product)),
+    none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
+```
+
+When composing EF Core `IQueryable<T>` queries, unwrap `Option<T>` before building the expression. Do not put
+`Option<T>.Match`, `Map`, or `Bind` inside an EF query predicate because EF Core cannot translate custom option methods
+to SQL.
+
+Good:
+
+```csharp
+if (filter.Status.TryGetValue(out ProductStatus status))
+{
+    query = query.Where(product => product.Status == status);
+}
+```
+
+Avoid:
+
+```csharp
+query = query.Where(product =>
+    filter.Status.Match(
+        some: status => product.Status == status,
+        none: () => true));
+```
 
 ## Strongly typed IDs
 
@@ -143,13 +260,14 @@ Instead:
 - Read queries use `IQueryable<T>` and `AsNoTracking()`.
 - Feature-specific DbContext interfaces expose only the DbSets and query roots needed by that feature.
 - Query extension methods provide named, composable queries.
+- Query result helpers can return `Option<T>` when absence is expected.
 
 Example:
 
 ```csharp
-Product? product = await _dbContext.ProductsForRead
+Option<Product> product = await _dbContext.ProductsForRead
     .WithId(productId)
-    .SingleOrDefaultAsync(cancellationToken);
+    .SingleOrNoneAsync(cancellationToken);
 ```
 
 For writes, use the tracked DbSet and commit through the DbContext:
@@ -267,10 +385,6 @@ Valid provider values:
 
 - `PostgreSql`
 - `SqlServer`
-- `SqlServer`
-
-MySQL is not included in this .NET 10 template version. The template can add MySQL later, but only after the EF Core
-provider choice has stable EF Core 10 support and the provider-specific template tests are validated.
 
 The selected provider is written to configuration:
 
@@ -673,13 +787,16 @@ The smoke test intentionally treats some HTTP errors as expected responses:
 
 ```text
 400
-  invalid application request
+  malformed request or request binding failure
 
 401
   unauthenticated request
 
 404
   product not found
+
+422
+  invalid application request rejected by application validation
 ```
 
 A `403` is not treated as expected in the full-access smoke test. If the smoke test returns `403`, the token was
@@ -874,7 +991,7 @@ Project files reference packages without versions.
 4. Add feature-specific DbContext interfaces and query extensions in `Application` when persistence access is needed.
 5. Add EF Core mapping in `Infrastructure`.
 6. Implement feature-specific DbContext partials in `Infrastructure`.
-7. Add API request/response DTOs and endpoints under `Api/Endpoints/{Feature}`.
+7. Add API request/response DTOs and endpoint modules under `Api/Endpoints/{Feature}`.
 8. Add tests at the appropriate layer.
 9. Add feature-specific logs only for meaningful business decisions.
 

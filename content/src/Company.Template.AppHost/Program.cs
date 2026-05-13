@@ -1,5 +1,6 @@
 using Company.Template.AppHost;
 using Company.Template.AppHost.Containers;
+using Company.Template.AppHost.Providers;
 using Projects;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);

@@ -1,4 +1,5 @@
 using Company.Template.Infrastructure.Options;
+using Company.Template.Infrastructure.Persistence.Providers;
 
 namespace Company.Template.Infrastructure.Persistence;
 

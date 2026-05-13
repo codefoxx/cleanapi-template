@@ -28,7 +28,7 @@ public sealed class TestDatabase : IAsyncLifetime
     public async Task<ApplicationDbContext> CreateDbContextAsync(
         IDomainEventDispatcher? domainEventDispatcher = null)
     {
-        var dbContext = new ApplicationDbContext(
+        ApplicationDbContext dbContext = new(
             CreateDbContextOptions(),
             domainEventDispatcher ?? new NoOpDomainEventDispatcher());
 

@@ -1,5 +1,4 @@
 using Company.Template.Application.Abstractions;
-using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.ChangeProductPrice;
