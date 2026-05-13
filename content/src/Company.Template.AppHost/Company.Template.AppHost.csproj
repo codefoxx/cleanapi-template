@@ -10,20 +10,18 @@
     <ItemGroup>
         <Compile Remove="Providers\PostgreSqlAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
         <Compile Remove="Providers\SqlServerAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
-        <Compile Remove="Providers\MySqlAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'MySql'"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost"/>
         <PackageReference Include="Aspire.Hosting.PostgreSQL" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
         <PackageReference Include="Aspire.Hosting.SqlServer" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-        <PackageReference Include="Aspire.Hosting.MySql" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
         <PackageReference Include="Aspire.Hosting.Keycloak"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj" />
-      <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj" />
+        <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj"/>
+        <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -1,9 +1,15 @@
 using System.Diagnostics;
 using Company.Template.Application.Abstractions;
-using Company.Template.Application.Common;
 
 namespace Company.Template.Application.Telemetry;
 
+/// <summary>
+///     Adds telemetry around value-returning application use cases without changing their workflow contract.
+/// </summary>
+/// <remarks>
+///     The decorator records activity, metrics, logs, and failure outcomes at the application boundary while
+///     preserving the explicit <see cref="Result{T}" /> semantics used by the inner use case.
+/// </remarks>
 public sealed class TelemetryUseCaseDecorator<TRequest, TResult> : IUseCase<TRequest, TResult>
 {
     private readonly IUseCase<TRequest, TResult> _inner;
@@ -84,6 +90,13 @@ public sealed class TelemetryUseCaseDecorator<TRequest, TResult> : IUseCase<TReq
     }
 }
 
+/// <summary>
+///     Adds telemetry around command-style application use cases without changing their workflow contract.
+/// </summary>
+/// <remarks>
+///     The decorator observes successful, failed, cancelled, and exceptional executions consistently while leaving
+///     expected application failures represented as <see cref="Result" /> values.
+/// </remarks>
 public sealed class TelemetryUseCaseDecorator<TRequest> : IUseCase<TRequest>
 {
     private readonly IUseCase<TRequest> _inner;

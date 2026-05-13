@@ -4,7 +4,7 @@ Production-oriented Clean Architecture Web API generated from the `cleanapi` tem
 
 ## Project structure
 
-~~~text
+```text
 src/
   Company.Template.Api
   Company.Template.Application
@@ -19,7 +19,7 @@ tests/
   Company.Template.Application.Tests
   Company.Template.Infrastructure.Tests
   Company.Template.Api.Tests
-~~~
+```
 
 ## Architecture rules
 
@@ -31,11 +31,14 @@ tests/
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
 
-The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other infrastructure concern.
+The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other
+infrastructure concern.
 
-The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
+The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the
+repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
 
-The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the API starts.
+The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so
+the database schema is updated before the API starts.
 
 ## Application style
 
@@ -43,7 +46,7 @@ Application behavior is implemented as explicit use cases.
 
 Use cases implement one of these interfaces:
 
-~~~csharp
+```csharp
 public interface IUseCase<in TRequest, TResult>
 {
     Task<Result<TResult>> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
@@ -53,13 +56,14 @@ public interface IUseCase<in TRequest>
 {
     Task<Result> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
 }
-~~~
+```
 
-Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry, logging, metrics, and tracing.
+Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry,
+logging, metrics, and tracing.
 
 Example:
 
-~~~csharp
+```csharp
 private static async Task<IResult> DiscontinueProductAsync(
     Guid id,
     IUseCase<DiscontinueProductCommand> useCase,
@@ -71,9 +75,82 @@ private static async Task<IResult> DiscontinueProductAsync(
 
     return result.ToHttpResult();
 }
-~~~
+```
 
 Use cases are registered automatically via Scrutor. The template decorates them with telemetry behavior.
+
+## API style
+
+The API uses ASP.NET Core Minimal APIs.
+
+Endpoint handlers should stay thin. They translate HTTP request data into application commands or queries, execute a use
+case, and map the application result back to HTTP.
+
+Do not put business logic into endpoint handlers. Business rules belong in the domain model or application use cases.
+
+### Endpoint modules
+
+Endpoints are grouped into endpoint modules.
+
+Each module implements `IEndpointModule` and registers its own routes:
+
+```csharp
+internal sealed class ProductEndpoints : IEndpointModule
+{
+    public void MapEndpoints(IEndpointRouteBuilder app)
+    {
+        RouteGroupBuilder group = app
+            .MapGroup("/api/products")
+            .WithTags("Products");
+
+        group.MapGet("/", GetProductsAsync);
+    }
+}
+```
+
+`Program.cs` scans endpoint modules from the API assembly:
+
+```csharp
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
+```
+
+This keeps `Program.cs` small while still using standard ASP.NET Core Minimal APIs.
+
+If endpoints are split across multiple assemblies later, map each assembly explicitly:
+
+```csharp
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>()
+   .MapEndpointModulesFromAssembly<AdminApiAssemblyMarker>();
+```
+
+Endpoint modules are created by reflection and should have a parameterless constructor. Handler methods can still use
+normal Minimal API parameter injection for services, commands, route values, query values, and cancellation tokens.
+
+### HTTP result mapping
+
+Use cases return `Result` / `Result<T>`. The API layer maps these results to HTTP responses.
+
+The template uses this distinction:
+
+```text
+400 Bad Request
+  The request could not be parsed or bound by ASP.NET Core.
+
+422 Unprocessable Entity
+  The request was syntactically valid, but rejected by application validation.
+
+404 Not Found
+  The requested resource does not exist.
+
+409 Conflict
+  The request conflicts with the current domain state.
+
+500 Internal Server Error
+  An unexpected exception escaped application result handling.
+```
+
+Expected application failures should be returned as `Result` values. Unexpected failures should throw and are handled by
+the global exception handler.
 
 ## Results and optional values
 
@@ -88,17 +165,61 @@ Use this for:
 
 Unexpected failures should still throw and be handled by the API boundary.
 
-Optional query results can be represented with `Option<T>`.
+Optional values are represented with `Option<T>`.
+
+Use `Option<T>` when absence is an expected state and should be made explicit.
+
+Good examples:
+
+- loading an entity that may not exist
+- resolving an optional value from configuration or context
+- representing an optional application-level filter after validation and normalization
 
 Example:
 
-~~~csharp
+```csharp
 Option<Product> maybeProduct = await _dbContext.Products
     .WithId(productId)
     .SingleOrNoneAsync(cancellationToken);
-~~~
+```
 
-Use `Option<T>` when absence is an expected state and should be made explicit.
+Use `Map` or `Bind` while staying in the option world.
+
+Use `Match`, `TryGetValue`, or `OrElse` when leaving the option world.
+
+Examples:
+
+```csharp
+Option<ProductDto> maybeDto = maybeProduct.Map(ProductMapper.ToDto);
+```
+
+```csharp
+return maybeProduct.Match(
+    some: product => Result<ProductDto>.Success(ProductMapper.ToDto(product)),
+    none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
+```
+
+When composing EF Core `IQueryable<T>` queries, unwrap `Option<T>` before building the expression. Do not put
+`Option<T>.Match`, `Map`, or `Bind` inside an EF query predicate because EF Core cannot translate custom option methods
+to SQL.
+
+Good:
+
+```csharp
+if (filter.Status.TryGetValue(out ProductStatus status))
+{
+    query = query.Where(product => product.Status == status);
+}
+```
+
+Avoid:
+
+```csharp
+query = query.Where(product =>
+    filter.Status.Match(
+        some: status => product.Status == status,
+        none: () => true));
+```
 
 ## Strongly typed IDs
 
@@ -106,7 +227,7 @@ Domain IDs use strongly typed ID structs.
 
 Example:
 
-~~~csharp
+```csharp
 public readonly record struct ProductId(Guid Value) : IStronglyTypedId
 {
     public static ProductId New()
@@ -124,7 +245,7 @@ public readonly record struct ProductId(Guid Value) : IStronglyTypedId
         return Value.ToString();
     }
 }
-~~~
+```
 
 The shared `StronglyTypedId` helper centralizes ID creation and validation. IDs use UUID v7 for new values.
 
@@ -139,22 +260,23 @@ Instead:
 - Read queries use `IQueryable<T>` and `AsNoTracking()`.
 - Feature-specific DbContext interfaces expose only the DbSets and query roots needed by that feature.
 - Query extension methods provide named, composable queries.
+- Query result helpers can return `Option<T>` when absence is expected.
 
 Example:
 
-~~~csharp
-Product? product = await _dbContext.ProductsForRead
+```csharp
+Option<Product> product = await _dbContext.ProductsForRead
     .WithId(productId)
-    .SingleOrDefaultAsync(cancellationToken);
-~~~
+    .SingleOrNoneAsync(cancellationToken);
+```
 
 For writes, use the tracked DbSet and commit through the DbContext:
 
-~~~csharp
+```csharp
 _dbContext.Products.Add(product);
 
 await _dbContext.SaveChangesAsync(cancellationToken);
-~~~
+```
 
 This keeps EF Core visible where it is useful, while keeping the Domain layer persistence-free.
 
@@ -188,21 +310,21 @@ The use-case telemetry decorator records:
 
 Generic execution telemetry belongs in:
 
-~~~text
+```text
 src/Company.Template.Application/Telemetry/
-~~~
+```
 
 Application telemetry definitions belong in:
 
-~~~text
+```text
 src/Company.Template.Application/Diagnostics/
-~~~
+```
 
 Feature-specific business logs should live with the feature, for example:
 
-~~~text
+```text
 src/Company.Template.Application/Products/
-~~~
+```
 
 ### Logging rules
 
@@ -211,13 +333,14 @@ src/Company.Template.Application/Products/
 - Use logs to explain application decisions, not every method call.
 - Use OpenTelemetry traces to understand execution flow.
 - Use metrics for rates, counts, and durations.
-- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric tags.
+- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric
+  tags.
 - Log unexpected exceptions once at the boundary or in cross-cutting telemetry.
 - Expected failures should normally be represented as `Result` values.
 
 ### Telemetry signal roles
 
-~~~text
+```text
 Logs
   Explain what the application decided and why.
 
@@ -226,7 +349,7 @@ Traces
 
 Metrics
   Show rates, counts, failures, and duration distributions.
-~~~
+```
 
 ## Sample domain
 
@@ -254,106 +377,113 @@ Business rules live in the domain model:
 
 The provider is selected when the project is generated:
 
-~~~bash
+```bash
 dotnet new cleanapi -n Company.Template --db PostgreSql
-~~~
+```
 
 Valid provider values:
 
 - `PostgreSql`
 - `SqlServer`
-- `MySql`
 
 The selected provider is written to configuration:
 
-~~~json
+```json
 {
-  "Database": {
-    "Provider": "__DB_PROVIDER__",
-    "ConnectionStringName": "DefaultConnection"
-  },
-  "ConnectionStrings": {
-    "DefaultConnection": "Set by Aspire AppHost. Replace this when running the API directly."
-  }
+    "Database": {
+        "Provider": "__DB_PROVIDER__",
+        "ConnectionStringName": "DefaultConnection"
+    },
+    "ConnectionStrings": {
+        "DefaultConnection": "Set by Aspire AppHost. Replace this when running the API directly."
+    }
 }
-~~~
+```
 
 Provider-specific EF Core configuration is isolated in:
 
-~~~text
+```text
 src/Company.Template.Infrastructure/Persistence/Providers/
-~~~
+```
 
 Only the selected provider is compiled into the generated project.
+
+Provider selection is a generation-time choice, not a runtime provider switch. The generated project contains only the
+EF Core provider configuration and Testcontainers setup for the selected provider.
 
 ## Initial setup
 
 After creating a new project, restore packages:
 
-~~~bash
+```bash
 dotnet restore
-~~~
+```
 
 Then create the initial EF Core migration:
 
-~~~bash
+```bash
 dotnet ef migrations add InitialCreate \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
-~~~
+```
 
 The migration files are created in:
 
-~~~text
+```text
 src/Company.Template.Infrastructure/Persistence/Migrations/
-~~~
+```
 
-Creating migration files does not require the database container to be running. EF Core only needs to build the project, create the DbContext at design time, and compare the current model with the model snapshot.
+Creating migration files does not require the database container to be running. EF Core only needs to build the project,
+create the DbContext at design time, and compare the current model with the model snapshot.
 
 After the initial migration exists, run the AppHost:
 
-~~~bash
+```bash
 dotnet run --project src/Company.Template.AppHost
-~~~
+```
+
+If Keycloak is enabled, the local development realm is imported during AppHost startup. For repeatable realm import
+tests, run Keycloak without a persisted data volume or remove the old Keycloak volume before restarting.
 
 ## Running with Aspire
 
 Run:
 
-~~~bash
+```bash
 dotnet run --project src/Company.Template.AppHost
-~~~
+```
 
 Aspire starts the selected database container, runs the migration service, and then starts the API.
 
 The local startup order is:
 
-~~~text
+```text
 database
   -> migration service
   -> api
-~~~
+```
 
-The migration service applies pending EF Core migrations and exits. The API waits until the migration service has completed successfully.
+The migration service applies pending EF Core migrations and exits. The API waits until the migration service has
+completed successfully.
 
 Local development tools can be enabled in:
 
-~~~text
+```text
 src/Company.Template.AppHost/appsettings.json
-~~~
+```
 
 Example:
 
-~~~json
+```json
 {
-  "AppHost": {
-    "StartPgAdmin": false,
-    "StartKeycloak": false
-  }
+    "AppHost": {
+        "StartPgAdmin": false,
+        "StartKeycloak": false
+    }
 }
-~~~
+```
 
 ## Optional pgAdmin
 
@@ -361,13 +491,13 @@ pgAdmin is disabled by default.
 
 Enable it in the AppHost configuration:
 
-~~~json
+```json
 {
-  "AppHost": {
-    "StartPgAdmin": true
-  }
+    "AppHost": {
+        "StartPgAdmin": true
+    }
 }
-~~~
+```
 
 pgAdmin is intended as a local development tool only. It is not part of the application architecture.
 
@@ -375,66 +505,377 @@ pgAdmin is intended as a local development tool only. It is not part of the appl
 
 Authentication is disabled by default:
 
-~~~json
+```json
 {
-  "Authentication": {
-    "Enabled": false
-  }
+    "Authentication": {
+        "Enabled": false
+    }
 }
-~~~
+```
 
 Enable local Keycloak orchestration in the AppHost:
 
-~~~json
+```json
 {
-  "AppHost": {
-    "StartKeycloak": true
-  }
+    "AppHost": {
+        "StartKeycloak": true
+    }
 }
-~~~
+```
 
-When Keycloak is started by Aspire, the AppHost wires the required authentication settings into the API.
+When Keycloak is started by Aspire, the AppHost:
+
+- starts a local Keycloak container
+- imports the prepared local development realm
+- wires the API authentication settings
+- configures the API authority and audience
+- keeps authentication optional through configuration
 
 The API validates bearer tokens. It does not perform browser login and does not use cookie authentication.
 
-Example authorization policies:
+### Local development realm
 
-- `products.read`
-- `products.write`
+The local Keycloak realm import lives in:
+
+```text
+infra/keycloak/realms/
+```
+
+The template generates the realm file name from the project name.
+
+Example for:
+
+```bash
+dotnet new cleanapi -n Acme.Products --db PostgreSql
+```
+
+the generated realm file is:
+
+```text
+infra/keycloak/realms/acme-products-realm.json
+```
+
+The realm name is:
+
+```text
+acme-products
+```
+
+The file name must match the Keycloak import convention:
+
+```text
+<realm-name>-realm.json
+```
+
+So for realm `acme-products`, the file must be named:
+
+```text
+acme-products-realm.json
+```
+
+Keycloak rejects the import if the file name and realm name do not match.
+
+### Local API client
+
+The imported realm contains a local development API client:
+
+```text
+Client ID: acme-products-api
+Client secret: local-dev-secret
+Flow: client_credentials
+```
+
+The client is intended for local development and smoke tests only.
+
+Do not reuse the local development client secret in real environments.
+
+The generated API expects:
+
+```text
+Authority: http://localhost:8080/realms/acme-products
+Audience:  acme-products-api
+```
+
+The access token must contain:
+
+```json
+{
+    "iss": "http://localhost:8080/realms/acme-products",
+    "aud": [
+        "acme-products-api",
+        "account"
+    ],
+    "scope": "profile products.read products.write email"
+}
+```
+
+The important parts are:
+
+```text
+iss
+  Must exactly match the API Authority.
+
+aud
+  Must contain the API audience.
+
+scope
+  Must contain the scopes required by the endpoint.
+```
+
+JWT issuer validation is strict. The issuer must match exactly, including port and casing.
+
+For example, these are different issuers:
+
+```text
+http://localhost:8080/realms/acme-products
+http://localhost:8080/realms/Acme-Products
+http://localhost:32804/realms/acme-products
+```
+
+### Authorization scopes
+
+The template uses OAuth scopes for API authorization.
+
+The local realm includes:
+
+```text
+products.read
+products.write
+```
+
+The sample policies are:
+
+```text
+products.read
+  Allows reading product data.
+
+products.write
+  Allows creating and modifying product data.
+```
+
+The local development client receives both scopes by default.
+
+### Token request
+
+After starting the AppHost with Keycloak enabled, request a token:
+
+```bash
+KC_URL="http://localhost:8080"
+REALM="acme-products"
+CLIENT_ID="acme-products-api"
+CLIENT_SECRET="local-dev-secret"
+
+TOKEN_RESPONSE=$(curl -s -X POST "$KC_URL/realms/$REALM/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=$CLIENT_ID" \
+  -d "client_secret=$CLIENT_SECRET")
+
+TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
+```
+
+Decode the token payload:
+
+```bash
+echo "$TOKEN" | cut -d "." -f2 | base64 -d 2>/dev/null | jq
+```
+
+If the API returns:
+
+```text
+401 Unauthorized
+WWW-Authenticate: Bearer error="invalid_token", error_description="The issuer '...' is invalid"
+```
+
+then the token issuer does not match the API `Authentication:Authority`.
+
+Common causes:
+
+- token was requested from the wrong Keycloak port
+- realm casing differs
+- API was started with stale authentication settings
+- Keycloak was started with an old persisted volume
+
+### Using Insomnia
+
+When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
+
+After importing `/openapi/v1.json`, Insomnia should be able to use the OAuth2 metadata to request tokens for protected
+endpoints.
+
+Use these local development values:
+
+```text
+Grant type: Client Credentials
+Access Token URL: http://localhost:8080/realms/acme-products/protocol/openid-connect/token
+Client ID: acme-products-api
+Client Secret: local-dev-secret
+Scope: products.read products.write
+```
+
+The token must be requested from the same Keycloak URL that the API uses as `Authentication:Authority`. Otherwise, JWT
+validation fails with an invalid issuer error.
+
+If Insomnia only shows a Bearer Token field, request the token manually with `curl` and paste the access token into the
+Bearer Token value.
+
+## Keycloak API smoke test
+
+The template includes a k6 smoke test for the local Keycloak + API setup.
+
+The script verifies:
+
+- Keycloak token retrieval through `client_credentials`
+- token issuer
+- token audience
+- `products.read` and `products.write` scopes
+- unauthenticated requests return `401`
+- invalid application requests return expected errors
+- all sample Product endpoints work end-to-end
+
+The script lives in:
+
+```text
+scripts/smoke/keycloak-api-smoke.js
+```
+
+Install k6 first:
+
+```bash
+sudo apt update
+sudo apt install -y gpg ca-certificates
+
+curl -fsSL https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+
+sudo apt update
+sudo apt install -y k6
+```
+
+Start the AppHost with Keycloak enabled:
+
+```json
+{
+    "AppHost": {
+        "StartKeycloak": true
+    }
+}
+```
+
+Then run:
+
+```bash
+KC_URL="http://localhost:8080" \
+API_URL="http://localhost:5080" \
+KC_REALM="acme-products" \
+KC_CLIENT_ID="acme-products-api" \
+KC_CLIENT_SECRET="local-dev-secret" \
+k6 run scripts/smoke/keycloak-api-smoke.js
+```
+
+Adjust `API_URL` if the API runs on a different local port.
+
+Expected result:
+
+```text
+checks: 100%
+http_req_failed: 0%
+```
+
+The smoke test intentionally treats some HTTP errors as expected responses:
+
+```text
+400
+  malformed request or request binding failure
+
+401
+  unauthenticated request
+
+404
+  product not found
+
+422
+  invalid application request rejected by application validation
+```
+
+A `403` is not treated as expected in the full-access smoke test. If the smoke test returns `403`, the token was
+accepted but the API policy or scopes do not match.
 
 ## OpenAPI
 
 In development:
 
-~~~text
+```text
 /openapi/v1.json
-~~~
+```
 
-The OpenAPI document includes bearer-token metadata for secured endpoint testing.
+When authentication is disabled, the OpenAPI document contains no authentication metadata.
+
+When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
+
+The generated OpenAPI document contains:
+
+- the Keycloak token endpoint
+- the required OAuth scopes
+- `401` and `403` responses for protected endpoints
+- per-operation security requirements
+
+Example security scheme:
+
+```json
+{
+    "type": "oauth2",
+    "flows": {
+        "clientCredentials": {
+            "tokenUrl": "http://localhost:8080/realms/acme-products/protocol/openid-connect/token",
+            "scopes": {
+                "products.read": "Allows reading product data.",
+                "products.write": "Allows creating and modifying product data."
+            }
+        }
+    }
+}
+```
+
+Tools such as Insomnia can import the OpenAPI document and configure OAuth2 authentication for protected requests.
+
+For the local development realm, use:
+
+```text
+Grant type: Client Credentials
+Token URL:  http://localhost:8080/realms/acme-products/protocol/openid-connect/token
+Client ID:  acme-products-api
+Secret:     local-dev-secret
+Scopes:     products.read products.write
+```
+
+If your API tool only shows a Bearer Token field, request a token manually and paste the access token into that field.
 
 ## Migrations
 
 The template uses EF Core migrations for relational schema management.
 
-The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API starts.
+The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API
+starts.
 
 ### Creating the initial migration
 
 After generating a project, create the initial migration once:
 
-~~~bash
+```bash
 dotnet ef migrations add InitialCreate \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
-~~~
+```
 
 Then start the AppHost:
 
-~~~bash
+```bash
 dotnet run --project src/Company.Template.AppHost
-~~~
+```
 
 The migration service will apply the migration automatically during Aspire startup.
 
@@ -442,13 +883,13 @@ The migration service will apply the migration automatically during Aspire start
 
 After changing the EF Core model, add a new migration:
 
-~~~bash
+```bash
 dotnet ef migrations add DescribeYourChange \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
-~~~
+```
 
 Then restart the AppHost. The migration service applies the pending migration.
 
@@ -456,14 +897,15 @@ Then restart the AppHost. The migration service applies the pending migration.
 
 You can also apply migrations manually:
 
-~~~bash
+```bash
 dotnet ef database update \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
   --context ApplicationDbContext
-~~~
+```
 
-When running with Aspire locally, manual migration execution is usually not needed because the migration service handles it.
+When running with Aspire locally, manual migration execution is usually not needed because the migration service handles
+it.
 
 ### Migration bundles
 
@@ -471,17 +913,17 @@ For release pipelines, prefer EF Core migration bundles over running migrations 
 
 Create a migration bundle:
 
-~~~bash
+```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
   --context ApplicationDbContext \
   --output artifacts/efbundle
-~~~
+```
 
 For a Linux self-contained bundle:
 
-~~~bash
+```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
   --startup-project src/Company.Template.Api \
@@ -489,44 +931,45 @@ dotnet ef migrations bundle \
   --self-contained \
   --runtime linux-x64 \
   --output artifacts/efbundle
-~~~
+```
 
 Run the bundle with a deployment connection string:
 
-~~~bash
+```bash
 ./artifacts/efbundle --connection "$CONNECTION_STRING"
-~~~
+```
 
 Recommended production flow:
 
-~~~text
+```text
 build application
 build migration bundle
 apply migration bundle to database
 deploy or start api
-~~~
+```
 
-The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations explicitly before the API is deployed or started.
+The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations
+explicitly before the API is deployed or started.
 
 ## Tests
 
 Run:
 
-~~~bash
+```bash
 dotnet test
-~~~
+```
 
-Integration tests use Testcontainers and the selected relational database provider.
+Integration tests use Testcontainers and the selected relational database provider, currently PostgreSQL or SQL Server.
 
 Do not use EF Core InMemory as a substitute for relational integration tests.
 
 Tests follow an Arrange / Act / Assert structure and use descriptive names such as:
 
-~~~text
+```text
 CreateProduct_WhenRequestIsValid_ShouldCreateProduct
 GetProductById_WhenProductExists_ShouldReturnProduct
 SaveChanges_WhenProductIsAdded_ShouldPersistAndReloadProduct
-~~~
+```
 
 The goal is that tests act as executable documentation.
 
@@ -534,9 +977,9 @@ The goal is that tests act as executable documentation.
 
 Package versions are centralized in:
 
-~~~text
+```text
 Directory.Packages.props
-~~~
+```
 
 Project files reference packages without versions.
 
@@ -548,7 +991,7 @@ Project files reference packages without versions.
 4. Add feature-specific DbContext interfaces and query extensions in `Application` when persistence access is needed.
 5. Add EF Core mapping in `Infrastructure`.
 6. Implement feature-specific DbContext partials in `Infrastructure`.
-7. Add API request/response DTOs and endpoints under `Api/Endpoints/{Feature}`.
+7. Add API request/response DTOs and endpoint modules under `Api/Endpoints/{Feature}`.
 8. Add tests at the appropriate layer.
 9. Add feature-specific logs only for meaningful business decisions.
 

@@ -1,19 +1,75 @@
+using Company.Template.Application.Products.GetProducts;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products;
 
-public static class ProductQueries
+internal static class ProductQueries
 {
     extension(IQueryable<Product> products)
     {
+        public IQueryable<Product> Active()
+        {
+            return products.Where(product => product.Status == ProductStatus.Active);
+        }
+
         public IQueryable<Product> WithId(ProductId productId)
         {
             return products.Where(product => product.Id == productId);
         }
 
-        public IQueryable<Product> Active()
+        public IQueryable<Product> WithSorting(ProductSort sort)
         {
-            return products.Where(product => product.Status == ProductStatus.Active);
+            bool ascending = sort.Direction == SortDirection.Ascending;
+
+            if (sort.Field == ProductSortField.Name)
+            {
+                return ascending
+                    ? products.OrderBy(product => product.Name.Value)
+                    : products.OrderByDescending(product => product.Name.Value);
+            }
+
+            if (sort.Field == ProductSortField.Price)
+            {
+                return ascending
+                    ? products.OrderBy(product => product.Price.Amount)
+                    : products.OrderByDescending(product => product.Price.Amount);
+            }
+
+            if (sort.Field == ProductSortField.Status)
+            {
+                return ascending
+                    ? products.OrderBy(product => product.Status)
+                    : products.OrderByDescending(product => product.Status);
+            }
+
+            return ascending
+                ? products.OrderBy(product => product.CreatedAt)
+                : products.OrderByDescending(product => product.CreatedAt);
+        }
+
+        public IQueryable<Product> WithFilter(ProductFilter filter)
+        {
+            ArgumentNullException.ThrowIfNull(products);
+            ArgumentNullException.ThrowIfNull(filter);
+
+            IQueryable<Product> query = products;
+
+            if (filter.Search.TryGetValue(out string? search))
+            {
+                query = query.Where(product => product.Name.Value.Contains(search));
+            }
+
+            if (filter.Status.TryGetValue(out ProductStatus status))
+            {
+                query = query.Where(product => product.Status == status);
+            }
+
+            if (filter.Currency.TryGetValue(out string? currency))
+            {
+                query = query.Where(product => product.Price.Currency.Code == currency);
+            }
+
+            return query;
         }
     }
 }

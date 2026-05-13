@@ -5,7 +5,7 @@ using Company.Template.Infrastructure.Persistence;
 
 namespace Company.Template.Api.Tests;
 
-public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class ApiTestFactory : WebApplicationFactory<ApiAssemblyMarker>, IAsyncLifetime
 {
     private readonly TestDatabase _database = new();
 

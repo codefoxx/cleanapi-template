@@ -27,7 +27,7 @@
         "*.DotSettings.user"
     ],
     "symbols": {
-        "apiResourceName": {
+        "apiResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -42,10 +42,16 @@
                         "replacement": "$1-api"
                     }
                 ]
-            },
+            }
+        },
+        "apiResourceName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "apiResourceNameRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__API_RESOURCE_NAME__"
         },
-        "authAudience": {
+        "authAudienceRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -60,10 +66,40 @@
                         "replacement": "$1-api"
                     }
                 ]
-            },
+            }
+        },
+        "authAudience": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "authAudienceRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__AUTH_AUDIENCE__"
         },
-        "databaseResourceName": {
+        "databaseNameRaw": {
+            "type": "generated",
+            "generator": "regex",
+            "parameters": {
+                "source": "name",
+                "steps": [
+                    {
+                        "regex": "\\.",
+                        "replacement": "_"
+                    },
+                    {
+                        "regex": "-",
+                        "replacement": "_"
+                    }
+                ]
+            }
+        },
+        "databaseName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "databaseNameRaw",
+            "valueTransform": "lowerCaseForm",
+            "replaces": "__DATABASE_NAME__"
+        },
+        "databaseResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -78,7 +114,13 @@
                         "replacement": "$1-db"
                     }
                 ]
-            },
+            }
+        },
+        "databaseResourceName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "databaseResourceNameRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__DATABASE_RESOURCE_NAME__"
         },
         "db": {
@@ -95,14 +137,10 @@
                 {
                     "choice": "SqlServer",
                     "description": "Use SQL Server."
-                },
-                {
-                    "choice": "MySql",
-                    "description": "Use MySQL/MariaDB with Pomelo."
                 }
             ]
         },
-        "keycloakRealm": {
+        "keycloakRealmRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -113,10 +151,17 @@
                         "replacement": "-"
                     }
                 ]
-            },
-            "replaces": "__KEYCLOAK_REALM__"
+            }
         },
-        "keycloakResourceName": {
+        "keycloakRealm": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "keycloakRealmRaw",
+            "valueTransform": "lowerCaseForm",
+            "replaces": "__KEYCLOAK_REALM__",
+            "fileRename": "__KEYCLOAK_REALM__"
+        },
+        "keycloakResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -131,10 +176,16 @@
                         "replacement": "$1-keycloak"
                     }
                 ]
-            },
+            }
+        },
+        "keycloakResourceName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "keycloakResourceNameRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__KEYCLOAK_RESOURCE_NAME__"
         },
-        "migrationServiceResourceName": {
+        "migrationServiceResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -149,10 +200,16 @@
                         "replacement": "$1-migrations"
                     }
                 ]
-            },
+            }
+        },
+        "migrationServiceResourceName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "migrationServiceResourceNameRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__MIGRATION_SERVICE_RESOURCE_NAME__"
         },
-        "pgAdminResourceName": {
+        "pgAdminResourceNameRaw": {
             "type": "generated",
             "generator": "regex",
             "parameters": {
@@ -167,8 +224,22 @@
                         "replacement": "$1-pgadmin"
                     }
                 ]
-            },
+            }
+        },
+        "pgAdminResourceName": {
+            "type": "derived",
+            "datatype": "text",
+            "valueSource": "pgAdminResourceNameRaw",
+            "valueTransform": "lowerCaseForm",
             "replaces": "__PGADMIN_RESOURCE_NAME__"
+        }
+    },
+    "forms": {
+        "lowerCaseForm": {
+            "identifier": "chain",
+            "steps": [
+                "lowerCaseInvariant"
+            ]
         }
     },
     "sources": [
@@ -178,9 +249,11 @@
             "exclude": [
                 "**/[Bb]in/**",
                 "**/[Oo]bj/**",
+                "**/BuildHost-*/**",
                 ".template_config/**/*",
                 ".idea/**/*",
-                "*.DotSettings.user"
+                "*.DotSettings.user",
+                "Directory.Build.local.props"
             ],
             "modifiers": [
                 {
@@ -188,7 +261,8 @@
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
                         "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs"
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs",
+                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.PostgreSql.cs"
                     ]
                 },
                 {
@@ -196,15 +270,8 @@
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
                         "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs"
-                    ]
-                },
-                {
-                    "condition": "(db != \"MySql\")",
-                    "exclude": [
-                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.MySql.cs",
-                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.MySql.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.MySql.cs"
+                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs",
+                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.SqlServer.cs"
                     ]
                 }
             ]

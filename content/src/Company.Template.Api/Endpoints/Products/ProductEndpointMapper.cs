@@ -9,8 +9,7 @@ internal static class ProductEndpointMapper
         return new ProductResponse(
             product.Id,
             product.Name,
-            product.Price.Amount,
-            product.Price.Currency.Code,
+            new MoneyResponse(product.Price.Amount, product.Price.Currency.Code),
             product.Status.ToString(),
             product.CreatedAt,
             product.DiscontinuedAt);

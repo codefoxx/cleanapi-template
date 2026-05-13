@@ -1,15 +1,14 @@
 using System.Diagnostics;
-using Company.Template.Application.Common;
 using Company.Template.Application.Diagnostics;
 
 namespace Company.Template.Application.Telemetry;
 
 internal static class UseCaseTelemetry
 {
-    private const string SuccessOutcome = "success";
-    private const string FailureOutcome = "failure";
     private const string CancelledOutcome = "cancelled";
     private const string ExceptionOutcome = "exception";
+    private const string FailureOutcome = "failure";
+    private const string SuccessOutcome = "success";
 
     public static string GetUseCaseName<TRequest>()
     {
@@ -19,8 +18,7 @@ internal static class UseCaseTelemetry
     public static Activity? StartActivity(string useCase)
     {
         Activity? activity = ApplicationTelemetry.ActivitySource.StartActivity(
-            useCase,
-            ActivityKind.Internal);
+            useCase);
 
         activity?.SetTag("use_case", useCase);
 

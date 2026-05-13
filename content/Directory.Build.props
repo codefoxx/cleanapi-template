@@ -1,4 +1,6 @@
 <Project>
+    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')"/>
+
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>latest</LangVersion>
@@ -7,16 +9,11 @@
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
         <AnalysisLevel>latest</AnalysisLevel>
+<!--        <AnalysisMode>AllEnabledByDefault</AnalysisMode>-->
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
-    <!--
-      The raw template content still contains __DB_PROVIDER__.
-      Use PostgreSql as the editing/build default before the template is instantiated.
-      After `dotnet new -db ...`, __DB_PROVIDER__ is replaced with the selected provider.
-    -->
     <PropertyGroup>
-        <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == '' and '__DB_PROVIDER__' == '__DB_PROVIDER__'">PostgreSql</EffectiveDbProvider>
         <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">__DB_PROVIDER__</EffectiveDbProvider>
     </PropertyGroup>
 

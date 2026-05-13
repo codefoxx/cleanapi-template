@@ -6,30 +6,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.MySql.cs" Condition="'$(EffectiveDbProvider)' != 'MySql'"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="Persistence\Providers\PostgreSqlDatabaseProvider.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="Persistence\Providers\SqlServerDatabaseProvider.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
-        <Compile Remove="Persistence\Providers\MySqlDatabaseProvider.cs" Condition="'$(EffectiveDbProvider)' != 'MySql'"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
-
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
-
         <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'PostgreSql'">
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'SqlServer'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
     </ItemGroup>
 
 </Project>

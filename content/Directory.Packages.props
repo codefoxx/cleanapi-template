@@ -7,7 +7,6 @@
     <ItemGroup Label="Aspire">
         <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.3.0"/>
         <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.3.0-preview.1.26256.5"/>
-        <PackageVersion Include="Aspire.Hosting.MySql" Version="13.3.0" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
         <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
         <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.3.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
     </ItemGroup>
@@ -39,7 +38,6 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
     </ItemGroup>
 
     <!-- OpenTelemetry / Aspire Service Defaults -->
@@ -64,7 +62,6 @@
     <!-- Testcontainers -->
     <ItemGroup Label="Testcontainers">
         <PackageVersion Include="Testcontainers.MsSql" Version="4.8.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-        <PackageVersion Include="Testcontainers.MySql" Version="4.8.0" Condition="'$(EffectiveDbProvider)' == 'MySql'"/>
         <PackageVersion Include="Testcontainers.PostgreSql" Version="4.8.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
     </ItemGroup>
 

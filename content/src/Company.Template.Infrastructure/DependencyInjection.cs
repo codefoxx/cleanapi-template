@@ -5,6 +5,13 @@ using Company.Template.Infrastructure.Time;
 
 namespace Company.Template.Infrastructure;
 
+/// <summary>
+///     Wires infrastructure implementations to application-layer abstractions.
+/// </summary>
+/// <remarks>
+///     The registration keeps composition concerns in infrastructure: database setup, domain-event dispatching, and the
+///     clock implementation are provided here while application use cases depend on abstractions.
+/// </remarks>
 public static class DependencyInjection
 {
     extension(IServiceCollection services)
@@ -30,13 +37,13 @@ public static class DependencyInjection
             Type baseAbstractionType = typeof(IApplicationDbContext);
 
             Type[] dbContextAbstractionTypes = baseAbstractionType
-                .Assembly
-                .GetTypes()
-                .Where(type =>
-                    type.IsInterface &&
-                    type != baseAbstractionType &&
-                    baseAbstractionType.IsAssignableFrom(type))
-                .ToArray();
+                                              .Assembly
+                                              .GetTypes()
+                                              .Where(type =>
+                                                   type.IsInterface &&
+                                                   type != baseAbstractionType &&
+                                                   baseAbstractionType.IsAssignableFrom(type))
+                                              .ToArray();
 
             foreach (Type abstractionType in dbContextAbstractionTypes)
             {
@@ -46,8 +53,9 @@ public static class DependencyInjection
                         $"{dbContextType.Name} must implement {abstractionType.Name} because it derives from {baseAbstractionType.Name}.");
                 }
 
-                services.AddScoped(abstractionType, provider =>
-                    provider.GetRequiredService<TDbContext>());
+                services.AddScoped(abstractionType,
+                    provider =>
+                        provider.GetRequiredService<TDbContext>());
             }
 
             return services;

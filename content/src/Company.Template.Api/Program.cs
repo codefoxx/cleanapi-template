@@ -1,4 +1,6 @@
+using Company.Template.Api;
 using Company.Template.Api.CurrentUser;
+using Company.Template.Api.Endpoints;
 using Company.Template.Api.Endpoints.Products;
 using Company.Template.Api.Middleware;
 using Company.Template.Api.OpenApi;
@@ -7,15 +9,16 @@ using Company.Template.Api.Security;
 using Company.Template.Application;
 using Company.Template.Application.Abstractions;
 using Company.Template.Infrastructure;
+using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext();
+       .ReadFrom.Configuration(context.Configuration)
+       .ReadFrom.Services(services)
+       .Enrich.FromLogContext();
 });
 
 builder.AddServiceDefaults();
@@ -44,8 +47,8 @@ if (app.Environment.IsDevelopment())
 }
 
 AuthenticationOptions authenticationOptions = app.Services
-    .GetRequiredService<IOptions<AuthenticationOptions>>()
-    .Value;
+                                                 .GetRequiredService<IOptions<AuthenticationOptions>>()
+                                                 .Value;
 
 if (authenticationOptions.Enabled)
 {
@@ -55,14 +58,13 @@ if (authenticationOptions.Enabled)
 
 app.MapDefaultEndpoints();
 
-app.MapGet("/", () => Results.Ok(new
-{
-    Service = "Company.Template.Api",
-    Status = "Running"
-}));
+app.MapGet("/",
+    () => Results.Ok(new
+    {
+        Service = "Company.Template.Api",
+        Status = "Running"
+    }));
 
-app.MapProductEndpoints();
+app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
 
 app.Run();
-
-public partial class Program;

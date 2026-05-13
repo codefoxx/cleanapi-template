@@ -1,5 +1,3 @@
-using Company.Template.Application.Common;
-
 namespace Company.Template.Application.Abstractions;
 
 public static class QueryableOptionExtensions

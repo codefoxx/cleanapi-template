@@ -31,7 +31,7 @@
         <None Include="..\README.md"
               Pack="true"
               PackagePath="\"
-              Link="README.md" />
+              Link="README.md"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -42,62 +42,62 @@
                   $(MSBuildThisFileDirectory)..\content\.idea\**;
                   $(MSBuildThisFileDirectory)..\content\*.DotSettings.user"
               Pack="true"
-              PackagePath="content\" />
+              PackagePath="content\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Include="..\content\src\Company.Template.Application\Abstractions\IApplicationDbContext.cs">
-        <Link>src\Company.Template.Application\Abstractions\IApplicationDbContext.cs</Link>
-      </Compile>
-      <Compile Include="..\content\src\Company.Template.Infrastructure\GlobalUsings.cs">
-        <Link>src\Company.Template.Infrastructure\GlobalUsings.cs</Link>
-      </Compile>
-      <Compile Include="..\content\tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs">
-        <Link>tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs</Link>
-      </Compile>
-      <Compile Include="GlobalUsings.cs" />
+        <Compile Include="..\content\src\Company.Template.Application\Abstractions\IApplicationDbContext.cs">
+            <Link>src\Company.Template.Application\Abstractions\IApplicationDbContext.cs</Link>
+        </Compile>
+        <Compile Include="..\content\src\Company.Template.Infrastructure\GlobalUsings.cs">
+            <Link>src\Company.Template.Infrastructure\GlobalUsings.cs</Link>
+        </Compile>
+        <Compile Include="..\content\tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs">
+            <Link>tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs</Link>
+        </Compile>
+        <Compile Include="GlobalUsings.cs"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7"/>
     </ItemGroup>
 
     <Target Name="CleanTemplateArtifacts">
-        <Message Importance="high" Text="Cleaning template build artifacts..." />
+        <Message Importance="high" Text="Cleaning template build artifacts..."/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Api\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Api\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Api\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Api\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Application\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Application\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Application\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Application\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Domain\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Domain\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Domain\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Domain\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Infrastructure\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Infrastructure\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Infrastructure\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.Infrastructure\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.ServiceDefaults\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.ServiceDefaults\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.ServiceDefaults\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.ServiceDefaults\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.AppHost\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.AppHost\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.AppHost\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\src\Company.Template.AppHost\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Domain.Tests\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Domain.Tests\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Domain.Tests\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Domain.Tests\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Application.Tests\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Application.Tests\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Application.Tests\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Application.Tests\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Infrastructure.Tests\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Infrastructure.Tests\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Infrastructure.Tests\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Infrastructure.Tests\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Api.Tests\bin" />
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Api.Tests\obj" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Api.Tests\bin"/>
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\tests\Company.Template.Api.Tests\obj"/>
 
-        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\.idea" />
+        <RemoveDir Directories="$(MSBuildThisFileDirectory)..\content\.idea"/>
         <Delete Files="$(MSBuildThisFileDirectory)..\content\Company.Template.sln.DotSettings.user"
-                TreatErrorsAsWarnings="true" />
+                TreatErrorsAsWarnings="true"/>
     </Target>
 
     <Target Name="InstallTemplate" DependsOnTargets="CleanTemplateArtifacts;Pack">
@@ -105,14 +105,14 @@
             <TemplatePackageFile>$(PackageOutputPath)$(PackageId).$(Version).nupkg</TemplatePackageFile>
         </PropertyGroup>
 
-        <Message Importance="high" Text="Uninstalling existing template package $(PackageId) if installed..." />
-        <Exec Command="dotnet new uninstall $(PackageId)" IgnoreExitCode="true" />
+        <Message Importance="high" Text="Uninstalling existing template package $(PackageId) if installed..."/>
+        <Exec Command="dotnet new uninstall $(PackageId)" IgnoreExitCode="true"/>
 
-        <Message Importance="high" Text="Installing template package $(TemplatePackageFile)..." />
-        <Exec Command="dotnet new install &quot;$(TemplatePackageFile)&quot; --force" />
+        <Message Importance="high" Text="Installing template package $(TemplatePackageFile)..."/>
+        <Exec Command="dotnet new install &quot;$(TemplatePackageFile)&quot; --force"/>
 
-        <Message Importance="high" Text="Installed templates matching $(TemplateShortName):" />
-        <Exec Command="dotnet new list $(TemplateShortName)" IgnoreExitCode="true" />
+        <Message Importance="high" Text="Installed templates matching $(TemplateShortName):"/>
+        <Exec Command="dotnet new list $(TemplateShortName)" IgnoreExitCode="true"/>
     </Target>
 
 </Project>

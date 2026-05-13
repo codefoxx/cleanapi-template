@@ -1,0 +1,98 @@
+{
+    "realm": "__KEYCLOAK_REALM__",
+    "enabled": true,
+    "sslRequired": "external",
+    "registrationAllowed": false,
+    "registrationEmailAsUsername": false,
+    "rememberMe": false,
+    "verifyEmail": false,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "resetPasswordAllowed": false,
+    "editUsernameAllowed": false,
+    "bruteForceProtected": false,
+    "accessTokenLifespan": 300,
+    "clients": [
+        {
+            "clientId": "__AUTH_AUDIENCE__",
+            "name": "__AUTH_AUDIENCE__",
+            "description": "Local development API client for the generated application.",
+            "enabled": true,
+            "alwaysDisplayInConsole": false,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "local-dev-secret",
+            "surrogateAuthRequired": false,
+            "bearerOnly": false,
+            "consentRequired": false,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": true,
+            "protocol": "openid-connect",
+            "rootUrl": "",
+            "adminUrl": "",
+            "baseUrl": "",
+            "redirectUris": [
+                "/*"
+            ],
+            "webOrigins": [
+                "/*"
+            ],
+            "attributes": {
+                "realm_client": "false",
+                "display.on.consent.screen": "false",
+                "backchannel.logout.session.required": "true",
+                "frontchannel.logout.session.required": "true",
+                "oauth2.device.authorization.grant.enabled": "false",
+                "oidc.ciba.grant.enabled": "false",
+                "standard.token.exchange.enabled": "false",
+                "dpop.bound.access.tokens": "false"
+            },
+            "fullScopeAllowed": true,
+            "protocolMappers": [
+                {
+                    "name": "__AUTH_AUDIENCE__-audience",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-audience-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "included.client.audience": "__AUTH_AUDIENCE__",
+                        "id.token.claim": "false",
+                        "access.token.claim": "true",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "false"
+                    }
+                }
+            ],
+            "defaultClientScopes": [
+                "products.read",
+                "products.write"
+            ],
+            "optionalClientScopes": []
+        }
+    ],
+    "clientScopes": [
+        {
+            "name": "products.read",
+            "description": "Allows the client to read product data through the API. This scope permits access to product query endpoints, such as retrieving product details, but does not allow creating, changing, or discontinuing products.",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false",
+                "include.in.openid.provider.metadata": "true"
+            }
+        },
+        {
+            "name": "products.write",
+            "description": "Allows the client to create and modify product data through the API. This scope permits write operations such as creating products, changing prices, and discontinuing products.",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false",
+                "include.in.openid.provider.metadata": "true"
+            }
+        }
+    ]
+}

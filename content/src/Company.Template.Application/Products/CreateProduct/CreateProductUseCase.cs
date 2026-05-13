@@ -1,9 +1,17 @@
 using Company.Template.Application.Abstractions;
-using Company.Template.Application.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.CreateProduct;
 
+/// <summary>
+///     Coordinates the process of creating a new product.
+/// </summary>
+/// <remarks>
+///     This use case handles request-level validation, delegates domain construction to
+///     <see cref="Product" />, <see cref="ProductName" />, and <see cref="Money" />, and persists
+///     the new aggregate. It returns a <see cref="Result{T}" /> which callers can translate
+///     at their own boundary.
+/// </remarks>
 public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, ProductDto>
 {
     private readonly IClock _clock;
@@ -18,6 +26,8 @@ public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, Produc
     public async Task<Result<ProductDto>> ExecuteAsync(CreateProductCommand command,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(command);
+
         if (string.IsNullOrWhiteSpace(command.Name))
         {
             return Result<ProductDto>.Failure(Error.Validation("Product name is required."));

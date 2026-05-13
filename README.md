@@ -2,11 +2,12 @@
 
 This repository contains a `dotnet new` template for a production-oriented Clean Architecture Web API.
 
-The outer repository is the template authoring container. The generated application template lives in `content/` and is packaged by `template-package/`.
+The outer repository is the template authoring container. The generated application template lives in `content/` and is
+packaged by `template-package/`.
 
 ## Repository structure
 
-~~~text
+```text
 content/
   The actual template content.
   This is what users get when they run dotnet new cleanapi.
@@ -17,7 +18,7 @@ template-package/
 
 scripts/
   Local template authoring and verification scripts.
-~~~
+```
 
 ## Template goals
 
@@ -31,7 +32,7 @@ It demonstrates:
 - explicit use cases
 - Result and Option patterns
 - EF Core without custom repository/unit-of-work wrappers
-- provider-selectable relational persistence
+- provider-selectable relational persistence for PostgreSQL and SQL Server
 - EF Core migrations through a one-shot migration service
 - .NET Aspire local orchestration
 - OpenTelemetry and structured logging
@@ -65,7 +66,7 @@ The `Application` project contains use cases and application-level abstractions.
 
 Use cases implement one of these contracts:
 
-~~~csharp
+```csharp
 public interface IUseCase<in TRequest, TResult>
 {
     Task<Result<TResult>> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
@@ -75,9 +76,10 @@ public interface IUseCase<in TRequest>
 {
     Task<Result> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
 }
-~~~
+```
 
-Endpoints depend on these interfaces, not on concrete use-case classes. This allows cross-cutting behavior such as logging, tracing, metrics, and timing to be applied through decorators.
+Endpoints depend on these interfaces, not on concrete use-case classes. This allows cross-cutting behavior such as
+logging, tracing, metrics, and timing to be applied through decorators.
 
 Use cases are registered automatically using Scrutor.
 
@@ -95,21 +97,24 @@ Instead:
 
 Example:
 
-~~~csharp
+```csharp
 Product? product = await _dbContext.ProductsForRead
     .WithId(productId)
     .SingleOrDefaultAsync(cancellationToken);
-~~~
+```
 
 For writes:
 
-~~~csharp
+```csharp
 _dbContext.Products.Add(product);
 
 await _dbContext.SaveChangesAsync(cancellationToken);
-~~~
+```
 
-The database provider is still abstracted behind provider-specific EF Core configuration. The generated project compiles only the selected provider.
+The database provider is still abstracted behind provider-specific EF Core configuration. The generated project compiles
+only the selected provider.
+
+Provider selection is a generation-time choice, not a runtime provider switch.
 
 ### Observability
 
@@ -139,7 +144,7 @@ Use cases are wrapped by telemetry decorators. The decorator records:
 
 The split is intentional:
 
-~~~text
+```text
 Logs
   Explain what the application decided and why.
 
@@ -148,13 +153,13 @@ Traces
 
 Metrics
   Show rates, counts, failures, and duration distributions.
-~~~
+```
 
 Generic execution telemetry lives in:
 
-~~~text
+```text
 content/src/Company.Template.Application/Telemetry/
-~~~
+```
 
 Feature-specific business logs should live with the feature.
 
@@ -162,15 +167,16 @@ Feature-specific business logs should live with the feature.
 
 The generated solution includes a `MigrationService` project.
 
-It is an executable one-shot process that applies EF Core migrations and exits. Aspire starts it after the database and before the API.
+It is an executable one-shot process that applies EF Core migrations and exits. Aspire starts it after the database and
+before the API.
 
 Local startup order:
 
-~~~text
+```text
 database
   -> migration service
   -> api
-~~~
+```
 
 For production deployments, migration bundles are preferred over running migrations from the API at startup.
 
@@ -178,39 +184,40 @@ For production deployments, migration bundles are preferred over running migrati
 
 Use the helper script for local template authoring:
 
-~~~bash
+```bash
 ./scripts/template.sh --help
-~~~
+```
 
 Available commands:
 
-~~~text
+```text
 pack       Build the template NuGet package.
 install    Pack and install the template locally.
 create     Create a test project from the installed template.
 migrate    Create an EF Core migration in the test project.
-build      Restore and build the generated test project.
-test       Install, create, migrate and build the generated project.
-all        Same as test.
+build      Install, create, migrate and build the generated project.
+test       Build the generated project and run all tests.
+all        Pack the template, build the generated project and run all tests.
 clean      Remove generated test output.
-~~~
+```
 
 Examples:
 
-~~~bash
+```bash
 ./scripts/template.sh pack
 ./scripts/template.sh install
 ./scripts/template.sh create --db PostgreSql
+./scripts/template.sh build --db PostgreSql
 ./scripts/template.sh test --db PostgreSql
+./scripts/template.sh all --db PostgreSql
 ./scripts/template.sh test --db SqlServer --name Acme.Orders
-./scripts/template.sh test --db MySql
-~~~
+```
 
 The default test project is generated under:
 
-~~~text
+```text
 /tmp/cleanapi-template-test/Acme.Products
-~~~
+```
 
 The script verifies:
 
@@ -223,54 +230,75 @@ The script verifies:
 - initial EF Core migration generation
 - absence of EF Core design-time `BuildHost-*` artifacts
 - solution build
+- generated project tests
+
+Use `build` when you only want to verify that a generated project builds.
+
+Use `test` when you want to verify that the generated project builds and all tests pass.
+
+Use `all` when you want the full local validation flow, including explicitly packing the template before building and
+testing a generated project.
 
 ## Build the template package manually
 
-~~~bash
+```bash
 dotnet pack ./template-package/Codefox.CleanApi.Template.csproj -c Release
-~~~
+```
 
 ## Install locally manually
 
-~~~bash
+```bash
 dotnet new install ./template-package/bin/Release/Codefox.CleanApi.Template.0.1.0.nupkg --force
-~~~
+```
 
 Or use:
 
-~~~bash
+```bash
 ./scripts/template.sh install
-~~~
+```
 
 ## Generate a new API manually
 
-~~~bash
+```bash
 dotnet new cleanapi -n Acme.Products --db PostgreSql
-~~~
+```
 
 Supported database provider values:
 
 - `PostgreSql`
 - `SqlServer`
-- `MySql`
+
+MySQL is intentionally not exposed in the initial .NET 10 version. The preferred Pomelo provider does not currently have
+stable EF Core 10 support, so MySQL support should be added later only after provider compatibility and template tests
+have been validated.
 
 ## Working with `content/`
 
 The `content/` folder is a real .NET solution and should stay buildable.
 
-After running template packaging/install scripts, some `bin/` and `obj/` folders inside `content/` may be deleted intentionally. If Rider or the CLI complains about missing `project.assets.json`, restore the content solution:
+The raw, uninstantiated template still contains replacement tokens such as `__DB_PROVIDER__`. If you want to build or
+test the raw `content/` solution directly, set the effective provider explicitly, for example:
 
-~~~bash
+```bash
+dotnet test -p:EffectiveDbProvider=PostgreSql
+```
+
+Template correctness should still be validated against generated projects, because that is what users receive.
+
+After running template packaging/install scripts, some `bin/` and `obj/` folders inside `content/` may be deleted
+intentionally. If Rider or the CLI complains about missing `project.assets.json`, restore the content solution:
+
+```bash
 cd content
-dotnet restore
-~~~
+dotnet restore -p:EffectiveDbProvider=PostgreSql
+```
 
 or:
 
-~~~bash
+```bash
 cd content
-dotnet build
-~~~
+dotnet build -p:EffectiveDbProvider=PostgreSql
+```
 
 ## Template packaging notes
 
@@ -278,39 +306,45 @@ The template package project should pack template content, not compile the gener
 
 The important setting is that files from `content/` are packed as content:
 
-~~~xml
+```xml
 <None Include="$(MSBuildThisFileDirectory)..\content\**\*"
       Pack="true"
       PackagePath="content\" />
-~~~
+```
 
-Avoid adding generated application files as `Compile` items in the template package project unless there is a very specific reason. The generated solution should compile those files, not the package project.
+Avoid adding generated application files as `Compile` items in the template package project unless there is a very
+specific reason. The generated solution should compile those files, not the package project.
 
 ## Development notes
 
-The template currently keeps optional infrastructure such as Keycloak and pgAdmin in the generated solution and enables them through configuration.
+The template currently keeps optional infrastructure such as Keycloak and pgAdmin in the generated solution and enables
+them through configuration.
 
-This avoids half-working template parameters that remove files but leave stale solution or project references behind. Optional pruning can be added later, but only deliberately and with full template tests for each combination.
+This avoids half-working template parameters that remove files but leave stale solution or project references behind.
+Optional pruning can be added later, but only deliberately and with full template tests for each combination.
 
 ## Recommended validation before committing
 
-~~~bash
+Before committing provider-related changes, validate both supported providers:
+
+```bash
 ./scripts/template.sh test --db PostgreSql
-~~~
-
-When changing provider-specific code, also run:
-
-~~~bash
 ./scripts/template.sh test --db SqlServer
-./scripts/template.sh test --db MySql
-~~~
+```
+
+For smaller changes, this is usually enough:
+
+```bash
+./scripts/template.sh test --db PostgreSql
+```
 
 ## Generated project README
 
 The README delivered with the generated application lives in:
 
-~~~text
+```text
 content/README.md
-~~~
+```
 
-This repository README describes template authoring. The generated README describes how to use the generated application.
+This repository README describes template authoring. The generated README describes how to use the generated
+application.
