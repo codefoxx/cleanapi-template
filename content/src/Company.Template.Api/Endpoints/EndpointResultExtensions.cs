@@ -17,25 +17,27 @@ internal static class EndpointResultExtensions
         ArgumentNullException.ThrowIfNull(result);
         ArgumentNullException.ThrowIfNull(onSuccess);
 
-        return result is { IsSuccess: true, Value: not null }
-            ? onSuccess(result.Value)
-            : ToProblem(result.Error);
+        return result.Match(
+            success: onSuccess,
+            failure: ToProblem);
     }
 
     public static IResult ToHttpResult(this Result result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        return result.IsSuccess ? Results.NoContent() : ToProblem(result.Error);
+        return result.Match(
+            success: Results.NoContent,
+            failure: ToProblem);
     }
 
     public static IResult ToHttpResult<TSource, TResponse>(
         this Result<PagedResult<TSource>> result,
         Func<TSource, TResponse> mapItem)
     {
-        return result is { IsSuccess: true, Value: not null }
-            ? Results.Ok(ToPagedResponse(result.Value, mapItem))
-            : ToProblem(result.Error);
+        return result.Match(
+            success: Results.Ok(ToPagedResponse(result.Value, mapItem)),
+            failure: ToProblem);
     }
 
     public static IResult ToProblemResult<T>(this Result<T> result)
@@ -63,13 +65,8 @@ internal static class EndpointResultExtensions
             new TotalResponse(result.TotalCount, result.TotalPages));
     }
 
-    private static IResult ToProblem(Error? error)
+    private static IResult ToProblem(Error error)
     {
-        if (error is null)
-        {
-            return Results.Problem(title: "Unexpected error.");
-        }
-
         return error.Type switch
         {
             ErrorType.Validation => Results.ValidationProblem(
