@@ -11,6 +11,7 @@ namespace Company.Template.Application.Telemetry;
 ///     preserving the explicit <see cref="Result{T}" /> semantics used by the inner use case.
 /// </remarks>
 public sealed class TelemetryUseCaseDecorator<TRequest, TResult> : IUseCase<TRequest, TResult>
+    where TResult : notnull
 {
     private readonly IUseCase<TRequest, TResult> _inner;
     private readonly ILogger<TelemetryUseCaseDecorator<TRequest, TResult>> _logger;
