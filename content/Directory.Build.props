@@ -14,7 +14,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">__DB_PROVIDER__</EffectiveDbProvider>
+        <EffectiveDbProvider>__DB_PROVIDER__</EffectiveDbProvider>
     </PropertyGroup>
 
     <PropertyGroup>

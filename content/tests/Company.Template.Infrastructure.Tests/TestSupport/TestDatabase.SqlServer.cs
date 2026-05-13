@@ -1,5 +1,4 @@
 using Company.Template.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
 
 namespace Company.Template.Infrastructure.Tests.TestSupport;
