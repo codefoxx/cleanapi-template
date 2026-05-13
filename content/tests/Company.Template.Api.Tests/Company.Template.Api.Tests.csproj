@@ -10,6 +10,14 @@
         <ProjectReference Include="..\..\src\Company.Template.Infrastructure\Company.Template.Infrastructure.csproj"/>
     </ItemGroup>
 
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
+        <Compile Remove="TestSupport\TestDatabase.PostgreSql.cs"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
+        <Compile Remove="TestSupport\TestDatabase.SqlServer.cs"/>
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>

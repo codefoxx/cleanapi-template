@@ -1,5 +1,6 @@
 <Project>
-    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')"/>
+    <Import Project="$(MSBuildThisFileDirectory)Directory.Build.local.props"
+            Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.local.props')" />
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -14,7 +15,11 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <EffectiveDbProvider>__DB_PROVIDER__</EffectiveDbProvider>
+        <!--
+          In raw template development, Directory.Build.local.props can provide EffectiveDbProvider.
+          In generated projects, __DB_PROVIDER__ is replaced by the selected template value.
+        -->
+        <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">__DB_PROVIDER__</EffectiveDbProvider>
     </PropertyGroup>
 
     <PropertyGroup>

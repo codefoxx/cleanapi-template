@@ -40,7 +40,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         result.IsSuccess.ShouldBeTrue();
         result.Error.ShouldBeNull();
 
-        ProductDto product = result.Value.ShouldNotBeNull();
+        ProductDto product = result.Value;
 
         product.Id.ShouldNotBe(Guid.Empty);
         product.Name.ShouldBe("Keyboard");
@@ -71,9 +71,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         result.IsSuccess.ShouldBeTrue();
 
+        ProductDto product = result.Value;
+
         Product persistedProduct = await dbContext.ProductsForRead.SingleAsync();
 
-        persistedProduct.Id.Value.ShouldBe(result.Value!.Id);
+        persistedProduct.Id.Value.ShouldBe(product.Id);
         persistedProduct.Name.ShouldBe(ProductName.Create("Keyboard"));
         persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
         persistedProduct.Status.ShouldBe(ProductStatus.Active);
@@ -104,11 +106,13 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         result.IsSuccess.ShouldBeTrue();
 
+        ProductDto product = result.Value;
+
         ProductCreatedDomainEvent domainEvent = domainEventDispatcher.DispatchedEvents
                                                                      .Single()
                                                                      .ShouldBeOfType<ProductCreatedDomainEvent>();
 
-        domainEvent.ProductId.Value.ShouldBe(result.Value!.Id);
+        domainEvent.ProductId.Value.ShouldBe(product.Id);
         domainEvent.OccurredAt.ShouldBe(UtcNow);
     }
 
@@ -134,12 +138,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.Value.ShouldBeNull();
-        result.Error.ShouldNotBeNull();
-        result.Error.Type.ShouldBe(ErrorType.Validation);
-        result.Error.Code.ShouldBe("validation_error");
-        result.Error.Message.ShouldBe("Product name is required.");
+        Error error = ShouldBeValidationFailure(result);
+        error.Message.ShouldBe("Product name is required.");
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -164,12 +164,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.Value.ShouldBeNull();
-        result.Error.ShouldNotBeNull();
-        result.Error.Type.ShouldBe(ErrorType.Validation);
-        result.Error.Code.ShouldBe("validation_error");
-        result.Error.Message.ShouldBe("Price cannot be negative.");
+        Error error = ShouldBeValidationFailure(result);
+        error.Message.ShouldBe("Price cannot be negative.");
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -194,12 +190,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.Value.ShouldBeNull();
-        result.Error.ShouldNotBeNull();
-        result.Error.Type.ShouldBe(ErrorType.Validation);
-        result.Error.Code.ShouldBe("validation_error");
-        result.Error.Message.ShouldStartWith("Currency must be an ISO 4217 three-letter code.");
+        Error error = ShouldBeValidationFailure(result);
+        error.Message.ShouldStartWith("Currency must be an ISO 4217 three-letter code.");
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -224,14 +216,23 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.Value.ShouldBeNull();
-        result.Error.ShouldNotBeNull();
-        result.Error.Type.ShouldBe(ErrorType.Validation);
-        result.Error.Code.ShouldBe("validation_error");
-        result.Error.Message.ShouldStartWith($"Price cannot have more than {Money.Scale} decimal places.");
+        Error error = ShouldBeValidationFailure(result);
+        error.Message.ShouldStartWith($"Price cannot have more than {Money.Scale} decimal places.");
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
+    }
+
+    private static Error ShouldBeValidationFailure<T>(Result<T> result)
+        where T : notnull
+    {
+        result.IsSuccess.ShouldBeFalse();
+        result.IsFailure.ShouldBeTrue();
+
+        Error error = result.Error.ShouldNotBeNull();
+        error.Type.ShouldBe(ErrorType.Validation);
+        error.Code.ShouldBe("validation_error");
+
+        return error;
     }
 }

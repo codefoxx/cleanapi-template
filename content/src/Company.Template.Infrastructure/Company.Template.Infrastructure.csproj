@@ -5,14 +5,12 @@
         <ProjectReference Include="..\Company.Template.Domain\Company.Template.Domain.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
+        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.PostgreSql.cs"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Persistence\Providers\PostgreSqlDatabaseProvider.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="Persistence\Providers\SqlServerDatabaseProvider.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
+        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.SqlServer.cs"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -27,10 +25,6 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
 
         <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="all"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Persistence\Providers\" />
     </ItemGroup>
 
 </Project>

@@ -35,20 +35,23 @@ internal static class EndpointResultExtensions
         this Result<PagedResult<TSource>> result,
         Func<TSource, TResponse> mapItem)
     {
+        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(mapItem);
+
         return result.Match(
-            success: Results.Ok(ToPagedResponse(result.Value, mapItem)),
+            success: pagedResult => Results.Ok(ToPagedResponse(pagedResult, mapItem)),
             failure: ToProblem);
     }
 
     public static IResult ToProblemResult<T>(this Result<T> result)
+        where T : notnull
     {
-        if (result.IsSuccess)
-        {
-            throw new InvalidOperationException(
-                "A successful result cannot be converted to a problem response.");
-        }
+        ArgumentNullException.ThrowIfNull(result);
 
-        return ToProblem(result.Error);
+        return result.Match<IResult>(
+            success: _ => throw new InvalidOperationException(
+                "A successful result cannot be converted to a problem response."),
+            failure: ToProblem);
     }
 
     private static PagedResponse<TResponse> ToPagedResponse<TSource, TResponse>(
