@@ -12,7 +12,11 @@ namespace Company.Template.Api.Endpoints;
 internal static class EndpointResultExtensions
 {
     public static IResult ToHttpResult<T>(this Result<T> result, Func<T, IResult> onSuccess)
+        where T : notnull
     {
+        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(onSuccess);
+
         return result is { IsSuccess: true, Value: not null }
             ? onSuccess(result.Value)
             : ToProblem(result.Error);
@@ -20,6 +24,8 @@ internal static class EndpointResultExtensions
 
     public static IResult ToHttpResult(this Result result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         return result.IsSuccess ? Results.NoContent() : ToProblem(result.Error);
     }
 

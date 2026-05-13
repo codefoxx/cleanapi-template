@@ -11,6 +11,7 @@ namespace Company.Template.Application.Abstractions;
 /// <typeparam name="TRequest">The type of the request.</typeparam>
 /// <typeparam name="TResult">The type of the result value.</typeparam>
 public interface IUseCase<in TRequest, TResult>
+    where TResult : notnull
 {
     Task<Result<TResult>> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
 }
