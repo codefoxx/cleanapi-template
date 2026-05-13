@@ -3,11 +3,11 @@ using Company.Template.Application.Common;
 namespace Company.Template.Api.Endpoints;
 
 /// <summary>
-/// Translates explicit application results into HTTP responses at the API boundary.
+///     Translates explicit application results into HTTP responses at the API boundary.
 /// </summary>
 /// <remarks>
-/// Keeping this mapping close to the endpoints lets use cases return domain-neutral failure information while the
-/// transport layer decides how validation, not-found, conflict, and unexpected failures are represented over HTTP.
+///     Keeping this mapping close to the endpoints lets use cases return domain-neutral failure information while the
+///     transport layer decides how validation, not-found, conflict, and unexpected failures are represented over HTTP.
 /// </remarks>
 internal static class EndpointResultExtensions
 {

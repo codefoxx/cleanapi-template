@@ -1,11 +1,10 @@
-using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
 
 namespace Company.Template.Api.Tests;
 
-public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class ApiTestFactory : WebApplicationFactory<ApiAssemblyMarker>, IAsyncLifetime
 {
     private readonly TestDatabase _database = new();
 

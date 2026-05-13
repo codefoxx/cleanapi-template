@@ -4,19 +4,19 @@ namespace Company.Template.Domain.Tests.Products;
 
 public sealed class ProductTests
 {
-    private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset ChangedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DiscontinuedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
     [Fact]
     public void Create_WithValidValues_CreatesActiveProduct()
     {
         // Arrange
-        var name = ProductName.Create("Keyboard");
-        var price = Money.Create(99.90m, KnownCurrencies.Chf);
+        ProductName name = ProductName.Create("Keyboard");
+        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
 
         // Act
-        var product = Product.Create(name, price, CreatedAt);
+        Product product = Product.Create(name, price, CreatedAt);
 
         // Assert
         product.Id.Value.ShouldNotBe(Guid.Empty);
@@ -31,11 +31,11 @@ public sealed class ProductTests
     public void Create_WithValidValues_RecordsProductCreatedDomainEvent()
     {
         // Arrange
-        var name = ProductName.Create("Keyboard");
-        var price = Money.Create(99.90m, KnownCurrencies.Chf);
+        ProductName name = ProductName.Create("Keyboard");
+        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
 
         // Act
-        var product = Product.Create(name, price, CreatedAt);
+        Product product = Product.Create(name, price, CreatedAt);
 
         // Assert
         product.DomainEvents.Count.ShouldBe(1);
@@ -53,7 +53,7 @@ public sealed class ProductTests
     {
         // Arrange
         ProductName name = null!;
-        var price = Money.Create(99.90m, KnownCurrencies.Chf);
+        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
 
         // Act
         ArgumentNullException exception = Should.Throw<ArgumentNullException>(() => Product.Create(name, price, CreatedAt));
@@ -66,7 +66,7 @@ public sealed class ProductTests
     public void Create_WithNullPrice_ThrowsArgumentNullException()
     {
         // Arrange
-        var name = ProductName.Create("Keyboard");
+        ProductName name = ProductName.Create("Keyboard");
         Money price = null!;
 
         // Act
@@ -81,7 +81,7 @@ public sealed class ProductTests
     {
         // Arrange
         Product product = CreateProduct();
-        var newName = ProductName.Create("Mouse");
+        ProductName newName = ProductName.Create("Mouse");
 
         // Act
         product.Rename(newName);
@@ -125,7 +125,7 @@ public sealed class ProductTests
         Product product = CreateProduct();
         product.Discontinue(DiscontinuedAt);
 
-        var newName = ProductName.Create("Mouse");
+        ProductName newName = ProductName.Create("Mouse");
 
         // Act
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => product.Rename(newName));
@@ -139,7 +139,7 @@ public sealed class ProductTests
     {
         // Arrange
         Product product = CreateProduct();
-        var newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
         product.ChangePrice(newPrice, ChangedAt);
@@ -156,7 +156,7 @@ public sealed class ProductTests
         product.ClearDomainEvents();
 
         Money oldPrice = product.Price;
-        var newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
         product.ChangePrice(newPrice, ChangedAt);
@@ -213,7 +213,7 @@ public sealed class ProductTests
         product.Discontinue(DiscontinuedAt);
         product.ClearDomainEvents();
 
-        var newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
         product.ChangePrice(newPrice, ChangedAt);

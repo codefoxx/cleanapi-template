@@ -11,11 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="TestSupport\TestDatabase.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="TestSupport\TestDatabase.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="Testcontainers.PostgreSql" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
         <PackageReference Include="Testcontainers.MsSql" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>

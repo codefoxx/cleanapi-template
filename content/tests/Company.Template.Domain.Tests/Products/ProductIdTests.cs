@@ -8,7 +8,7 @@ public sealed class ProductIdTests
     public void New_ReturnsNonEmptyProductId()
     {
         // Act
-        var productId = ProductId.New();
+        ProductId productId = ProductId.New();
 
         // Assert
         productId.Value.ShouldNotBe(Guid.Empty);
@@ -18,10 +18,10 @@ public sealed class ProductIdTests
     public void From_WithNonEmptyGuid_ReturnsProductId()
     {
         // Arrange
-        var value = Guid.CreateVersion7();
+        Guid value = Guid.CreateVersion7();
 
         // Act
-        var productId = ProductId.From(value);
+        ProductId productId = ProductId.From(value);
 
         // Assert
         productId.Value.ShouldBe(value);
@@ -44,8 +44,8 @@ public sealed class ProductIdTests
     public void ToString_ReturnsGuidValue()
     {
         // Arrange
-        var value = Guid.CreateVersion7();
-        var productId = ProductId.From(value);
+        Guid value = Guid.CreateVersion7();
+        ProductId productId = ProductId.From(value);
 
         // Act
         string result = productId.ToString();

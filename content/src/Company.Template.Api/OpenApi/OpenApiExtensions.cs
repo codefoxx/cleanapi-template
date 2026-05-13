@@ -11,8 +11,8 @@ internal static class OpenApiRegistrationExtensions
             options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
                 AuthenticationOptions authenticationOptions = context.ApplicationServices
-                    .GetRequiredService<IOptions<AuthenticationOptions>>()
-                    .Value;
+                                                                     .GetRequiredService<IOptions<AuthenticationOptions>>()
+                                                                     .Value;
 
                 if (!authenticationOptions.Enabled)
                 {
@@ -20,7 +20,7 @@ internal static class OpenApiRegistrationExtensions
                 }
 
                 OAuth2SecuritySchemeTransformer transformer = context.ApplicationServices
-                    .GetRequiredService<OAuth2SecuritySchemeTransformer>();
+                                                                     .GetRequiredService<OAuth2SecuritySchemeTransformer>();
 
                 return transformer.TransformAsync(document, context, cancellationToken);
             });
@@ -28,8 +28,8 @@ internal static class OpenApiRegistrationExtensions
             options.AddOperationTransformer((operation, context, cancellationToken) =>
             {
                 AuthenticationOptions authenticationOptions = context.ApplicationServices
-                    .GetRequiredService<IOptions<AuthenticationOptions>>()
-                    .Value;
+                                                                     .GetRequiredService<IOptions<AuthenticationOptions>>()
+                                                                     .Value;
 
                 if (!authenticationOptions.Enabled)
                 {
@@ -37,7 +37,7 @@ internal static class OpenApiRegistrationExtensions
                 }
 
                 return new AuthorizationOperationTransformer()
-                    .TransformAsync(operation, context, cancellationToken);
+                   .TransformAsync(operation, context, cancellationToken);
             });
         });
 

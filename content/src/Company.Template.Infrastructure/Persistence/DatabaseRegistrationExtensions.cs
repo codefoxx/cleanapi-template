@@ -1,14 +1,13 @@
 using Company.Template.Infrastructure.Options;
-using Company.Template.Infrastructure.Persistence.Providers;
 
 namespace Company.Template.Infrastructure.Persistence;
 
 /// <summary>
-/// Registers the EF Core database implementation selected when the template was generated.
+///     Registers the EF Core database implementation selected when the template was generated.
 /// </summary>
 /// <remarks>
-/// The database provider is a template/build-time choice. Runtime configuration selects the
-/// connection string, but it must match the generated provider to fail fast on configuration drift.
+///     The database provider is a template/build-time choice. Runtime configuration selects the
+///     connection string, but it must match the generated provider to fail fast on configuration drift.
 /// </remarks>
 public static class DatabaseRegistrationExtensions
 {

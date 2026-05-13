@@ -1,11 +1,11 @@
 namespace Company.Template.Domain.Common;
 
 /// <summary>
-/// Provides fail-fast precondition helpers for defensive programming.
+///     Provides fail-fast precondition helpers for defensive programming.
 /// </summary>
 /// <remarks>
-/// Guard clauses are used to validate method arguments and state before proceeding, 
-/// preventing the system from entering an inconsistent state due to invalid input.
+///     Guard clauses are used to validate method arguments and state before proceeding,
+///     preventing the system from entering an inconsistent state due to invalid input.
 /// </remarks>
 public static class Guard
 {

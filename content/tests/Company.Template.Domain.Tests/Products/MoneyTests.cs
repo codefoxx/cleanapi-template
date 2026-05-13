@@ -15,7 +15,7 @@ public sealed class MoneyTests
         Currency currency = Chf;
 
         // Act
-        var money = Money.Create(amount, currency);
+        Money money = Money.Create(amount, currency);
 
         // Assert
         money.Amount.ShouldBe(amount);
@@ -31,7 +31,7 @@ public sealed class MoneyTests
         Currency currency = Currency.Empty;
 
         // Act
-        var money = Money.Create(amount, currency);
+        Money money = Money.Create(amount, currency);
 
         // Assert
         money.Amount.ShouldBe(0m);
@@ -47,7 +47,7 @@ public sealed class MoneyTests
         Currency currency = Chf;
 
         // Act
-        var money = Money.Create(amount, currency);
+        Money money = Money.Create(amount, currency);
 
         // Assert
         money.Amount.ShouldBe(0m);
@@ -119,7 +119,7 @@ public sealed class MoneyTests
         const string currency = "chf";
 
         // Act
-        var money = Money.Create(amount, currency);
+        Money money = Money.Create(amount, currency);
 
         // Assert
         money.Amount.ShouldBe(amount);
@@ -133,7 +133,7 @@ public sealed class MoneyTests
         const decimal amount = 1.005m;
 
         // Act
-        var money = Money.CreateRounded(amount, Chf);
+        Money money = Money.CreateRounded(amount, Chf);
 
         // Assert
         money.Amount.ShouldBe(1.01m);
@@ -172,7 +172,7 @@ public sealed class MoneyTests
     public void Zero_WithoutCurrency_ReturnsZeroWithEmptyCurrency()
     {
         // Act
-        var money = Money.Zero();
+        Money money = Money.Zero();
 
         // Assert
         money.Amount.ShouldBe(0m);
@@ -187,7 +187,7 @@ public sealed class MoneyTests
         Currency currency = Chf;
 
         // Act
-        var money = Money.Zero(currency);
+        Money money = Money.Zero(currency);
 
         // Assert
         money.Amount.ShouldBe(0m);
@@ -212,8 +212,8 @@ public sealed class MoneyTests
     public void Add_WithSameCurrency_ReturnsSum()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Chf);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Chf);
 
         // Act
         Money result = left.Add(right);
@@ -226,8 +226,8 @@ public sealed class MoneyTests
     public void Add_WithDifferentCurrency_ThrowsInvalidOperationException()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Eur);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Eur);
 
         // Act
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => left.Add(right));
@@ -240,7 +240,7 @@ public sealed class MoneyTests
     public void Add_WithNullMoney_ThrowsArgumentNullException()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
+        Money left = Money.Create(10m, Chf);
         Money right = null!;
 
         // Act
@@ -254,8 +254,8 @@ public sealed class MoneyTests
     public void Subtract_WithSameCurrency_ReturnsDifference()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Chf);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Chf);
 
         // Act
         Money result = left.Subtract(right);
@@ -268,8 +268,8 @@ public sealed class MoneyTests
     public void Subtract_WhenResultWouldBeNegative_ThrowsInvalidOperationException()
     {
         // Arrange
-        var left = Money.Create(2.50m, Chf);
-        var right = Money.Create(10m, Chf);
+        Money left = Money.Create(2.50m, Chf);
+        Money right = Money.Create(10m, Chf);
 
         // Act
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => left.Subtract(right));
@@ -282,8 +282,8 @@ public sealed class MoneyTests
     public void Subtract_WithDifferentCurrency_ThrowsInvalidOperationException()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Eur);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Eur);
 
         // Act
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => left.Subtract(right));
@@ -296,7 +296,7 @@ public sealed class MoneyTests
     public void Subtract_WithNullMoney_ThrowsArgumentNullException()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
+        Money left = Money.Create(10m, Chf);
         Money right = null!;
 
         // Act
@@ -310,7 +310,7 @@ public sealed class MoneyTests
     public void ScaleBy_WithPositiveFactor_ReturnsScaledMoney()
     {
         // Arrange
-        var money = Money.Create(10m, Chf);
+        Money money = Money.Create(10m, Chf);
         const decimal factor = 1.5m;
 
         // Act
@@ -324,7 +324,7 @@ public sealed class MoneyTests
     public void ScaleBy_WithFractionalResult_RoundsAwayFromZero()
     {
         // Arrange
-        var money = Money.Create(10.01m, Chf);
+        Money money = Money.Create(10.01m, Chf);
         const decimal factor = 0.5m;
 
         // Act
@@ -338,7 +338,7 @@ public sealed class MoneyTests
     public void ScaleBy_WithZeroFactor_ReturnsZeroWithSameCurrency()
     {
         // Arrange
-        var money = Money.Create(10m, Chf);
+        Money money = Money.Create(10m, Chf);
         const decimal factor = 0m;
 
         // Act
@@ -352,7 +352,7 @@ public sealed class MoneyTests
     public void ScaleBy_WithNegativeFactor_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        var money = Money.Create(10m, Chf);
+        Money money = Money.Create(10m, Chf);
         const decimal factor = -1m;
 
         // Act
@@ -367,8 +367,8 @@ public sealed class MoneyTests
     public void CompareTo_WithLowerAmountInSameCurrency_ReturnsNegativeValue()
     {
         // Arrange
-        var lower = Money.Create(1m, Chf);
-        var higher = Money.Create(2m, Chf);
+        Money lower = Money.Create(1m, Chf);
+        Money higher = Money.Create(2m, Chf);
 
         // Act
         int result = lower.CompareTo(higher);
@@ -381,8 +381,8 @@ public sealed class MoneyTests
     public void CompareTo_WithHigherAmountInSameCurrency_ReturnsPositiveValue()
     {
         // Arrange
-        var lower = Money.Create(1m, Chf);
-        var higher = Money.Create(2m, Chf);
+        Money lower = Money.Create(1m, Chf);
+        Money higher = Money.Create(2m, Chf);
 
         // Act
         int result = higher.CompareTo(lower);
@@ -395,8 +395,8 @@ public sealed class MoneyTests
     public void CompareTo_WithSameAmountAndSameCurrency_ReturnsZero()
     {
         // Arrange
-        var left = Money.Create(1m, Chf);
-        var right = Money.Create(1m, Chf);
+        Money left = Money.Create(1m, Chf);
+        Money right = Money.Create(1m, Chf);
 
         // Act
         int result = left.CompareTo(right);
@@ -409,7 +409,7 @@ public sealed class MoneyTests
     public void CompareTo_WithNull_ReturnsPositiveValue()
     {
         // Arrange
-        var money = Money.Create(1m, Chf);
+        Money money = Money.Create(1m, Chf);
         Money other = null!;
 
         // Act
@@ -423,8 +423,8 @@ public sealed class MoneyTests
     public void CompareTo_WithDifferentCurrency_ThrowsInvalidOperationException()
     {
         // Arrange
-        var left = Money.Create(1m, Chf);
-        var right = Money.Create(1m, Eur);
+        Money left = Money.Create(1m, Chf);
+        Money right = Money.Create(1m, Eur);
 
         // Act
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => left.CompareTo(right));
@@ -437,8 +437,8 @@ public sealed class MoneyTests
     public void CompareTo_WithEmptyZeroAndDifferentCurrency_ComparesAmountWithoutCurrencyCheck()
     {
         // Arrange
-        var zero = Money.Zero();
-        var other = Money.Create(1m, Eur);
+        Money zero = Money.Zero();
+        Money other = Money.Create(1m, Eur);
 
         // Act
         int result = zero.CompareTo(other);
@@ -451,8 +451,8 @@ public sealed class MoneyTests
     public void PlusOperator_WithSameCurrency_ReturnsSum()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Chf);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Chf);
 
         // Act
         Money result = left + right;
@@ -465,8 +465,8 @@ public sealed class MoneyTests
     public void MinusOperator_WithSameCurrency_ReturnsDifference()
     {
         // Arrange
-        var left = Money.Create(10m, Chf);
-        var right = Money.Create(2.50m, Chf);
+        Money left = Money.Create(10m, Chf);
+        Money right = Money.Create(2.50m, Chf);
 
         // Act
         Money result = left - right;
@@ -479,8 +479,8 @@ public sealed class MoneyTests
     public void LessThanOperator_WithLowerAmountInSameCurrency_ReturnsTrue()
     {
         // Arrange
-        var lower = Money.Create(1m, Chf);
-        var higher = Money.Create(2m, Chf);
+        Money lower = Money.Create(1m, Chf);
+        Money higher = Money.Create(2m, Chf);
 
         // Act
         bool result = lower < higher;
@@ -493,8 +493,8 @@ public sealed class MoneyTests
     public void LessThanOrEqualOperator_WithSameAmountInSameCurrency_ReturnsTrue()
     {
         // Arrange
-        var left = Money.Create(1m, Chf);
-        var right = Money.Create(1m, Chf);
+        Money left = Money.Create(1m, Chf);
+        Money right = Money.Create(1m, Chf);
 
         // Act
         bool result = left <= right;
@@ -507,8 +507,8 @@ public sealed class MoneyTests
     public void GreaterThanOperator_WithHigherAmountInSameCurrency_ReturnsTrue()
     {
         // Arrange
-        var lower = Money.Create(1m, Chf);
-        var higher = Money.Create(2m, Chf);
+        Money lower = Money.Create(1m, Chf);
+        Money higher = Money.Create(2m, Chf);
 
         // Act
         bool result = higher > lower;
@@ -521,8 +521,8 @@ public sealed class MoneyTests
     public void GreaterThanOrEqualOperator_WithSameAmountInSameCurrency_ReturnsTrue()
     {
         // Arrange
-        var left = Money.Create(1m, Chf);
-        var right = Money.Create(1m, Chf);
+        Money left = Money.Create(1m, Chf);
+        Money right = Money.Create(1m, Chf);
 
         // Act
         bool result = left >= right;
@@ -535,7 +535,7 @@ public sealed class MoneyTests
     public void ToString_WithCurrency_ReturnsAmountAndCurrencyCode()
     {
         // Arrange
-        var money = Money.Create(12.5m, Chf);
+        Money money = Money.Create(12.5m, Chf);
 
         // Act
         string value = money.ToString();
@@ -548,7 +548,7 @@ public sealed class MoneyTests
     public void ToString_WithEmptyCurrency_ReturnsAmountOnly()
     {
         // Arrange
-        var money = Money.Zero();
+        Money money = Money.Zero();
 
         // Act
         string value = money.ToString();

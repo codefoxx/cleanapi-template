@@ -1,6 +1,6 @@
 import encoding from "k6/encoding";
 import http from "k6/http";
-import { check, fail } from "k6";
+import {check, fail} from "k6";
 
 export const options = {
     vus: 1,
@@ -13,7 +13,7 @@ export const options = {
 
 http.setResponseCallback(
     http.expectedStatuses(
-        { min: 200, max: 399 },
+        {min: 200, max: 399},
         400,
         401,
         404

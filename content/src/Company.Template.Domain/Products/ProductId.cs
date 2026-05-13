@@ -3,11 +3,11 @@ using Company.Template.Domain.Common;
 namespace Company.Template.Domain.Products;
 
 /// <summary>
-/// A strongly-typed identifier for the <see cref="Product"/> aggregate.
+///     A strongly-typed identifier for the <see cref="Product" /> aggregate.
 /// </summary>
 /// <remarks>
-/// Using a strongly-typed ID prevents accidental assignment of identifiers from different 
-/// entity types, enhancing type safety across the domain and application layers.
+///     Using a strongly-typed ID prevents accidental assignment of identifiers from different
+///     entity types, enhancing type safety across the domain and application layers.
 /// </remarks>
 public readonly record struct ProductId(Guid Value) : IStronglyTypedId
 {

@@ -1,11 +1,11 @@
 namespace Company.Template.Domain.Products;
 
 /// <summary>
-/// Represents a monetary value with a specific currency.
+///     Represents a monetary value with a specific currency.
 /// </summary>
 /// <remarks>
-/// <see cref="Money"/> is a value object that ensures mathematical consistency and enforces rules
-/// such as matching currencies for operations and rounding to a standard scale.
+///     <see cref="Money" /> is a value object that ensures mathematical consistency and enforces rules
+///     such as matching currencies for operations and rounding to a standard scale.
 /// </remarks>
 public sealed record Money : IComparable<Money>
 {
@@ -24,12 +24,30 @@ public sealed record Money : IComparable<Money>
 
     public bool IsZero => Amount == 0 && Currency == Currency.Empty;
 
+    /// <inheritdoc />
+    public int CompareTo(Money? other)
+    {
+        if (other is null)
+        {
+            return 1;
+        }
+
+        if (IsZero || other.IsZero)
+        {
+            return Amount.CompareTo(other.Amount);
+        }
+
+        EnsureSameCurrency(other);
+
+        return Amount.CompareTo(other.Amount);
+    }
+
     /// <summary>
-    /// Creates a new <see cref="Money"/> instance with validation.
+    ///     Creates a new <see cref="Money" /> instance with validation.
     /// </summary>
     /// <param name="amount">The monetary amount.</param>
     /// <param name="currency">The currency.</param>
-    /// <returns>A new <see cref="Money"/> instance.</returns>
+    /// <returns>A new <see cref="Money" /> instance.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the amount is negative.</exception>
     /// <exception cref="ArgumentException">Thrown when currency is missing for non-zero amounts or scale is exceeded.</exception>
     public static Money Create(decimal amount, Currency currency)
@@ -59,7 +77,7 @@ public sealed record Money : IComparable<Money>
         return Create(amount, Currency.Create(currency));
     }
 
-    /// <summary>Creates a new <see cref="Money"/> instance, rounding the amount to the standard scale.</summary>
+    /// <summary>Creates a new <see cref="Money" /> instance, rounding the amount to the standard scale.</summary>
     public static Money CreateRounded(decimal amount, Currency currency)
     {
         ArgumentNullException.ThrowIfNull(currency);
@@ -120,24 +138,6 @@ public sealed record Money : IComparable<Money>
         }
 
         return CreateRounded(Amount * factor, Currency);
-    }
-
-    /// <inheritdoc />
-    public int CompareTo(Money? other)
-    {
-        if (other is null)
-        {
-            return 1;
-        }
-
-        if (IsZero || other.IsZero)
-        {
-            return Amount.CompareTo(other.Amount);
-        }
-
-        EnsureSameCurrency(other);
-
-        return Amount.CompareTo(other.Amount);
     }
 
     public static Money operator +(Money left, Money right)

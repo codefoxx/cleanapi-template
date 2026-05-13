@@ -4,36 +4,70 @@ using StringSplitOptions = System.StringSplitOptions;
 namespace Company.Template.Api.Security;
 
 /// <summary>
-/// Composes authentication and authorization for the API hosting boundary.
+///     Composes authentication and authorization for the API hosting boundary.
 /// </summary>
 /// <remarks>
-/// The registrations keep token validation, role/scope policy evaluation, and template-level opt-in behavior outside
-/// application use cases so expected authorization decisions remain an API concern.
+///     The registrations keep token validation, role/scope policy evaluation, and template-level opt-in behavior outside
+///     application use cases so expected authorization decisions remain an API concern.
 /// </remarks>
-public static class AuthenticationExtensions
+internal static class AuthenticationExtensions
 {
+    public static RouteHandlerBuilder RequireTemplatePolicy(
+        this RouteHandlerBuilder builder,
+        string policy,
+        bool authenticationEnabled)
+    {
+        return authenticationEnabled
+            ? builder.RequireAuthorization(policy)
+            : builder;
+    }
+
+    private static void RequireScopeOrRole(AuthorizationPolicyBuilder policy, string requiredValue)
+    {
+        policy.RequireAuthenticatedUser();
+
+        policy.RequireAssertion(context =>
+            context.User.IsInRole(requiredValue) ||
+            context.User.Claims.Any(claim =>
+                IsRequiredScopeClaim(claim, requiredValue) ||
+                claim.Value == requiredValue));
+    }
+
+    private static bool IsRequiredScopeClaim(Claim claim, string requiredValue)
+    {
+        if (claim.Type is not ("scope" or "scp"))
+        {
+            return false;
+        }
+
+        return Enumerable.Contains(claim.Value
+                                        .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            requiredValue,
+            StringComparer.Ordinal);
+    }
+
     extension(IServiceCollection services)
     {
         public IServiceCollection AddTemplateAuthentication()
         {
             services
-                .AddOptions<AuthenticationOptions>()
-                .BindConfiguration(AuthenticationOptions.SectionName)
-                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Authority),
+               .AddOptions<AuthenticationOptions>()
+               .BindConfiguration(AuthenticationOptions.SectionName)
+               .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Authority),
                     "Authentication:Authority is required when authentication is enabled.")
-                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Audience),
+               .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Audience),
                     "Authentication:Audience is required when authentication is enabled.")
-                .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.RoleClaimType),
+               .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.RoleClaimType),
                     "Authentication:RoleClaimType is required when authentication is enabled.")
-                .ValidateOnStart();
+               .ValidateOnStart();
 
             services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer();
+               .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer();
 
             services
-                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-                .Configure<IOptions<AuthenticationOptions>>((jwt, authentication) =>
+               .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+               .Configure<IOptions<AuthenticationOptions>>((jwt, authentication) =>
                 {
                     AuthenticationOptions options = authentication.Value;
 
@@ -64,37 +98,5 @@ public static class AuthenticationExtensions
 
             return services;
         }
-    }
-
-    public static RouteHandlerBuilder RequireTemplatePolicy(
-        this RouteHandlerBuilder builder,
-        string policy,
-        bool authenticationEnabled)
-    {
-        return authenticationEnabled
-            ? builder.RequireAuthorization(policy)
-            : builder;
-    }
-
-    private static void RequireScopeOrRole(AuthorizationPolicyBuilder policy, string requiredValue)
-    {
-        policy.RequireAuthenticatedUser();
-
-        policy.RequireAssertion(context =>
-            context.User.IsInRole(requiredValue) ||
-            context.User.Claims.Any(claim =>
-                IsRequiredScopeClaim(claim, requiredValue) ||
-                claim.Value == requiredValue));
-    }
-
-    private static bool IsRequiredScopeClaim(Claim claim, string requiredValue)
-    {
-        if (claim.Type is not ("scope" or "scp"))
-        {
-            return false;
-        }
-
-        return Enumerable.Contains(claim.Value
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries), requiredValue, StringComparer.Ordinal);
     }
 }

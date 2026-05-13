@@ -1,11 +1,11 @@
 namespace Company.Template.AppHost.Containers;
 
 /// <summary>
-/// Adds the optional pgAdmin container used by local Aspire orchestration.
+///     Adds the optional pgAdmin container used by local Aspire orchestration.
 /// </summary>
 /// <remarks>
-/// The helper isolates development-time database administration from the application runtime so enabling the container
-/// does not alter application persistence behavior or domain code.
+///     The helper isolates development-time database administration from the application runtime so enabling the container
+///     does not alter application persistence behavior or domain code.
 /// </remarks>
 public static class PgAdminContainerExtensions
 {
@@ -13,18 +13,18 @@ public static class PgAdminContainerExtensions
         this IDistributedApplicationBuilder builder,
         Action<PgAdminContainerOptions>? configure = null)
     {
-        var options = new PgAdminContainerOptions();
+        PgAdminContainerOptions options = new();
         configure?.Invoke(options);
 
         Validate(options);
 
         return builder
-            .AddContainer(options.ResourceName, options.Image)
-            .WithEnvironment("PGADMIN_DEFAULT_EMAIL", options.DefaultEmail)
-            .WithEnvironment("PGADMIN_DEFAULT_PASSWORD", options.DefaultPassword)
-            .WithHttpEndpoint(
-                targetPort: options.TargetPort,
-                name: options.EndpointName);
+              .AddContainer(options.ResourceName, options.Image)
+              .WithEnvironment("PGADMIN_DEFAULT_EMAIL", options.DefaultEmail)
+              .WithEnvironment("PGADMIN_DEFAULT_PASSWORD", options.DefaultPassword)
+              .WithHttpEndpoint(
+                   targetPort: options.TargetPort,
+                   name: options.EndpointName);
     }
 
     private static void Validate(PgAdminContainerOptions options)

@@ -16,7 +16,7 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         using HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.GetAsync("/");
+        HttpResponseMessage response = await client.GetAsync(TestApi.Root);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -36,7 +36,7 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         };
 
         // Act
-        HttpResponseMessage response = await client.PostAsJsonAsync("/api/products", request);
+        HttpResponseMessage response = await client.PostAsJsonAsync(TestApi.Products, request);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -56,7 +56,7 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         };
 
         // Act
-        HttpResponseMessage response = await client.PostAsJsonAsync("/api/products", request);
+        HttpResponseMessage response = await client.PostAsJsonAsync(TestApi.Products, request);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -77,14 +77,10 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         // Arrange
         using HttpClient client = _factory.CreateClient();
 
-        ProductResponse created = await CreateProductAsync(
-            client,
-            name: "Keyboard",
-            price: 99.99m,
-            currency: "USD");
+        ProductResponse created = await TestApi.CreateProductAsync(client);
 
         // Act
-        HttpResponseMessage response = await client.GetAsync($"/api/products/{created.Id}");
+        HttpResponseMessage response = await client.GetAsync(TestApi.ProductById(created.Id));
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -97,40 +93,5 @@ public sealed class ApiSmokeTests : IClassFixture<ApiTestFactory>
         fetched.Price.ShouldBe(created.Price);
         fetched.Currency.ShouldBe(created.Currency);
         fetched.Status.ShouldBe(created.Status);
-        return;
-
-        // Local functions
-        static async Task<ProductResponse> CreateProductAsync(
-            HttpClient client,
-            string name,
-            decimal price,
-            string currency)
-        {
-            var request = new
-            {
-                Name = name,
-                Price = price,
-                Currency = currency
-            };
-
-            HttpResponseMessage response = await client.PostAsJsonAsync("/api/products", request);
-
-            response.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-            ProductResponse? product = await response.Content.ReadFromJsonAsync<ProductResponse>();
-
-            product.ShouldNotBeNull();
-
-            return product;
-        }
     }
-
-    private sealed record ProductResponse(
-        Guid Id,
-        string Name,
-        decimal Price,
-        string Currency,
-        string Status,
-        DateTimeOffset CreatedAt,
-        DateTimeOffset? DiscontinuedAt);
 }

@@ -1,11 +1,11 @@
 namespace Company.Template.AppHost.Containers;
 
 /// <summary>
-/// Adds the optional local Keycloak resource used by the Aspire AppHost.
+///     Adds the optional local Keycloak resource used by the Aspire AppHost.
 /// </summary>
 /// <remarks>
-/// These helpers keep identity-provider wiring at the local orchestration boundary: the API receives authentication
-/// settings through environment variables while application workflows remain independent of the container resource.
+///     These helpers keep identity-provider wiring at the local orchestration boundary: the API receives authentication
+///     settings through environment variables while application workflows remain independent of the container resource.
 /// </remarks>
 public static class KeycloakContainerExtensions
 {
@@ -13,14 +13,15 @@ public static class KeycloakContainerExtensions
         this IDistributedApplicationBuilder builder,
         Action<KeycloakContainerOptions>? configure = null)
     {
-        var options = new KeycloakContainerOptions();
+        KeycloakContainerOptions options = new();
         configure?.Invoke(options);
 
         Validate(options);
 
         IResourceBuilder<KeycloakResource> keycloak = builder
-            .AddKeycloak(options.ResourceName, options.Port)
-            .WithRealmImport(options.RealmImportPath);;
+                                                     .AddKeycloak(options.ResourceName, options.Port)
+                                                     .WithRealmImport(options.RealmImportPath);
+        ;
 
         if (options.UseDataVolume)
         {
@@ -35,11 +36,11 @@ public static class KeycloakContainerExtensions
         KeycloakResourceRegistration keycloak)
     {
         return api
-            .WithReference(keycloak.Resource)
-            .WaitFor(keycloak.Resource)
-            .WithEnvironment("Authentication__Enabled", "true")
-            .WithEnvironment("Authentication__Authority", keycloak.Options.Authority)
-            .WithEnvironment("Authentication__Audience", keycloak.Options.Audience);
+              .WithReference(keycloak.Resource)
+              .WaitFor(keycloak.Resource)
+              .WithEnvironment("Authentication__Enabled", "true")
+              .WithEnvironment("Authentication__Authority", keycloak.Options.Authority)
+              .WithEnvironment("Authentication__Audience", keycloak.Options.Audience);
     }
 
     private static void Validate(KeycloakContainerOptions options)

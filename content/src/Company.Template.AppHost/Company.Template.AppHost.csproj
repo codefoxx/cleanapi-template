@@ -20,8 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj" />
-      <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj" />
+        <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj"/>
+        <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj"/>
     </ItemGroup>
 
 </Project>

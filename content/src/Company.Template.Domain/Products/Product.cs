@@ -3,14 +3,14 @@ using Company.Template.Domain.Common;
 namespace Company.Template.Domain.Products;
 
 /// <summary>
-/// An aggregate root protecting the product lifecycle and state transitions.
+///     An aggregate root protecting the product lifecycle and state transitions.
 /// </summary>
 /// <remarks>
-/// The <see cref="Product"/> aggregate root manages its entire lifecycle, from creation with 
-/// a name and price, through state changes like renaming and price adjustments, to 
-/// discontinuation. It protects invariants such as ensuring that discontinued products 
-/// cannot be renamed. Relevant lifecycle changes are recorded as domain events so 
-/// application code can react without the aggregate depending on those reactions.
+///     The <see cref="Product" /> aggregate root manages its entire lifecycle, from creation with
+///     a name and price, through state changes like renaming and price adjustments, to
+///     discontinuation. It protects invariants such as ensuring that discontinued products
+///     cannot be renamed. Relevant lifecycle changes are recorded as domain events so
+///     application code can react without the aggregate depending on those reactions.
 /// </remarks>
 public sealed class Product : AggregateRoot
 {
@@ -29,6 +29,10 @@ public sealed class Product : AggregateRoot
         CreatedAt = createdAt;
     }
 
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    public DateTimeOffset? DiscontinuedAt { get; private set; }
+
     public ProductId Id { get; }
 
     public ProductName Name { get; private set; }
@@ -37,16 +41,12 @@ public sealed class Product : AggregateRoot
 
     public ProductStatus Status { get; private set; }
 
-    public DateTimeOffset CreatedAt { get; private set; }
-
-    public DateTimeOffset? DiscontinuedAt { get; private set; }
-
     public static Product Create(ProductName name, Money price, DateTimeOffset createdAt)
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(price);
 
-        var product = new Product(ProductId.New(), name, price, createdAt);
+        Product product = new(ProductId.New(), name, price, createdAt);
         product.AddDomainEvent(new ProductCreatedDomainEvent(product.Id, createdAt));
 
         return product;
@@ -71,7 +71,7 @@ public sealed class Product : AggregateRoot
     }
 
     /// <summary>
-    /// Changes the price of the product and records the change fact.
+    ///     Changes the price of the product and records the change fact.
     /// </summary>
     public void ChangePrice(Money newPrice, DateTimeOffset changedAt)
     {
@@ -89,7 +89,7 @@ public sealed class Product : AggregateRoot
     }
 
     /// <summary>
-    /// Marks the product as discontinued and records the lifecycle change.
+    ///     Marks the product as discontinued and records the lifecycle change.
     /// </summary>
     public void Discontinue(DateTimeOffset discontinuedAt)
     {

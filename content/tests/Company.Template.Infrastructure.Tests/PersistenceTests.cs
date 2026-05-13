@@ -2,7 +2,6 @@ using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
-using Company.Template.Infrastructure.Tests.TestSupport;
 
 namespace Company.Template.Infrastructure.Tests;
 
@@ -19,13 +18,13 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
     public async Task SaveChanges_WhenProductIsAdded_ShouldPersistAndReloadProduct()
     {
         // Arrange
-        await using var dbContext = new ApplicationDbContext(
+        await using ApplicationDbContext dbContext = new(
             _database.CreateDbContextOptions(),
             new NoOpDomainEventDispatcher());
 
         await dbContext.Database.EnsureCreatedAsync();
 
-        var product = Product.Create(
+        Product product = Product.Create(
             ProductName.Create("Keyboard"),
             Money.Create(99.99m, "USD"),
             DateTimeOffset.UtcNow);

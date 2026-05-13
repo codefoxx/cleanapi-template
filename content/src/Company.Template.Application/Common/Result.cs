@@ -1,20 +1,22 @@
 namespace Company.Template.Application.Common;
 
 /// <summary>
-/// Specifies the type of error that occurred during an operation.
+///     Specifies the type of error that occurred during an operation.
 /// </summary>
 public enum ErrorType
 {
     /// <summary>The operation failed because of invalid input.</summary>
     Validation,
+
     /// <summary>The requested resource was not found.</summary>
     NotFound,
+
     /// <summary>The operation conflicted with the current state of the system.</summary>
     Conflict
 }
 
 /// <summary>
-/// Represents an error that occurred during an operation.
+///     Represents an error that occurred during an operation.
 /// </summary>
 /// <param name="Type">The category of the error.</param>
 /// <param name="Code">A machine-readable unique identifier for the error.</param>
@@ -38,11 +40,11 @@ public sealed record Error(ErrorType Type, string Code, string Message)
 }
 
 /// <summary>
-/// Represents the outcome of an operation that may return a value or an error.
+///     Represents the outcome of an operation that may return a value or an error.
 /// </summary>
 /// <remarks>
-/// This type encourages functional error handling by making the possibility of failure
-/// explicit in the API. It should be used for expected business failures instead of exceptions.
+///     This type encourages functional error handling by making the possibility of failure
+///     explicit in the API. It should be used for expected business failures instead of exceptions.
 /// </remarks>
 /// <typeparam name="T">The type of the result value.</typeparam>
 public sealed class Result<T>
@@ -53,11 +55,11 @@ public sealed class Result<T>
         Error = error;
     }
 
-    public T? Value { get; }
-
     public Error? Error { get; }
 
     public bool IsSuccess => Error is null;
+
+    public T? Value { get; }
 
     public static Result<T> Success(T value)
     {
@@ -71,11 +73,11 @@ public sealed class Result<T>
 }
 
 /// <summary>
-/// Represents the outcome of an operation that may return an error but no value.
+///     Represents the outcome of an operation that may return an error but no value.
 /// </summary>
 /// <remarks>
-/// Use this type for commands or operations where the success state is enough information,
-/// while still requiring explicit error handling for failures.
+///     Use this type for commands or operations where the success state is enough information,
+///     while still requiring explicit error handling for failures.
 /// </remarks>
 public sealed class Result
 {

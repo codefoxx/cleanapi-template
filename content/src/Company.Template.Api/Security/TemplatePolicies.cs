@@ -1,6 +1,6 @@
 namespace Company.Template.Api.Security;
 
-public static class TemplatePolicies
+internal static class TemplatePolicies
 {
     public const string ProductsRead = "products.read";
 

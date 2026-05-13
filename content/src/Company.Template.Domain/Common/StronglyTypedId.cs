@@ -1,11 +1,11 @@
 namespace Company.Template.Domain.Common;
 
 /// <summary>
-/// Provides utility methods for creating and validating strongly-typed identifiers.
+///     Provides utility methods for creating and validating strongly-typed identifiers.
 /// </summary>
 /// <remarks>
-/// This class centralizes the generation of unique identifiers, preferring Guid v7 
-/// to improve database index performance while maintaining global uniqueness.
+///     This class centralizes the generation of unique identifiers, preferring Guid v7
+///     to improve database index performance while maintaining global uniqueness.
 /// </remarks>
 public static class StronglyTypedId
 {

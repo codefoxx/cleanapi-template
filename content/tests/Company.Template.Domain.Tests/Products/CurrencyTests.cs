@@ -11,7 +11,7 @@ public sealed class CurrencyTests
         const string code = "CHF";
 
         // Act
-        var currency = Currency.Create(code);
+        Currency currency = Currency.Create(code);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -26,7 +26,7 @@ public sealed class CurrencyTests
         const string code = "chf";
 
         // Act
-        var currency = Currency.Create(code);
+        Currency currency = Currency.Create(code);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -40,7 +40,7 @@ public sealed class CurrencyTests
         const string code = "  chf  ";
 
         // Act
-        var currency = Currency.Create(code);
+        Currency currency = Currency.Create(code);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -96,7 +96,7 @@ public sealed class CurrencyTests
         const string symbol = "Fr.";
 
         // Act
-        var currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create(code, symbol);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -112,7 +112,7 @@ public sealed class CurrencyTests
         const string symbol = "Fr.";
 
         // Act
-        var currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create(code, symbol);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -127,7 +127,7 @@ public sealed class CurrencyTests
         const string symbol = "  Fr.  ";
 
         // Act
-        var currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create(code, symbol);
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -191,8 +191,8 @@ public sealed class CurrencyTests
     public void Equals_WithSameCodeAndSymbol_ReturnsTrue()
     {
         // Arrange
-        var first = Currency.Create("chf");
-        var second = Currency.Create("CHF");
+        Currency first = Currency.Create("chf");
+        Currency second = Currency.Create("CHF");
 
         // Act
         bool isEqual = first.Equals(second);
@@ -206,8 +206,8 @@ public sealed class CurrencyTests
     public void Equals_WithSameCodeButDifferentSymbol_ReturnsFalse()
     {
         // Arrange
-        var first = Currency.Create("CHF", "CHF");
-        var second = Currency.Create("CHF", "Fr.");
+        Currency first = Currency.Create("CHF", "CHF");
+        Currency second = Currency.Create("CHF", "Fr.");
 
         // Act
         bool isEqual = first.Equals(second);
@@ -221,7 +221,7 @@ public sealed class CurrencyTests
     public void ToString_ReturnsCode()
     {
         // Arrange
-        var currency = Currency.Create("CHF");
+        Currency currency = Currency.Create("CHF");
 
         // Act
         string value = currency.ToString();

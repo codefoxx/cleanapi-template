@@ -1,8 +1,8 @@
 namespace Company.Template.Domain.Products;
 
 /// <summary>
-/// A value object that protects product naming rules and prevents invalid names 
-/// from entering the <see cref="Product"/> aggregate.
+///     A value object that protects product naming rules and prevents invalid names
+///     from entering the <see cref="Product" /> aggregate.
 /// </summary>
 public sealed record ProductName
 {

@@ -31,11 +31,14 @@ tests/
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
 
-The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other infrastructure concern.
+The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other
+infrastructure concern.
 
-The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
+The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the
+repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
 
-The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the API starts.
+The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so
+the database schema is updated before the API starts.
 
 ## Application style
 
@@ -55,7 +58,8 @@ public interface IUseCase<in TRequest>
 }
 ```
 
-Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry, logging, metrics, and tracing.
+Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry,
+logging, metrics, and tracing.
 
 Example:
 
@@ -211,7 +215,8 @@ src/Company.Template.Application/Products/
 - Use logs to explain application decisions, not every method call.
 - Use OpenTelemetry traces to understand execution flow.
 - Use metrics for rates, counts, and durations.
-- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric tags.
+- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric
+  tags.
 - Log unexpected exceptions once at the boundary or in cross-cutting telemetry.
 - Expected failures should normally be represented as `Result` values.
 
@@ -316,7 +321,8 @@ The migration files are created in:
 src/Company.Template.Infrastructure/Persistence/Migrations/
 ```
 
-Creating migration files does not require the database container to be running. EF Core only needs to build the project, create the DbContext at design time, and compare the current model with the model snapshot.
+Creating migration files does not require the database container to be running. EF Core only needs to build the project,
+create the DbContext at design time, and compare the current model with the model snapshot.
 
 After the initial migration exists, run the AppHost:
 
@@ -324,7 +330,8 @@ After the initial migration exists, run the AppHost:
 dotnet run --project src/Company.Template.AppHost
 ```
 
-If Keycloak is enabled, the local development realm is imported during AppHost startup. For repeatable realm import tests, run Keycloak without a persisted data volume or remove the old Keycloak volume before restarting.
+If Keycloak is enabled, the local development realm is imported during AppHost startup. For repeatable realm import
+tests, run Keycloak without a persisted data volume or remove the old Keycloak volume before restarting.
 
 ## Running with Aspire
 
@@ -344,7 +351,8 @@ database
   -> api
 ```
 
-The migration service applies pending EF Core migrations and exits. The API waits until the migration service has completed successfully.
+The migration service applies pending EF Core migrations and exits. The API waits until the migration service has
+completed successfully.
 
 Local development tools can be enabled in:
 
@@ -578,7 +586,8 @@ Common causes:
 
 When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
 
-After importing `/openapi/v1.json`, Insomnia should be able to use the OAuth2 metadata to request tokens for protected endpoints.
+After importing `/openapi/v1.json`, Insomnia should be able to use the OAuth2 metadata to request tokens for protected
+endpoints.
 
 Use these local development values:
 
@@ -590,9 +599,11 @@ Client Secret: local-dev-secret
 Scope: products.read products.write
 ```
 
-The token must be requested from the same Keycloak URL that the API uses as `Authentication:Authority`. Otherwise, JWT validation fails with an invalid issuer error.
+The token must be requested from the same Keycloak URL that the API uses as `Authentication:Authority`. Otherwise, JWT
+validation fails with an invalid issuer error.
 
-If Insomnia only shows a Bearer Token field, request the token manually with `curl` and paste the access token into the Bearer Token value.
+If Insomnia only shows a Bearer Token field, request the token manually with `curl` and paste the access token into the
+Bearer Token value.
 
 ## Keycloak API smoke test
 
@@ -671,7 +682,8 @@ The smoke test intentionally treats some HTTP errors as expected responses:
   product not found
 ```
 
-A `403` is not treated as expected in the full-access smoke test. If the smoke test returns `403`, the token was accepted but the API policy or scopes do not match.
+A `403` is not treated as expected in the full-access smoke test. If the smoke test returns `403`, the token was
+accepted but the API policy or scopes do not match.
 
 ## OpenAPI
 
@@ -727,7 +739,8 @@ If your API tool only shows a Bearer Token field, request a token manually and p
 
 The template uses EF Core migrations for relational schema management.
 
-The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API starts.
+The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API
+starts.
 
 ### Creating the initial migration
 
@@ -774,7 +787,8 @@ dotnet ef database update \
   --context ApplicationDbContext
 ```
 
-When running with Aspire locally, manual migration execution is usually not needed because the migration service handles it.
+When running with Aspire locally, manual migration execution is usually not needed because the migration service handles
+it.
 
 ### Migration bundles
 
@@ -817,7 +831,8 @@ apply migration bundle to database
 deploy or start api
 ```
 
-The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations explicitly before the API is deployed or started.
+The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations
+explicitly before the API is deployed or started.
 
 ## Tests
 

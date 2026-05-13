@@ -10,7 +10,7 @@ namespace Company.Template.Infrastructure.DomainEvents;
 /// This implementation represents a composition placeholder: aggregates only record facts, and dispatching happens
 /// after persistence through the application abstraction without feeding reactions back into the aggregate.
 /// </remarks>
-internal sealed class LoggingDomainEventDispatcher : IDomainEventDispatcher
+internal sealed partial class LoggingDomainEventDispatcher : IDomainEventDispatcher
 {
     private readonly ILogger<LoggingDomainEventDispatcher> _logger;
 
@@ -19,13 +19,25 @@ internal sealed class LoggingDomainEventDispatcher : IDomainEventDispatcher
         _logger = logger;
     }
 
-    public Task DispatchAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+    public Task DispatchAsync(
+        IReadOnlyCollection<IDomainEvent> domainEvents,
+        CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(domainEvents);
+
         foreach (IDomainEvent domainEvent in domainEvents)
         {
-            _logger.LogInformation("Domain event dispatched: {DomainEvent}", domainEvent.GetType().Name);
+            LogDomainEventDispatched(_logger, domainEvent.GetType().Name);
         }
 
         return Task.CompletedTask;
     }
+
+    [LoggerMessage(
+        EventId = 2000,
+        Level = LogLevel.Information,
+        Message = "Domain event dispatched: {DomainEvent}")]
+    private static partial void LogDomainEventDispatched(
+        ILogger logger,
+        string domainEvent);
 }

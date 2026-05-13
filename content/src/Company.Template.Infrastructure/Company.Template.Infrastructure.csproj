@@ -23,12 +23,4 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.PostgreSql.cs"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
-        <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.SqlServer.cs"/>
-    </ItemGroup>
-
 </Project>

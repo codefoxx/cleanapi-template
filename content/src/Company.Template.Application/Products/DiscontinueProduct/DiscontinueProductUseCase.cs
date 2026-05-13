@@ -5,12 +5,12 @@ using Company.Template.Domain.Products;
 namespace Company.Template.Application.Products.DiscontinueProduct;
 
 /// <summary>
-/// Coordinates the workflow for discontinuing a product.
+///     Coordinates the workflow for discontinuing a product.
 /// </summary>
 /// <remarks>
-/// The use case validates the request identifier, loads the aggregate through the application persistence boundary,
-/// and asks the domain model to apply lifecycle rules. Expected validation and not-found outcomes are returned as
-/// explicit results rather than exceptions.
+///     The use case validates the request identifier, loads the aggregate through the application persistence boundary,
+///     and asks the domain model to apply lifecycle rules. Expected validation and not-found outcomes are returned as
+///     explicit results rather than exceptions.
 /// </remarks>
 public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductCommand>
 {
@@ -25,25 +25,27 @@ public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductComma
 
     public async Task<Result> ExecuteAsync(DiscontinueProductCommand command, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(command);
+
         if (command.ProductId == Guid.Empty)
         {
             return Result.Failure(Error.Validation("Product id is required."));
         }
 
-        var productId = ProductId.From(command.ProductId);
+        ProductId productId = ProductId.From(command.ProductId);
         Option<Product> maybe = await _dbContext.Products
-            .WithId(productId)
-            .SingleOrNoneAsync(cancellationToken);
+                                                .WithId(productId)
+                                                .SingleOrNoneAsync(cancellationToken);
 
-        return await maybe.MatchAsync(
-            some: async product =>
-            {
-                product.Discontinue(_clock.UtcNow);
+        if (!maybe.TryGetValue(out Product? product))
+        {
+            return Result.Failure(Error.NotFound("Product was not found."));
+        }
 
-                await _dbContext.SaveChangesAsync(cancellationToken);
+        product.Discontinue(_clock.UtcNow);
 
-                return Result.Success();
-            },
-            none: () => Result.Failure(Error.NotFound("Product was not found.")));
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

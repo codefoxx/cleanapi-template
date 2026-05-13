@@ -11,43 +11,44 @@ using Company.Template.Application.Products.GetProductById;
 namespace Company.Template.Api.Endpoints.Products;
 
 /// <summary>
-/// Defines the HTTP boundary for product workflows.
+///     Defines the HTTP boundary for product workflows.
 /// </summary>
 /// <remarks>
-/// Endpoints translate transport contracts into application commands and queries, delegate workflow coordination to use
-/// cases, and map explicit application results back to HTTP responses.
+///     Endpoints translate transport contracts into application commands and queries, delegate workflow coordination to
+///     use
+///     cases, and map explicit application results back to HTTP responses.
 /// </remarks>
-public static class ProductEndpoints
+internal static class ProductEndpoints
 {
     public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder app)
     {
         AuthenticationOptions authenticationOptions = app.ServiceProvider
-            .GetRequiredService<IOptions<AuthenticationOptions>>()
-            .Value;
+                                                         .GetRequiredService<IOptions<AuthenticationOptions>>()
+                                                         .Value;
 
         RouteGroupBuilder group = app
-            .MapGroup("/api/products")
-            .WithTags("Products");
+                                 .MapGroup("/api/products")
+                                 .WithTags("Products");
 
         group
-            .MapPost("/", CreateProductAsync)
-            .WithName("CreateProduct")
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+           .MapPost("/", CreateProductAsync)
+           .WithName("CreateProduct")
+           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-            .MapGet("/{id:guid}", GetProductByIdAsync)
-            .WithName("GetProductById")
-            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
+           .MapGet("/{id:guid}", GetProductByIdAsync)
+           .WithName("GetProductById")
+           .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
-            .MapPut("/{id:guid}/price", ChangeProductPriceAsync)
-            .WithName("ChangeProductPrice")
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+           .MapPut("/{id:guid}/price", ChangeProductPriceAsync)
+           .WithName("ChangeProductPrice")
+           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-            .MapPost("/{id:guid}/discontinue", DiscontinueProductAsync)
-            .WithName("DiscontinueProduct")
-            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+           .MapPost("/{id:guid}/discontinue", DiscontinueProductAsync)
+           .WithName("DiscontinueProduct")
+           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         return app;
     }

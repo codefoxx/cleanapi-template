@@ -1,7 +1,13 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Codefox",
-    "classifications": ["Web", "WebAPI", "Clean Architecture", "DDD", "Aspire"],
+    "classifications": [
+        "Web",
+        "WebAPI",
+        "Clean Architecture",
+        "DDD",
+        "Aspire"
+    ],
     "identity": "Codefox.CleanApi.Template",
     "name": "Clean Architecture Web API",
     "shortName": "cleanapi",
@@ -231,7 +237,9 @@
     "forms": {
         "lowerCaseForm": {
             "identifier": "chain",
-            "steps": ["lowerCaseInvariant"]
+            "steps": [
+                "lowerCaseInvariant"
+            ]
         }
     },
     "sources": [

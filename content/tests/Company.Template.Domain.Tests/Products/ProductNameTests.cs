@@ -11,7 +11,7 @@ public sealed class ProductNameTests
         const string value = "Keyboard";
 
         // Act
-        var productName = ProductName.Create(value);
+        ProductName productName = ProductName.Create(value);
 
         // Assert
         productName.Value.ShouldBe(value);
@@ -24,7 +24,7 @@ public sealed class ProductNameTests
         const string value = "  Keyboard  ";
 
         // Act
-        var productName = ProductName.Create(value);
+        ProductName productName = ProductName.Create(value);
 
         // Assert
         productName.Value.ShouldBe("Keyboard");
@@ -65,7 +65,7 @@ public sealed class ProductNameTests
         string value = new('A', ProductName.MaxLength);
 
         // Act
-        var productName = ProductName.Create(value);
+        ProductName productName = ProductName.Create(value);
 
         // Assert
         productName.Value.ShouldBe(value);
@@ -89,8 +89,8 @@ public sealed class ProductNameTests
     public void Equals_WithSameValue_ReturnsTrue()
     {
         // Arrange
-        var first = ProductName.Create("Keyboard");
-        var second = ProductName.Create("Keyboard");
+        ProductName first = ProductName.Create("Keyboard");
+        ProductName second = ProductName.Create("Keyboard");
 
         // Act
         bool isEqual = first.Equals(second);
@@ -104,7 +104,7 @@ public sealed class ProductNameTests
     public void ToString_ReturnsValue()
     {
         // Arrange
-        var productName = ProductName.Create("Keyboard");
+        ProductName productName = ProductName.Create("Keyboard");
 
         // Act
         string value = productName.ToString();

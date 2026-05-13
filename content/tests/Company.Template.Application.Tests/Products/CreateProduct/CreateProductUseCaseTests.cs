@@ -24,11 +24,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             99.90m,
             "CHF");
@@ -56,11 +56,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             99.90m,
             "CHF");
@@ -85,15 +85,15 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_DispatchesProductCreatedDomainEvent()
     {
         // Arrange
-        var domainEventDispatcher = new RecordingDomainEventDispatcher();
+        RecordingDomainEventDispatcher domainEventDispatcher = new();
 
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync(domainEventDispatcher);
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             99.90m,
             "CHF");
@@ -121,11 +121,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             name,
             99.90m,
             "CHF");
@@ -151,11 +151,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             -0.01m,
             "CHF");
@@ -181,11 +181,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             99.90m,
             "CH");
@@ -211,11 +211,11 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
 
-        var useCase = new CreateProductUseCase(
+        CreateProductUseCase useCase = new(
             dbContext,
             new FixedClock(UtcNow));
 
-        var command = new CreateProductCommand(
+        CreateProductCommand command = new(
             "Keyboard",
             99.999m,
             "CHF");
