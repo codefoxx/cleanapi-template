@@ -1,4 +1,4 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
 using Testcontainers.PostgreSql;

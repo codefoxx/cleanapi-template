@@ -1,4 +1,3 @@
-using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
@@ -15,15 +14,17 @@ namespace Company.Template.Application.Products.DiscontinueProduct;
 public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductCommand>
 {
     private readonly IClock _clock;
-    private readonly IProductDbContext _dbContext;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DiscontinueProductUseCase(IProductDbContext dbContext, IClock clock)
+    public DiscontinueProductUseCase(IUnitOfWork unitOfWork, IClock clock)
     {
-        _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
         _clock = clock;
     }
 
-    public async Task<Result> ExecuteAsync(DiscontinueProductCommand command, CancellationToken cancellationToken)
+    public async Task<Result> ExecuteAsync(
+        DiscontinueProductCommand command,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
 
@@ -32,18 +33,23 @@ public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductComma
             return Result.Failure(productIdError.ToApplicationError());
         }
 
-        Option<Product> maybe = await _dbContext.Products
-                                                .WithId(productId)
-                                                .SingleOrNoneAsync(cancellationToken);
+        IRepository<Product, ProductId> products = _unitOfWork.GetRepository<Product, ProductId>();
+
+        Option<Product> maybe = await products.TryFindAsync(productId, cancellationToken);
 
         if (!maybe.TryGetValue(out Product? product))
         {
             return Result.Failure(Error.NotFound("Product was not found."));
         }
 
-        product.Discontinue(_clock.UtcNow);
+        DomainResult result = product.Discontinue(_clock.UtcNow);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        if (result.IsFailure)
+        {
+            return Result.Failure(result.Error.ToApplicationError());
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

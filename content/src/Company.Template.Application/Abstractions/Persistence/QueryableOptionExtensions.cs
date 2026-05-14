@@ -1,4 +1,4 @@
-namespace Company.Template.Application.Abstractions;
+namespace Company.Template.Application.Abstractions.Persistence;
 
 public static class QueryableOptionExtensions
 {

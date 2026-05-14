@@ -1,4 +1,5 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.DomainEvents;
+using Company.Template.Application.Abstractions.Persistence;
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Infrastructure.Persistence;
@@ -13,7 +14,7 @@ namespace Company.Template.Infrastructure.Persistence;
 ///     This is a simple in-process domain-event mechanism. It is suitable for local side effects that belong
 ///     to the same application. Use an outbox when event delivery must be durable or retried reliably.
 /// </remarks>
-public sealed partial class ApplicationDbContext : DbContext
+public sealed partial class ApplicationDbContext : DbContext, IUnitOfWork
 {
     private readonly IDomainEventDispatcher _domainEventDispatcher;
 
@@ -23,6 +24,19 @@ public sealed partial class ApplicationDbContext : DbContext
         : base(options)
     {
         _domainEventDispatcher = domainEventDispatcher;
+    }
+
+    public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>()
+        where TAggregate : AggregateRoot
+        where TKey : struct, IEntityId<TKey>
+    {
+        if (this is IRepository<TAggregate, TKey> repository)
+        {
+            return repository;
+        }
+
+        throw new InvalidOperationException(
+            $"No repository is configured for aggregate '{typeof(TAggregate).Name}' with key '{typeof(TKey).Name}'.");
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

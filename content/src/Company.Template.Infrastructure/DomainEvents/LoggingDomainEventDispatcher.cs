@@ -1,4 +1,4 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Domain.Common;
 
 namespace Company.Template.Infrastructure.DomainEvents;

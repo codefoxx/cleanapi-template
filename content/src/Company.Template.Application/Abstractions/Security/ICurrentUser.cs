@@ -1,4 +1,4 @@
-namespace Company.Template.Application.Abstractions;
+namespace Company.Template.Application.Abstractions.Security;
 
 /// <summary>
 ///     Provides an abstraction for accessing the identity and roles of the current user.

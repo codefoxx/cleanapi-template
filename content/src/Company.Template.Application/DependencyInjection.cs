@@ -1,5 +1,4 @@
 using System.Reflection;
-using Company.Template.Application.Abstractions;
 using Company.Template.Application.Telemetry;
 
 namespace Company.Template.Application;

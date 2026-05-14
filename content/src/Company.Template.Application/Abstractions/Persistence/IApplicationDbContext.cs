@@ -1,4 +1,4 @@
-namespace Company.Template.Application.Abstractions;
+namespace Company.Template.Application.Abstractions.Persistence;
 
 /// <summary>
 ///     Defines the abstraction for the application's unit of work and data access.

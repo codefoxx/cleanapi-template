@@ -1,4 +1,3 @@
-using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
@@ -15,11 +14,11 @@ namespace Company.Template.Application.Products.ChangeProductPrice;
 public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceCommand, ProductDto>
 {
     private readonly IClock _clock;
-    private readonly IProductDbContext _dbContext;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ChangeProductPriceUseCase(IProductDbContext dbContext, IClock clock)
+    public ChangeProductPriceUseCase(IUnitOfWork unitOfWork, IClock clock)
     {
-        _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
         _clock = clock;
     }
 
@@ -39,9 +38,9 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
             return Result<ProductDto>.Failure(moneyError.ToApplicationError());
         }
 
-        Option<Product> maybe = await _dbContext.Products
-                                                .WithId(productId)
-                                                .SingleOrNoneAsync(cancellationToken);
+        IRepository<Product, ProductId> products = _unitOfWork.GetRepository<Product, ProductId>();
+
+        Option<Product> maybe = await products.TryFindAsync(productId, cancellationToken);
 
         if (!maybe.TryGetValue(out Product? product))
         {
@@ -55,7 +54,7 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
             return Result<ProductDto>.Failure(result.Error.ToApplicationError());
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<ProductDto>.Success(ProductMapper.ToDto(product));
     }

@@ -1,4 +1,4 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.Security;
 
 namespace Company.Template.Api.CurrentUser;
 

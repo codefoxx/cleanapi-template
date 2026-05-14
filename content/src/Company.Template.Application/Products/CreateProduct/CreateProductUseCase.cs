@@ -1,4 +1,3 @@
-using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
@@ -16,11 +15,11 @@ namespace Company.Template.Application.Products.CreateProduct;
 public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, ProductDto>
 {
     private readonly IClock _clock;
-    private readonly IProductDbContext _dbContext;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateProductUseCase(IProductDbContext dbContext, IClock clock)
+    public CreateProductUseCase(IUnitOfWork unitOfWork, IClock clock)
     {
-        _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
         _clock = clock;
     }
 
@@ -41,8 +40,10 @@ public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, Produc
             return Result<ProductDto>.Failure(error.ToApplicationError());
         }
 
-        _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        IRepository<Product, ProductId> products = _unitOfWork.GetRepository<Product, ProductId>();
+        products.Add(product);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<ProductDto>.Success(ProductMapper.ToDto(product));
     }
