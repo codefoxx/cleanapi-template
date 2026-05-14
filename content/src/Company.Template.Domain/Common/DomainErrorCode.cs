@@ -1,8 +1,12 @@
 namespace Company.Template.Domain.Common;
 
 /// <summary>
-///     A stable, machine-readable code that identifies a domain validation or business-rule failure.
+///     Identifies a domain error with a stable machine-readable code.
 /// </summary>
+/// <remarks>
+///     Domain error codes describe why a domain operation failed without deciding how that
+///     failure should be exposed by the application or transport layer.
+/// </remarks>
 public sealed record DomainErrorCode
 {
     private DomainErrorCode(string value)
@@ -10,27 +14,38 @@ public sealed record DomainErrorCode
         Value = value;
     }
 
+    /// <summary>
+    ///     Represents the absence of a domain error.
+    /// </summary>
+    public static DomainErrorCode None { get; } = new("none");
+
+    /// <summary>
+    ///     Gets the machine-readable code.
+    /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    ///     Gets a value indicating whether this code represents the absence of an error.
+    /// </summary>
+    public bool IsNone => this == None;
+
+    /// <summary>
+    ///     Creates a domain error code.
+    /// </summary>
     public static DomainErrorCode Create(string value)
     {
-        Guard.ThrowIfNullOrWhiteSpace(
-            value,
-            nameof(value),
-            "Domain error code is required.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-        return new DomainErrorCode(value.Trim());
+        return value == None.Value
+            ? None
+            : new DomainErrorCode(value);
     }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return Value;
     }
 }
-
-/// <summary>
-///     Describes a domain-level failure without deciding how the application should expose it.
-/// </summary>
-public sealed record DomainError(DomainErrorCode Code, string Message);
 
 public static partial class DomainErrorCodes;

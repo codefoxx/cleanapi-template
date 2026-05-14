@@ -93,7 +93,7 @@ public static class EntityId
         if (value == Guid.Empty)
         {
             id = default;
-            error = new DomainError(requiredCode, requiredMessage);
+            error = DomainError.Create(requiredCode, requiredMessage);
             return false;
         }
 

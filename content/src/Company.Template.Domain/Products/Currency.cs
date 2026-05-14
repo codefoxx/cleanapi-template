@@ -135,7 +135,7 @@ public sealed record Currency
 
         if (string.IsNullOrWhiteSpace(code))
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyRequired,
                 "Currency is required.");
             return false;
@@ -145,7 +145,7 @@ public sealed record Currency
 
         if (normalizedCode.Length != CodeLength)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyInvalidFormat,
                 "Currency must be an ISO 4217 three-letter code.");
             return false;
@@ -184,7 +184,7 @@ public sealed record Currency
 
         if (string.IsNullOrWhiteSpace(code))
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyRequired,
                 "Currency is required.");
             return false;
@@ -192,7 +192,7 @@ public sealed record Currency
 
         if (string.IsNullOrWhiteSpace(symbol))
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencySymbolRequired,
                 "Currency symbol is required.");
             return false;
@@ -203,7 +203,7 @@ public sealed record Currency
 
         if (normalizedCode.Length != CodeLength)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyInvalidFormat,
                 "Currency must be an ISO 4217 three-letter code.");
             return false;
