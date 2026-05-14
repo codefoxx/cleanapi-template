@@ -1,17 +1,14 @@
 using Company.Template.Application.Abstractions.Persistence;
 using Company.Template.Application.Common;
-using Company.Template.Application.Products;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Infrastructure.Persistence;
 
-public sealed partial class ApplicationDbContext : IRepository<Product, ProductId>, IProductDbContext
+public sealed partial class ApplicationDbContext : IRepository<Product, ProductId>
 {
     public DbSet<Product> Products => Set<Product>();
 
-    public IQueryable<Product> ProductsForRead => Products.AsNoTracking();
-
-    async Task<Option<Product>> IRepository<Product, ProductId>.TryFindAsync(
+    async Task<Option<Product>> IRepository<Product, ProductId>.FindAsync(
         ProductId key,
         CancellationToken cancellationToken)
     {
@@ -22,11 +19,15 @@ public sealed partial class ApplicationDbContext : IRepository<Product, ProductI
 
     void IRepository<Product, ProductId>.Add(Product aggregate)
     {
+        ArgumentNullException.ThrowIfNull(aggregate);
+
         Products.Add(aggregate);
     }
 
     void IRepository<Product, ProductId>.Delete(Product aggregate)
     {
+        ArgumentNullException.ThrowIfNull(aggregate);
+
         Products.Remove(aggregate);
     }
 }

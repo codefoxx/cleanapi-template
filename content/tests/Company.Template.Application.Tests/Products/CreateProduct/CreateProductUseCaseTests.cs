@@ -74,7 +74,9 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
 
         ProductDto product = result.Value;
 
-        Product persistedProduct = await dbContext.ProductsForRead.SingleAsync();
+        Product persistedProduct = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .SingleAsync();
 
         persistedProduct.Id.Value.ShouldBe(product.Id);
         persistedProduct.Name.ShouldBe(ProductName.Create("Keyboard"));
@@ -141,7 +143,9 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.ProductNameRequired);
 
-        bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
         productWasPersisted.ShouldBeFalse();
     }
 
@@ -166,7 +170,9 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountNegative);
 
-        bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
         productWasPersisted.ShouldBeFalse();
     }
 
@@ -191,7 +197,9 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.CurrencyInvalidFormat);
 
-        bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
         productWasPersisted.ShouldBeFalse();
     }
 
@@ -216,7 +224,9 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountTooManyDecimalPlaces);
 
-        bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
         productWasPersisted.ShouldBeFalse();
     }
 

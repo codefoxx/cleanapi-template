@@ -37,7 +37,9 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
 
         dbContext.ChangeTracker.Clear();
 
-        Product loaded = await dbContext.ProductsForRead.SingleAsync(entity => entity.Id == product.Id);
+        Product loaded = await dbContext.Products
+                                        .AsNoTracking()
+                                        .SingleAsync(entity => entity.Id == product.Id);
 
         // Assert
         loaded.Id.ShouldBe(product.Id);

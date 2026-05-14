@@ -27,14 +27,14 @@ public static class DependencyInjection
             services.AddScoped<IUnitOfWork>(provider =>
                 provider.GetRequiredService<ApplicationDbContext>());
 
-            services.AddScoped<IApplicationDbContext>(provider =>
-                provider.GetRequiredService<ApplicationDbContext>());
-
-            services.AddScoped<IProductDbContext>(provider =>
-                provider.GetRequiredService<ApplicationDbContext>());
-
             services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
             services.AddSingleton<IClock, SystemClock>();
+
+            services.Scan(scan => scan
+                                 .FromAssemblyOf<InfrastructureAssemblyMarker>()
+                                 .AddClasses(classes => classes.AssignableTo<IQuery>())
+                                 .AsImplementedInterfaces()
+                                 .WithScopedLifetime());
 
             return services;
         }
