@@ -112,4 +112,57 @@ public sealed class ProductNameTests
         // Assert
         value.ShouldBe("Keyboard");
     }
+
+    [Fact]
+    public void TryCreate_WithValidName_ReturnsTrueAndProductName()
+    {
+        // Act
+        bool result = ProductName.TryCreate(
+            "  Keyboard  ",
+            out ProductName? productName,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        productName.ShouldNotBeNull();
+        productName.Value.ShouldBe("Keyboard");
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithMissingName_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = ProductName.TryCreate(
+            " ",
+            out ProductName? productName,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        productName.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.ProductNameRequired);
+        error.Message.ShouldBe("Product name is required.");
+    }
+
+    [Fact]
+    public void TryCreate_WithNameLongerThanMaximumLength_ReturnsFalseAndDomainError()
+    {
+        // Arrange
+        string value = new('A', ProductName.MaxLength + 1);
+
+        // Act
+        bool result = ProductName.TryCreate(
+            value,
+            out ProductName? productName,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        productName.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.ProductNameTooLong);
+        error.Message.ShouldBe($"Product name cannot exceed {ProductName.MaxLength} characters.");
+    }
 }

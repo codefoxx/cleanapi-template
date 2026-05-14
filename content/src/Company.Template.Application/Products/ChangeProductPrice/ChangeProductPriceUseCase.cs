@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions;
+using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.ChangeProductPrice;
@@ -28,17 +29,15 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        if (command.ProductId == Guid.Empty)
+        if (!ProductId.TryFrom(command.ProductId, out ProductId productId, out DomainError? productIdError))
         {
-            return Result<ProductDto>.Failure(Error.Validation("Product id is required."));
+            return Result<ProductDto>.Failure(productIdError.ToApplicationError());
         }
 
-        if (command.Price < 0)
+        if (!Money.TryCreate(command.Price, command.Currency, out Money? money, out DomainError? moneyError))
         {
-            return Result<ProductDto>.Failure(Error.Validation("Price cannot be negative."));
+            return Result<ProductDto>.Failure(moneyError.ToApplicationError());
         }
-
-        ProductId productId = ProductId.From(command.ProductId);
 
         Option<Product> maybe = await _dbContext.Products
                                                 .WithId(productId)
@@ -49,16 +48,7 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
             return Result<ProductDto>.Failure(Error.NotFound("Product was not found."));
         }
 
-        try
-        {
-            product.ChangePrice(
-                Money.Create(command.Price, command.Currency),
-                _clock.UtcNow);
-        }
-        catch (ArgumentException exception)
-        {
-            return Result<ProductDto>.Failure(Error.Validation(exception.Message));
-        }
+        product.ChangePrice(money, _clock.UtcNow);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
