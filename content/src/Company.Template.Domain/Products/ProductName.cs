@@ -78,7 +78,7 @@ public sealed record ProductName
 
         if (string.IsNullOrWhiteSpace(value))
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.ProductNameRequired,
                 "Product name is required.");
             return false;
@@ -88,7 +88,7 @@ public sealed record ProductName
 
         if (trimmed.Length > MaxLength)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.ProductNameTooLong,
                 $"Product name cannot exceed {MaxLength} characters.");
             return false;

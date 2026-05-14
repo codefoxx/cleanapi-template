@@ -145,7 +145,7 @@ public sealed record Money : IComparable<Money>
 
         if (currency is null)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyRequired,
                 "Currency is required.");
             return false;
@@ -153,7 +153,7 @@ public sealed record Money : IComparable<Money>
 
         if (amount < 0)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.AmountNegative,
                 "Amount cannot be negative.");
             return false;
@@ -161,7 +161,7 @@ public sealed record Money : IComparable<Money>
 
         if (amount > 0 && currency.IsEmpty)
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.CurrencyRequired,
                 "Currency is required when amount is greater than zero.");
             return false;
@@ -169,7 +169,7 @@ public sealed record Money : IComparable<Money>
 
         if (HasMoreDecimalPlacesThan(amount, Scale))
         {
-            error = new DomainError(
+            error = DomainError.Create(
                 DomainErrorCodes.AmountTooManyDecimalPlaces,
                 $"Price cannot have more than {Scale} decimal places.");
             return false;

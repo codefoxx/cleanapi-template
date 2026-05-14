@@ -9,7 +9,7 @@ public sealed class DomainErrorExtensionsTests
     public void ToApplicationError_WithProductNameRequired_ReturnsValidationError()
     {
         // Arrange
-        DomainError domainError = new(
+        DomainError domainError = DomainError.Create(
             DomainErrorCodes.ProductNameRequired,
             "Product name is required.");
 
@@ -26,7 +26,7 @@ public sealed class DomainErrorExtensionsTests
     public void ToApplicationError_WithCurrencySymbolRequired_ReturnsValidationError()
     {
         // Arrange
-        DomainError domainError = new(
+        DomainError domainError = DomainError.Create(
             DomainErrorCodes.CurrencySymbolRequired,
             "Currency symbol is required.");
 
@@ -43,7 +43,7 @@ public sealed class DomainErrorExtensionsTests
     public void ToApplicationError_WithUnknownDomainErrorCode_ReturnsUnknownError()
     {
         // Arrange
-        DomainError domainError = new(
+        DomainError domainError = DomainError.Create(
             DomainErrorCode.Create("some_unmapped_domain_error"),
             "Something domain-specific failed.");
 
