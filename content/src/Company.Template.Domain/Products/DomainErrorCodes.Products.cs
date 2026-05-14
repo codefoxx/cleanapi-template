@@ -26,4 +26,7 @@ public static partial class DomainErrorCodes
 
     public static readonly DomainErrorCode AmountTooManyDecimalPlaces =
         DomainErrorCode.Create("amount_too_many_decimal_places");
+
+    public static readonly DomainErrorCode DiscontinuedProductCannotBeChanged =
+        DomainErrorCode.Create("discontinued_product_cannot_be_changed");
 }

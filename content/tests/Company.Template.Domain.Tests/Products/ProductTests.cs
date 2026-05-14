@@ -84,9 +84,10 @@ public sealed class ProductTests
         ProductName newName = ProductName.Create("Mouse");
 
         // Act
-        product.Rename(newName);
+        DomainResult result = product.Rename(newName);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Name.ShouldBe(newName);
     }
 
@@ -98,9 +99,10 @@ public sealed class ProductTests
         ProductName originalName = product.Name;
 
         // Act
-        product.Rename(originalName);
+        DomainResult result = product.Rename(originalName);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Name.ShouldBe(originalName);
     }
 
@@ -119,19 +121,24 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void Rename_WhenProductIsDiscontinued_ThrowsInvalidOperationException()
+    public void Rename_WhenProductIsDiscontinued_IsNotAllowed()
     {
         // Arrange
         Product product = CreateProduct();
         product.Discontinue(DiscontinuedAt);
+        product.ClearDomainEvents();
 
+        ProductName originalName = product.Name;
         ProductName newName = ProductName.Create("Mouse");
 
         // Act
-        InvalidOperationException exception = Should.Throw<InvalidOperationException>(() => product.Rename(newName));
+        DomainResult result = product.Rename(newName);
 
         // Assert
-        exception.Message.ShouldBe("A discontinued product cannot be renamed.");
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged);
+        product.Name.ShouldBe(originalName);
+        product.DomainEvents.ShouldBeEmpty();
     }
 
     [Fact]
@@ -142,9 +149,10 @@ public sealed class ProductTests
         Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
-        product.ChangePrice(newPrice, ChangedAt);
+        DomainResult result = product.ChangePrice(newPrice, ChangedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Price.ShouldBe(newPrice);
     }
 
@@ -159,9 +167,10 @@ public sealed class ProductTests
         Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
-        product.ChangePrice(newPrice, ChangedAt);
+        DomainResult result = product.ChangePrice(newPrice, ChangedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.DomainEvents.Count.ShouldBe(1);
 
         ProductPriceChangedDomainEvent domainEvent = product.DomainEvents
@@ -184,9 +193,10 @@ public sealed class ProductTests
         product.ClearDomainEvents();
 
         // Act
-        product.ChangePrice(originalPrice, ChangedAt);
+        DomainResult result = product.ChangePrice(originalPrice, ChangedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Price.ShouldBe(originalPrice);
         product.DomainEvents.ShouldBeEmpty();
     }
@@ -206,22 +216,24 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void ChangePrice_WhenProductIsDiscontinued_CurrentlyAllowsPriceChange()
+    public void ChangePrice_WhenProductIsDiscontinued_IsNotAllowed()
     {
         // Arrange
         Product product = CreateProduct();
         product.Discontinue(DiscontinuedAt);
         product.ClearDomainEvents();
 
+        Money originalPrice = product.Price;
         Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
 
         // Act
-        product.ChangePrice(newPrice, ChangedAt);
+        DomainResult result = product.ChangePrice(newPrice, ChangedAt);
 
         // Assert
-        product.Price.ShouldBe(newPrice);
-        product.DomainEvents.Count.ShouldBe(1);
-        product.DomainEvents.Single().ShouldBeOfType<ProductPriceChangedDomainEvent>();
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged);
+        product.Price.ShouldBe(originalPrice);
+        product.DomainEvents.ShouldBeEmpty();
     }
 
     [Fact]
@@ -231,9 +243,10 @@ public sealed class ProductTests
         Product product = CreateProduct();
 
         // Act
-        product.Discontinue(DiscontinuedAt);
+        DomainResult result = product.Discontinue(DiscontinuedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Status.ShouldBe(ProductStatus.Discontinued);
         product.DiscontinuedAt.ShouldBe(DiscontinuedAt);
     }
@@ -246,9 +259,10 @@ public sealed class ProductTests
         product.ClearDomainEvents();
 
         // Act
-        product.Discontinue(DiscontinuedAt);
+        DomainResult result = product.Discontinue(DiscontinuedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.DomainEvents.Count.ShouldBe(1);
 
         ProductDiscontinuedDomainEvent domainEvent = product.DomainEvents
@@ -270,9 +284,10 @@ public sealed class ProductTests
         DateTimeOffset secondDiscontinuedAt = DiscontinuedAt.AddDays(1);
 
         // Act
-        product.Discontinue(secondDiscontinuedAt);
+        DomainResult result = product.Discontinue(secondDiscontinuedAt);
 
         // Assert
+        result.IsSuccess.ShouldBeTrue();
         product.Status.ShouldBe(ProductStatus.Discontinued);
         product.DiscontinuedAt.ShouldBe(DiscontinuedAt);
         product.DomainEvents.ShouldBeEmpty();

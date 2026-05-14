@@ -25,6 +25,14 @@ public abstract class AggregateRoot
         _domainEvents.Add(domainEvent);
     }
 
+    /// <summary>
+    ///     Removes all in-memory domain events from the aggregate.
+    /// </summary>
+    /// <remarks>
+    ///     This is typically called by the application infrastructure after the events have been
+    ///     collected for dispatching or persistence, for example after they have been written to
+    ///     an outbox. The aggregate does not track per-event delivery state.
+    /// </remarks>
     public void ClearDomainEvents()
     {
         _domainEvents.Clear();
