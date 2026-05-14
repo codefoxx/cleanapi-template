@@ -11,7 +11,7 @@ namespace Company.Template.Application.Tests.TestSupport;
 ///     infrastructure handlers, or a mocking framework. It is intended for application-level tests
 ///     that need to verify which events were published after persistence.
 /// </remarks>
-public sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
+internal sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
 {
     private readonly List<IDomainEvent> _dispatchedEvents = [];
 
@@ -24,5 +24,10 @@ public sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
         _dispatchedEvents.AddRange(domainEvents);
 
         return Task.CompletedTask;
+    }
+
+    public void ClearDispatchedEvents()
+    {
+        _dispatchedEvents.Clear();
     }
 }

@@ -47,7 +47,7 @@ public sealed record Error(ErrorType Type, string Code, string Message)
         return Create(ErrorType.Unknown, code, message);
     }
 
-    private static Error Create(ErrorType type, string code, string message)
+    internal static Error Create(ErrorType type, string code, string message)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);

@@ -1,7 +1,6 @@
 using Company.Template.Application.Common;
 using Company.Template.Application.Products;
 using Company.Template.Application.Products.CreateProduct;
-using Company.Template.Application.Tests.TestSupport;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
