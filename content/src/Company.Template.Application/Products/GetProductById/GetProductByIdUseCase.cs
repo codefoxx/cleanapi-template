@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions;
+using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.GetProductById;
@@ -25,20 +26,16 @@ public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, Produc
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        if (query.ProductId == Guid.Empty)
+        if (!ProductId.TryFrom(query.ProductId, out ProductId productId, out DomainError? productIdError))
         {
-            return Result<ProductDto>.Failure(Error.Validation("Product id is required."));
+            return Result<ProductDto>.Failure(productIdError.ToApplicationError());
         }
-
-        ProductId productId = ProductId.From(query.ProductId);
 
         Option<Product> product = await _dbContext.ProductsForRead
                                                   .WithId(productId)
                                                   .SingleOrNoneAsync(cancellationToken);
 
-        return product.Match(
-            MapToSuccess,
-            ProductNotFound);
+        return product.Match(MapToSuccess, ProductNotFound);
     }
 
     private static Result<ProductDto> MapToSuccess(Product product)

@@ -229,4 +229,73 @@ public sealed class CurrencyTests
         // Assert
         value.ShouldBe("CHF");
     }
+
+    [Fact]
+    public void TryCreate_WithValidCode_ReturnsTrueAndCurrency()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            " chf ",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        currency.ShouldNotBeNull();
+        currency.Code.ShouldBe("CHF");
+        currency.Symbol.ShouldBe("CHF");
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithMissingCode_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            " ",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
+        error.Message.ShouldBe("Currency is required.");
+    }
+
+    [Fact]
+    public void TryCreate_WithInvalidCodeLength_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            "CH",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
+        error.Message.ShouldBe("Currency must be an ISO 4217 three-letter code.");
+    }
+
+    [Fact]
+    public void TryCreate_WithMissingSymbol_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            "CHF",
+            " ",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencySymbolRequired);
+        error.Message.ShouldBe("Currency symbol is required.");
+    }
 }

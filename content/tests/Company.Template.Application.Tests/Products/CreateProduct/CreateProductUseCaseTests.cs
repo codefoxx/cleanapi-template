@@ -2,6 +2,7 @@ using Company.Template.Application.Common;
 using Company.Template.Application.Products;
 using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Application.Tests.TestSupport;
+using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
 
@@ -38,7 +39,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Error.ShouldBeNull();
+        result.Error.IsNone.ShouldBeTrue();
 
         ProductDto product = result.Value;
 
@@ -138,8 +139,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        Error error = ShouldBeValidationFailure(result);
-        error.Message.ShouldBe("Product name is required.");
+        AssertError(result, ErrorType.Validation, DomainErrorCodes.ProductNameRequired);
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -164,8 +164,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        Error error = ShouldBeValidationFailure(result);
-        error.Message.ShouldBe("Price cannot be negative.");
+        AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountNegative);
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -190,8 +189,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        Error error = ShouldBeValidationFailure(result);
-        error.Message.ShouldStartWith("Currency must be an ISO 4217 three-letter code.");
+        AssertError(result, ErrorType.Validation, DomainErrorCodes.CurrencyInvalidFormat);
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
@@ -216,22 +214,26 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        Error error = ShouldBeValidationFailure(result);
-        error.Message.ShouldStartWith($"Price cannot have more than {Money.Scale} decimal places.");
+        AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountTooManyDecimalPlaces);
 
         bool productWasPersisted = await dbContext.ProductsForRead.AnyAsync();
         productWasPersisted.ShouldBeFalse();
     }
 
-    private static Error ShouldBeValidationFailure<T>(Result<T> result)
+    private static Error AssertError<T>(
+        Result<T> result,
+        ErrorType expectedType,
+        DomainErrorCode expectedCode)
         where T : notnull
     {
         result.IsSuccess.ShouldBeFalse();
         result.IsFailure.ShouldBeTrue();
 
-        Error error = result.Error.ShouldNotBeNull();
-        error.Type.ShouldBe(ErrorType.Validation);
-        error.Code.ShouldBe("validation_error");
+        Error error = result.Error;
+
+        error.ShouldNotBe(Error.None);
+        error.Type.ShouldBe(expectedType);
+        error.Code.ShouldBe(expectedCode.Value);
 
         return error;
     }

@@ -1,45 +1,6 @@
 namespace Company.Template.Application.Common;
 
 /// <summary>
-/// Categorizes expected application failures so outer boundaries can translate them consistently.
-/// </summary>
-public enum ErrorType
-{
-    /// <summary>The operation failed because of invalid input.</summary>
-    Validation,
-
-    /// <summary>The requested resource was not found.</summary>
-    NotFound,
-
-    /// <summary>The operation conflicted with the current state of the system.</summary>
-    Conflict
-}
-
-/// <summary>
-/// Describes an expected application failure that can be translated by the outer boundary.
-/// </summary>
-/// <param name="Type">The category of the error.</param>
-/// <param name="Code">A machine-readable unique identifier for the error.</param>
-/// <param name="Message">A human-readable description of the error.</param>
-public sealed record Error(ErrorType Type, string Code, string Message)
-{
-    public static Error NotFound(string message)
-    {
-        return new Error(ErrorType.NotFound, "not_found", message);
-    }
-
-    public static Error Validation(string message)
-    {
-        return new Error(ErrorType.Validation, "validation_error", message);
-    }
-
-    public static Error Conflict(string message)
-    {
-        return new Error(ErrorType.Conflict, "conflict", message);
-    }
-}
-
-/// <summary>
 /// Represents the outcome of an application operation that either succeeds with a value
 /// or fails with an explicit application error.
 /// </summary>
@@ -54,15 +15,15 @@ public sealed class Result<T>
 {
     private readonly T? _value;
 
-    private Result(T? value, Error? error)
+    private Result(T? value, Error error)
     {
         _value = value;
         Error = error;
     }
 
-    public Error? Error { get; }
+    public Error Error { get; }
 
-    public bool IsSuccess => Error is null;
+    public bool IsSuccess => Error.IsNone;
 
     public bool IsFailure => !IsSuccess;
 
@@ -74,12 +35,17 @@ public sealed class Result<T>
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        return new Result<T>(value, null);
+        return new Result<T>(value, Error.None);
     }
 
     public static Result<T> Failure(Error error)
     {
         ArgumentNullException.ThrowIfNull(error);
+
+        if (error.IsNone)
+        {
+            throw new ArgumentException("A failure result must have an error.", nameof(error));
+        }
 
         return new Result<T>(default, error);
     }
@@ -93,7 +59,7 @@ public sealed class Result<T>
 
         return IsSuccess
             ? success(Value)
-            : failure(Error!);
+            : failure(Error);
     }
 }
 
@@ -109,25 +75,30 @@ public sealed class Result<T>
 /// </remarks>
 public sealed class Result
 {
-    private Result(Error? error)
+    private Result(Error error)
     {
         Error = error;
     }
 
-    public Error? Error { get; }
+    public Error Error { get; }
 
-    public bool IsSuccess => Error is null;
+    public bool IsSuccess => Error.IsNone;
 
     public bool IsFailure => !IsSuccess;
 
     public static Result Success()
     {
-        return new Result(null);
+        return new Result(Error.None);
     }
 
     public static Result Failure(Error error)
     {
         ArgumentNullException.ThrowIfNull(error);
+
+        if (error.IsNone)
+        {
+            throw new ArgumentException("A failure result must have an error.", nameof(error));
+        }
 
         return new Result(error);
     }
@@ -141,6 +112,6 @@ public sealed class Result
 
         return IsSuccess
             ? success()
-            : failure(Error!);
+            : failure(Error);
     }
 }

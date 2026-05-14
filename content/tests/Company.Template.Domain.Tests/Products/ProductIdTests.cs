@@ -38,6 +38,45 @@ public sealed class ProductIdTests
 
         // Assert
         exception.ParamName.ShouldBe("value");
+        exception.Message.ShouldContain("Product id is required.");
+    }
+
+    [Fact]
+    public void TryFrom_WithNonEmptyGuid_ReturnsTrueAndProductId()
+    {
+        // Arrange
+        Guid value = Guid.CreateVersion7();
+
+        // Act
+        bool result = ProductId.TryFrom(
+            value,
+            out ProductId productId,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        productId.Value.ShouldBe(value);
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryFrom_WithEmptyGuid_ReturnsFalseAndDomainError()
+    {
+        // Arrange
+        Guid value = Guid.Empty;
+
+        // Act
+        bool result = ProductId.TryFrom(
+            value,
+            out ProductId productId,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        productId.ShouldBe(default);
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.ProductIdRequired);
+        error.Message.ShouldBe("Product id is required.");
     }
 
     [Fact]

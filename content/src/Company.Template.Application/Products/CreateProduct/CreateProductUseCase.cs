@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions;
+using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.CreateProduct;
@@ -23,33 +24,21 @@ public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, Produc
         _clock = clock;
     }
 
-    public async Task<Result<ProductDto>> ExecuteAsync(CreateProductCommand command,
+    public async Task<Result<ProductDto>> ExecuteAsync(
+        CreateProductCommand command,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        if (string.IsNullOrWhiteSpace(command.Name))
+        if (!Product.TryCreate(
+                command.Name,
+                command.Price,
+                command.Currency,
+                _clock.UtcNow,
+                out Product? product,
+                out DomainError? error))
         {
-            return Result<ProductDto>.Failure(Error.Validation("Product name is required."));
-        }
-
-        if (command.Price < 0)
-        {
-            return Result<ProductDto>.Failure(Error.Validation("Price cannot be negative."));
-        }
-
-        Product product;
-
-        try
-        {
-            product = Product.Create(
-                ProductName.Create(command.Name),
-                Money.Create(command.Price, command.Currency),
-                _clock.UtcNow);
-        }
-        catch (ArgumentException exception)
-        {
-            return Result<ProductDto>.Failure(Error.Validation(exception.Message));
+            return Result<ProductDto>.Failure(error.ToApplicationError());
         }
 
         _dbContext.Products.Add(product);

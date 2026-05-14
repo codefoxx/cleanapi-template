@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions;
+using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.DiscontinueProduct;
@@ -26,12 +27,11 @@ public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductComma
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        if (command.ProductId == Guid.Empty)
+        if (!ProductId.TryFrom(command.ProductId, out ProductId productId, out DomainError? productIdError))
         {
-            return Result.Failure(Error.Validation("Product id is required."));
+            return Result.Failure(productIdError.ToApplicationError());
         }
 
-        ProductId productId = ProductId.From(command.ProductId);
         Option<Product> maybe = await _dbContext.Products
                                                 .WithId(productId)
                                                 .SingleOrNoneAsync(cancellationToken);

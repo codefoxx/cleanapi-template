@@ -292,6 +292,68 @@ public sealed class ProductTests
         product.DomainEvents.ShouldBeEmpty();
     }
 
+    [Fact]
+    public void TryCreate_WithValidValues_ReturnsTrueAndProduct()
+    {
+        // Act
+        bool result = Product.TryCreate(
+            "Keyboard",
+            99.90m,
+            "CHF",
+            CreatedAt,
+            out Product? product,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        product.ShouldNotBeNull();
+        product.Name.ShouldBe(ProductName.Create("Keyboard"));
+        product.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        product.Status.ShouldBe(ProductStatus.Active);
+        product.CreatedAt.ShouldBe(CreatedAt);
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithMissingName_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Product.TryCreate(
+            " ",
+            99.90m,
+            "CHF",
+            CreatedAt,
+            out Product? product,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        product.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.ProductNameRequired);
+        error.Message.ShouldBe("Product name is required.");
+    }
+
+    [Fact]
+    public void TryCreate_WithInvalidPrice_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Product.TryCreate(
+            "Keyboard",
+            -0.01m,
+            "CHF",
+            CreatedAt,
+            out Product? product,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        product.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.AmountNegative);
+        error.Message.ShouldBe("Amount cannot be negative.");
+    }
+
     private static Product CreateProduct()
     {
         return Product.Create(

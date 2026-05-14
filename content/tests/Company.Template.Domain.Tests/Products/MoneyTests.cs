@@ -556,4 +556,76 @@ public sealed class MoneyTests
         // Assert
         value.ShouldBe("0.00");
     }
+
+    [Fact]
+    public void TryCreate_WithValidAmountAndCurrency_ReturnsTrueAndMoney()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            KnownCurrencies.Chf,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        money.ShouldNotBeNull();
+        money.Amount.ShouldBe(99.90m);
+        money.Currency.ShouldBe(KnownCurrencies.Chf);
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithNegativeAmount_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            -0.01m,
+            KnownCurrencies.Chf,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.AmountNegative);
+        error.Message.ShouldBe("Amount cannot be negative.");
+    }
+
+    [Fact]
+    public void TryCreate_WithTooManyDecimalPlaces_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.999m,
+            KnownCurrencies.Chf,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.AmountTooManyDecimalPlaces);
+        error.Message.ShouldBe($"Price cannot have more than {Money.Scale} decimal places.");
+    }
+
+    [Fact]
+    public void TryCreate_WithInvalidCurrencyCode_ReturnsFalseAndDomainError()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            "CH",
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
+        error.Message.ShouldBe("Currency must be an ISO 4217 three-letter code.");
+    }
 }
