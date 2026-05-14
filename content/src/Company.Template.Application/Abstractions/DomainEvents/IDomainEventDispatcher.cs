@@ -1,6 +1,6 @@
 using Company.Template.Domain.Common;
 
-namespace Company.Template.Application.Abstractions;
+namespace Company.Template.Application.Abstractions.DomainEvents;
 
 /// <summary>
 ///     Defines a contract for dispatching domain events to their respective handlers.

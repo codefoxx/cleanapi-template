@@ -1,13 +1,12 @@
 using Company.Template.Api;
 using Company.Template.Api.CurrentUser;
 using Company.Template.Api.Endpoints;
-using Company.Template.Api.Endpoints.Products;
 using Company.Template.Api.Middleware;
 using Company.Template.Api.OpenApi;
 using Company.Template.Api.Options;
 using Company.Template.Api.Security;
 using Company.Template.Application;
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.Security;
 using Company.Template.Infrastructure;
 using Serilog;
 

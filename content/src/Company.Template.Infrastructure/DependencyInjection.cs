@@ -1,4 +1,7 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.DomainEvents;
+using Company.Template.Application.Abstractions.Persistence;
+using Company.Template.Application.Abstractions.Time;
+using Company.Template.Application.Products;
 using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.Infrastructure.Time;
@@ -9,8 +12,9 @@ namespace Company.Template.Infrastructure;
 ///     Wires infrastructure implementations to application-layer abstractions.
 /// </summary>
 /// <remarks>
-///     The registration keeps composition concerns in infrastructure: database setup, domain-event dispatching, and the
-///     clock implementation are provided here while application use cases depend on abstractions.
+///     The registration keeps composition concerns in infrastructure: database setup,
+///     persistence implementation, domain-event dispatching, and the clock implementation
+///     are provided here while application use cases depend on abstractions.
 /// </remarks>
 public static class DependencyInjection
 {
@@ -19,44 +23,18 @@ public static class DependencyInjection
         public IServiceCollection AddInfrastructure(IConfiguration configuration)
         {
             services.AddTemplateDatabase(configuration);
-            services.AddDbContextAbstractions<ApplicationDbContext>();
+
+            services.AddScoped<IUnitOfWork>(provider =>
+                provider.GetRequiredService<ApplicationDbContext>());
+
+            services.AddScoped<IApplicationDbContext>(provider =>
+                provider.GetRequiredService<ApplicationDbContext>());
+
+            services.AddScoped<IProductDbContext>(provider =>
+                provider.GetRequiredService<ApplicationDbContext>());
 
             services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
             services.AddSingleton<IClock, SystemClock>();
-
-            return services;
-        }
-
-        private IServiceCollection AddDbContextAbstractions<TDbContext>()
-            where TDbContext : class, IApplicationDbContext
-        {
-            services.AddScoped<IApplicationDbContext>(provider =>
-                provider.GetRequiredService<TDbContext>());
-
-            Type dbContextType = typeof(TDbContext);
-            Type baseAbstractionType = typeof(IApplicationDbContext);
-
-            Type[] dbContextAbstractionTypes = baseAbstractionType
-                                              .Assembly
-                                              .GetTypes()
-                                              .Where(type =>
-                                                   type.IsInterface &&
-                                                   type != baseAbstractionType &&
-                                                   baseAbstractionType.IsAssignableFrom(type))
-                                              .ToArray();
-
-            foreach (Type abstractionType in dbContextAbstractionTypes)
-            {
-                if (!abstractionType.IsAssignableFrom(dbContextType))
-                {
-                    throw new InvalidOperationException(
-                        $"{dbContextType.Name} must implement {abstractionType.Name} because it derives from {baseAbstractionType.Name}.");
-                }
-
-                services.AddScoped(abstractionType,
-                    provider =>
-                        provider.GetRequiredService<TDbContext>());
-            }
 
             return services;
         }

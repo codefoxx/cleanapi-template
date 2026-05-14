@@ -1,4 +1,4 @@
-using Company.Template.Application.Abstractions;
+using Company.Template.Application.Abstractions.Time;
 
 namespace Company.Template.Application.Tests.TestSupport;
 

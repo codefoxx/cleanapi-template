@@ -1,4 +1,3 @@
-using Company.Template.Application.Abstractions;
 using Company.Template.Domain.Products;
 
 namespace Company.Template.Application.Products.GetProducts;

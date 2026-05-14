@@ -1,4 +1,4 @@
-namespace Company.Template.Application.Abstractions;
+namespace Company.Template.Application.Abstractions.Time;
 
 /// <summary>
 ///     Provides an abstraction for the system clock.
