@@ -12,11 +12,11 @@ namespace Company.Template.Application.Products.GetProductById;
 /// </remarks>
 public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, ProductDto>
 {
-    private readonly IProductDbContext _dbContext;
+    private readonly IProductQueries _queries;
 
-    public GetProductByIdUseCase(IProductDbContext dbContext)
+    public GetProductByIdUseCase(IProductQueries queries)
     {
-        _dbContext = dbContext;
+        _queries = queries;
     }
 
     public async Task<Result<ProductDto>> ExecuteAsync(
@@ -30,16 +30,14 @@ public sealed class GetProductByIdUseCase : IUseCase<GetProductByIdQuery, Produc
             return Result<ProductDto>.Failure(productIdError.ToApplicationError());
         }
 
-        Option<Product> product = await _dbContext.ProductsForRead
-                                                  .WithId(productId)
-                                                  .SingleOrNoneAsync(cancellationToken);
+        Option<ProductDto> product = await _queries.GetByIdAsync(productId, cancellationToken);
 
         return product.Match(MapToSuccess, ProductNotFound);
     }
 
-    private static Result<ProductDto> MapToSuccess(Product product)
+    private static Result<ProductDto> MapToSuccess(ProductDto product)
     {
-        return Result<ProductDto>.Success(ProductMapper.ToDto(product));
+        return Result<ProductDto>.Success(product);
     }
 
     private static Result<ProductDto> ProductNotFound()

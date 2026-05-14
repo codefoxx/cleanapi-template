@@ -40,7 +40,7 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
 
         IRepository<Product, ProductId> products = _unitOfWork.GetRepository<Product, ProductId>();
 
-        Option<Product> maybe = await products.TryFindAsync(productId, cancellationToken);
+        Option<Product> maybe = await products.FindAsync(productId, cancellationToken);
 
         if (!maybe.TryGetValue(out Product? product))
         {

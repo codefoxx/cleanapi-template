@@ -1,9 +1,10 @@
+using Company.Template.Application.Common;
 using Company.Template.Application.Products.GetProducts;
 using Company.Template.Domain.Products;
 
-namespace Company.Template.Application.Products;
+namespace Company.Template.Infrastructure.Persistence.Queries;
 
-internal static class ProductQueries
+internal static class ProductQueryExtensions
 {
     extension(IQueryable<Product> products)
     {

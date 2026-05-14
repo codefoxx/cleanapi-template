@@ -6,7 +6,7 @@ public interface IRepository<TAggregate, in TKey>
     where TAggregate : AggregateRoot
     where TKey : struct, IEntityId<TKey>
 {
-    Task<Option<TAggregate>> TryFindAsync(
+    Task<Option<TAggregate>> FindAsync(
         TKey key,
         CancellationToken cancellationToken);
 
