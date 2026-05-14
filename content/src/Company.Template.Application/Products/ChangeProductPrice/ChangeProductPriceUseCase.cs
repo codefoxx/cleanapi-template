@@ -7,9 +7,9 @@ namespace Company.Template.Application.Products.ChangeProductPrice;
 ///     Coordinates the workflow for changing a product price.
 /// </summary>
 /// <remarks>
-///     The use case performs request-level validation, loads the target aggregate through the EF Core-shaped
-///     application boundary, delegates price validation and state changes to <see cref="Money" /> and
-///     <see cref="Product" />, and returns explicit validation or not-found failures for expected outcomes.
+///     The use case performs request-level validation, loads the target aggregate through the command persistence boundary,
+///     delegates price validation and state changes to <see cref="Money" /> and <see cref="Product" />,
+///     and returns explicit validation or not-found failures for expected outcomes.
 /// </remarks>
 public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceCommand, ProductDto>
 {

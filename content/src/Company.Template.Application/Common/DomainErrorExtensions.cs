@@ -4,37 +4,28 @@ namespace Company.Template.Application.Common;
 
 public static class DomainErrorExtensions
 {
+    private static readonly IReadOnlyDictionary<DomainErrorCode, ErrorType> ErrorTypes =
+        new Dictionary<DomainErrorCode, ErrorType>
+        {
+            [DomainErrorCodes.ProductIdRequired] = ErrorType.Validation,
+            [DomainErrorCodes.ProductNameRequired] = ErrorType.Validation,
+            [DomainErrorCodes.ProductNameTooLong] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencyRequired] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencyInvalidFormat] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencySymbolRequired] = ErrorType.Validation,
+            [DomainErrorCodes.AmountNegative] = ErrorType.Validation,
+            [DomainErrorCodes.AmountTooManyDecimalPlaces] = ErrorType.Validation,
+            [DomainErrorCodes.DiscontinuedProductCannotBeChanged] = ErrorType.Conflict
+        };
+
     public static Error ToApplicationError(this DomainError error)
     {
         ArgumentNullException.ThrowIfNull(error);
 
-        return error.Code switch
-        {
-            var code when code == DomainErrorCodes.ProductNameRequired =>
-                Error.Validation(code.Value, error.Message),
+        ErrorType type = ErrorTypes.TryGetValue(error.Code, out ErrorType mappedType)
+            ? mappedType
+            : ErrorType.Unknown;
 
-            var code when code == DomainErrorCodes.ProductNameTooLong =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.CurrencyRequired =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.CurrencyInvalidFormat =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.CurrencySymbolRequired =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.AmountNegative =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.AmountTooManyDecimalPlaces =>
-                Error.Validation(code.Value, error.Message),
-
-            var code when code == DomainErrorCodes.DiscontinuedProductCannotBeChanged =>
-                Error.Conflict(code.Value, error.Message),
-
-            _ => Error.Unknown(error.Code.Value, error.Message)
-        };
+        return Error.Create(type, error.Code.Value, error.Message);
     }
 }
