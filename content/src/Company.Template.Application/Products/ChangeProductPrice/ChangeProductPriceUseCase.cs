@@ -48,7 +48,12 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
             return Result<ProductDto>.Failure(Error.NotFound("Product was not found."));
         }
 
-        product.ChangePrice(money, _clock.UtcNow);
+        DomainResult result = product.ChangePrice(money, _clock.UtcNow);
+
+        if (result.IsFailure)
+        {
+            return Result<ProductDto>.Failure(result.Error.ToApplicationError());
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

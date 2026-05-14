@@ -31,6 +31,9 @@ public static class DomainErrorExtensions
             var code when code == DomainErrorCodes.AmountTooManyDecimalPlaces =>
                 Error.Validation(code.Value, error.Message),
 
+            var code when code == DomainErrorCodes.DiscontinuedProductCannotBeChanged =>
+                Error.Conflict(code.Value, error.Message),
+
             _ => Error.Unknown(error.Code.Value, error.Message)
         };
     }

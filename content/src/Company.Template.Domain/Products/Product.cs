@@ -143,21 +143,26 @@ public sealed class Product : AggregateRoot
     /// <exception cref="InvalidOperationException">
     ///     Thrown when attempting to rename a discontinued product.
     /// </exception>
-    public void Rename(ProductName newName)
+    public DomainResult Rename(ProductName newName)
     {
         ArgumentNullException.ThrowIfNull(newName);
 
         if (Status == ProductStatus.Discontinued)
         {
-            throw new InvalidOperationException("A discontinued product cannot be renamed.");
+            return DomainResult.Failure(
+                DomainError.Create(
+                    DomainErrorCodes.DiscontinuedProductCannotBeChanged,
+                    "Discontinued product cannot be changed"));
         }
 
         if (Name == newName)
         {
-            return;
+            return DomainResult.Success();
         }
 
         Name = newName;
+
+        return DomainResult.Success();
     }
 
     /// <summary>
@@ -171,19 +176,29 @@ public sealed class Product : AggregateRoot
     /// <remarks>
     ///     No domain event is recorded when the new price equals the current price.
     /// </remarks>
-    public void ChangePrice(Money newPrice, DateTimeOffset changedAt)
+    public DomainResult ChangePrice(Money newPrice, DateTimeOffset changedAt)
     {
         ArgumentNullException.ThrowIfNull(newPrice);
 
+        if (Status == ProductStatus.Discontinued)
+        {
+            return DomainResult.Failure(
+                DomainError.Create(
+                    DomainErrorCodes.DiscontinuedProductCannotBeChanged,
+                    "Discontinued product cannot be changed"));
+        }
+
         if (Price == newPrice)
         {
-            return;
+            return DomainResult.Success();
         }
 
         Money oldPrice = Price;
         Price = newPrice;
 
         AddDomainEvent(new ProductPriceChangedDomainEvent(Id, oldPrice, newPrice, changedAt));
+
+        return DomainResult.Success();
     }
 
     /// <summary>
@@ -194,16 +209,18 @@ public sealed class Product : AggregateRoot
     ///     Calling this method for an already discontinued product is idempotent and does not record
     ///     another domain event.
     /// </remarks>
-    public void Discontinue(DateTimeOffset discontinuedAt)
+    public DomainResult Discontinue(DateTimeOffset discontinuedAt)
     {
         if (Status == ProductStatus.Discontinued)
         {
-            return;
+            return DomainResult.Success();
         }
 
         Status = ProductStatus.Discontinued;
         DiscontinuedAt = discontinuedAt;
 
         AddDomainEvent(new ProductDiscontinuedDomainEvent(Id, discontinuedAt));
+
+        return DomainResult.Success();
     }
 }

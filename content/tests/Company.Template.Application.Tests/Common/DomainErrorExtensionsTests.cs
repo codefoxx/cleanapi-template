@@ -65,4 +65,21 @@ public sealed class DomainErrorExtensionsTests
         // Assert
         action.ShouldThrow<ArgumentNullException>();
     }
+
+    [Fact]
+    public void ToApplicationError_WithDiscontinuedProductCannotBeChanged_ReturnsConflictError()
+    {
+        // Arrange
+        DomainError domainError = DomainError.Create(
+            DomainErrorCodes.DiscontinuedProductCannotBeChanged,
+            "Discontinued products cannot be changed.");
+
+        // Act
+        Error error = domainError.ToApplicationError();
+
+        // Assert
+        error.Type.ShouldBe(ErrorType.Conflict);
+        error.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged.Value);
+        error.Message.ShouldBe("Discontinued products cannot be changed.");
+    }
 }
