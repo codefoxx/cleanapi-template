@@ -1,70 +1,50 @@
-# Codefox Clean API Template
+# Company.Template
 
-This repository contains a `dotnet new` template for a production-oriented Clean Architecture Web API.
+Production-oriented Clean Architecture Web API generated from the `cleanapi` template.
 
-The outer repository is the template authoring container. The generated application template lives in `content/` and is
-packaged by `template-package/`.
-
-## Repository structure
+## Project structure
 
 ```text
-content/
-  The actual template content.
-  This is what users get when they run dotnet new cleanapi.
+src/
+  Company.Template.Api
+  Company.Template.Application
+  Company.Template.Domain
+  Company.Template.Infrastructure
+  Company.Template.MigrationService
+  Company.Template.ServiceDefaults
+  Company.Template.AppHost
 
-template-package/
-  The NuGet template package project.
-  It packs the content folder as a dotnet new template.
-
-scripts/
-  Local template authoring and verification scripts.
+tests/
+  Company.Template.Domain.Tests
+  Company.Template.Application.Tests
+  Company.Template.Infrastructure.Tests
+  Company.Template.Api.Tests
 ```
 
-## Template goals
+## Architecture rules
 
-The template is intended to be close to a production-ready starting point, while still being small enough to understand.
+- `Domain` references no other project.
+- `Application` references `Domain`, EF Core abstractions, and application-level infrastructure contracts.
+- `Infrastructure` references `Application` and `Domain`.
+- `Api` references `Application`, `Infrastructure`, and `ServiceDefaults`.
+- `MigrationService` references `Infrastructure` and `ServiceDefaults`.
+- `AppHost` is used for local orchestration with .NET Aspire.
+- Tests reference only the projects they need.
 
-It demonstrates:
+The Domain layer must not reference EF Core, ASP.NET Core, Keycloak, Aspire, OpenTelemetry, Serilog, or any other
+infrastructure concern.
 
-- Clean Architecture project separation
-- DDD-inspired domain model
-- strongly typed IDs
-- explicit use cases
-- Result and Option patterns
-- EF Core without custom repository/unit-of-work wrappers
-- provider-selectable relational persistence for PostgreSQL and SQL Server
-- EF Core migrations through a one-shot migration service
-- .NET Aspire local orchestration
-- OpenTelemetry and structured logging
-- use-case telemetry decorators
-- Keycloak JWT bearer wiring
-- Testcontainers-based integration tests
-- central package management
-- executable-documentation style tests
+The Application layer intentionally uses EF Core query abstractions. This template treats `DbSet<TEntity>` as the
+repository and `DbContext` as the unit of work. It does not add repository or unit-of-work wrappers around EF Core.
 
-## Architecture decisions
+The MigrationService is an executable one-shot process. It applies EF Core migrations and exits. It is used by Aspire so
+the database schema is updated before the API starts.
 
-### Domain
+## Application style
 
-The `Domain` project references no other project.
+Application behavior is implemented as explicit use cases.
 
-It contains the domain model, value objects, strongly typed IDs, aggregate behavior, and domain events.
-
-The domain layer must not reference:
-
-- EF Core
-- ASP.NET Core
-- Keycloak
-- Aspire
-- OpenTelemetry
-- Serilog
-- infrastructure concerns
-
-### Application
-
-The `Application` project contains use cases and application-level abstractions.
-
-Use cases implement one of these contracts:
+Use cases implement one of these interfaces:
 
 ```csharp
 public interface IUseCase<in TRequest, TResult>
@@ -78,47 +58,105 @@ public interface IUseCase<in TRequest>
 }
 ```
 
-Endpoints depend on these interfaces, not on concrete use-case classes. This allows cross-cutting behavior such as
-logging, tracing, metrics, and timing to be applied through decorators.
-
-Use cases are registered automatically using Scrutor.
-
-### Persistence
-
-The template deliberately avoids custom repository and unit-of-work abstractions.
-
-Instead:
-
-- `DbContext` is treated as the unit of work.
-- `DbSet<TEntity>` is treated as the repository.
-- Read queries use `IQueryable<T>` and `AsNoTracking()`.
-- Feature-specific DbContext interfaces expose the DbSets and query roots needed by that feature.
-- Query extension methods provide named, composable queries.
+Endpoints depend on use-case interfaces instead of concrete classes. This allows cross-cutting decorators for telemetry,
+logging, metrics, and tracing.
 
 Example:
 
 ```csharp
-Product? product = await _dbContext.ProductsForRead
-    .WithId(productId)
-    .SingleOrDefaultAsync(cancellationToken);
+private static async Task<IResult> DiscontinueProductAsync(
+    Guid id,
+    IUseCase<DiscontinueProductCommand> useCase,
+    CancellationToken cancellationToken)
+{
+    Result result = await useCase.ExecuteAsync(
+        new DiscontinueProductCommand(id),
+        cancellationToken);
+
+    return result.ToHttpResult();
+}
 ```
 
-For writes:
+Use cases are registered automatically via Scrutor. The template decorates them with telemetry behavior.
+
+## Results and optional values
+
+Expected application outcomes are represented with `Result` / `Result<T>`.
+
+Use this for:
+
+- validation failures
+- not found
+- conflicts
+- successful command/query results
+
+Unexpected failures should still throw and be handled by the API boundary.
+
+Optional query results can be represented with `Option<T>`.
+
+Example:
 
 ```csharp
-_dbContext.Products.Add(product);
-
-await _dbContext.SaveChangesAsync(cancellationToken);
+Option<Product> maybeProduct = await _dbContext.Products
+    .WithId(productId)
+    .SingleOrNoneAsync(cancellationToken);
 ```
 
-The database provider is still abstracted behind provider-specific EF Core configuration. The generated project compiles
-only the selected provider.
+Use `Option<T>` when absence is an expected state and should be made explicit.
 
-Provider selection is a generation-time choice, not a runtime provider switch.
+## Strongly typed IDs
 
-### Observability
+Domain IDs use strongly typed ID structs.
 
-The template uses OpenTelemetry and structured logging as production concerns.
+Example:
+
+```csharp
+public readonly record struct ProductId(Guid Value) : IStronglyTypedId
+{
+    public static ProductId New()
+    {
+        return new ProductId(StronglyTypedId.New());
+    }
+
+    public static ProductId From(Guid value)
+    {
+        return new ProductId(StronglyTypedId.EnsureNotEmpty(value, nameof(value)));
+    }
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
+}
+```
+
+The shared `StronglyTypedId` helper centralizes ID creation and validation. IDs use UUID v7 for new values.
+
+## Persistence style
+
+The generated application uses thin Ports-and-Adapters style persistence boundaries.
+
+Command use cases access aggregates through:
+
+- `IUnitOfWork`
+- `IRepository<TAggregate, TKey>`
+
+Query use cases access read models through named query ports, for example `IProductQueries`.
+
+Infrastructure implements those ports with EF Core. The abstraction is intentionally EF Core-friendly: it keeps use cases
+away from direct `DbContext`, `DbSet<T>`, and `IQueryable<T>` usage without building a large repository, unit-of-work, or
+specification framework.
+
+The intended trade-off is:
+
+- `DbContext` remains the concrete unit of work.
+- `DbSet<TEntity>` remains the concrete repository mechanism.
+- Queries can still use EF Core LINQ, projections, and `AsNoTracking()` inside Infrastructure.
+- The Domain layer remains persistence-free.
+
+## Observability
+
+The template uses OpenTelemetry and structured logging as first-class production concerns.
 
 Service defaults configure:
 
@@ -128,21 +166,53 @@ Service defaults configure:
 - ASP.NET Core instrumentation
 - HTTP client instrumentation
 - runtime instrumentation
-- OTLP export when configured
+- OTLP export when `OTEL_EXPORTER_OTLP_ENDPOINT` is configured
 
-Use cases are wrapped by telemetry decorators. The decorator records:
+Application use cases are decorated with telemetry behavior.
+
+The use-case telemetry decorator records:
 
 - use-case start
 - use-case completion
 - use-case failure
-- duration
+- use-case duration
 - unexpected exceptions
-- cancellations
+- cancellation
 - OpenTelemetry spans
 - OpenTelemetry metrics
 - structured logs
 
-The split is intentional:
+Generic execution telemetry belongs in:
+
+```text
+src/Company.Template.Application/Telemetry/
+```
+
+Application telemetry definitions belong in:
+
+```text
+src/Company.Template.Application/Diagnostics/
+```
+
+Feature-specific business logs should live with the feature, for example:
+
+```text
+src/Company.Template.Application/Products/
+```
+
+### Logging rules
+
+- Use structured logging.
+- Do not use string interpolation in log messages.
+- Use logs to explain application decisions, not every method call.
+- Use OpenTelemetry traces to understand execution flow.
+- Use metrics for rates, counts, and durations.
+- Do not put high-cardinality values such as product IDs, user emails, request IDs, or exception messages into metric
+  tags.
+- Log unexpected exceptions once at the boundary or in cross-cutting telemetry.
+- Expected failures should normally be represented as `Result` values.
+
+### Telemetry signal roles
 
 ```text
 Logs
@@ -155,22 +225,117 @@ Metrics
   Show rates, counts, failures, and duration distributions.
 ```
 
-Generic execution telemetry lives in:
+## Sample domain
 
-```text
-content/src/Company.Template.Application/Telemetry/
+The template includes a small Catalog/Product domain:
+
+- `Product` aggregate root
+- `ProductId` strongly typed ID
+- `ProductName` value object
+- `Money` value object
+- `ProductStatus`
+- domain events:
+    - `ProductCreatedDomainEvent`
+    - `ProductPriceChangedDomainEvent`
+    - `ProductDiscontinuedDomainEvent`
+
+Business rules live in the domain model:
+
+- product name must not be empty
+- price must not be negative
+- discontinued products cannot be renamed
+- changing price to the same value does nothing
+- domain events are raised only when state changes
+
+## Database provider selection
+
+The provider is selected when the project is generated:
+
+```bash
+dotnet new cleanapi -n Company.Template --db PostgreSql
 ```
 
-Feature-specific business logs should live with the feature.
+Valid provider values:
 
-### Migrations
+- `PostgreSql`
+- `SqlServer`
+- `SqlServer`
 
-The generated solution includes a `MigrationService` project.
+MySQL is not included in this .NET 10 template version. The template can add MySQL later, but only after the EF Core
+provider choice has stable EF Core 10 support and the provider-specific template tests are validated.
 
-It is an executable one-shot process that applies EF Core migrations and exits. Aspire starts it after the database and
-before the API.
+The selected provider is written to configuration:
 
-Local startup order:
+```json
+{
+    "Database": {
+        "Provider": "__DB_PROVIDER__",
+        "ConnectionStringName": "DefaultConnection"
+    },
+    "ConnectionStrings": {
+        "DefaultConnection": "Set by Aspire AppHost. Replace this when running the API directly."
+    }
+}
+```
+
+Provider-specific EF Core configuration is isolated in:
+
+```text
+src/Company.Template.Infrastructure/Persistence/Providers/
+```
+
+Only the selected provider is compiled into the generated project.
+
+Provider selection is a generation-time choice, not a runtime provider switch. The generated project contains only the
+EF Core provider configuration and Testcontainers setup for the selected provider.
+
+## Initial setup
+
+After creating a new project, restore packages:
+
+```bash
+dotnet restore
+```
+
+Then create the initial EF Core migration:
+
+```bash
+dotnet ef migrations add InitialCreate \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
+```
+
+The migration files are created in:
+
+```text
+src/Company.Template.Infrastructure/Persistence/Migrations/
+```
+
+Creating migration files does not require the database container to be running. EF Core only needs to build the project,
+create the DbContext at design time, and compare the current model with the model snapshot.
+
+After the initial migration exists, run the AppHost:
+
+```bash
+dotnet run --project src/Company.Template.AppHost
+```
+
+If Keycloak is enabled, the local development realm is imported during AppHost startup. For repeatable realm import
+tests, run Keycloak without a persisted data volume or remove the old Keycloak volume before restarting.
+
+## Running with Aspire
+
+Run:
+
+```bash
+dotnet run --project src/Company.Template.AppHost
+```
+
+Aspire starts the selected database container, runs the migration service, and then starts the API.
+
+The local startup order is:
 
 ```text
 database
@@ -178,173 +343,531 @@ database
   -> api
 ```
 
-For production deployments, migration bundles are preferred over running migrations from the API at startup.
+The migration service applies pending EF Core migrations and exits. The API waits until the migration service has
+completed successfully.
 
-## Template workflow
-
-Use the helper script for local template authoring:
-
-```bash
-./scripts/template.sh --help
-```
-
-Available commands:
+Local development tools can be enabled in:
 
 ```text
-pack       Build the template NuGet package.
-install    Pack and install the template locally.
-create     Create a test project from the installed template.
-migrate    Create an EF Core migration in the test project.
-build      Install, create, migrate and build the generated project.
-test       Build the generated project and run all tests.
-all        Pack the template, build the generated project and run all tests.
-clean      Remove generated test output.
+src/Company.Template.AppHost/appsettings.json
 ```
 
-Examples:
+Example:
 
-```bash
-./scripts/template.sh pack
-./scripts/template.sh install
-./scripts/template.sh create --db PostgreSql
-./scripts/template.sh build --db PostgreSql
-./scripts/template.sh test --db PostgreSql
-./scripts/template.sh all --db PostgreSql
-./scripts/template.sh test --db SqlServer --name Acme.Orders
+```json
+{
+    "AppHost": {
+        "StartPgAdmin": false,
+        "StartKeycloak": false
+    }
+}
 ```
 
-The default test project is generated under:
+## Optional pgAdmin
+
+pgAdmin is disabled by default.
+
+Enable it in the AppHost configuration:
+
+```json
+{
+    "AppHost": {
+        "StartPgAdmin": true
+    }
+}
+```
+
+pgAdmin is intended as a local development tool only. It is not part of the application architecture.
+
+## Optional Keycloak authentication
+
+Authentication is disabled by default:
+
+```json
+{
+    "Authentication": {
+        "Enabled": false
+    }
+}
+```
+
+Enable local Keycloak orchestration in the AppHost:
+
+```json
+{
+    "AppHost": {
+        "StartKeycloak": true
+    }
+}
+```
+
+When Keycloak is started by Aspire, the AppHost:
+
+- starts a local Keycloak container
+- imports the prepared local development realm
+- wires the API authentication settings
+- configures the API authority and audience
+- keeps authentication optional through configuration
+
+The API validates bearer tokens. It does not perform browser login and does not use cookie authentication.
+
+### Local development realm
+
+The local Keycloak realm import lives in:
 
 ```text
-/tmp/cleanapi-template-test/Acme.Products
+infra/keycloak/realms/
 ```
 
-The script verifies:
+The template generates the realm file name from the project name.
 
-- template installation
-- project creation
-- unresolved template placeholders
-- provider-specific file pruning
-- migration service presence
-- package restore
-- initial EF Core migration generation
-- absence of EF Core design-time `BuildHost-*` artifacts
-- solution build
-- generated project tests
-
-Use `build` when you only want to verify that a generated project builds.
-
-Use `test` when you want to verify that the generated project builds and all tests pass.
-
-Use `all` when you want the full local validation flow, including explicitly packing the template before building and
-testing a generated project.
-
-## Build the template package manually
-
-```bash
-dotnet pack ./template-package/Codefox.CleanApi.Template.csproj -c Release
-```
-
-## Install locally manually
-
-```bash
-dotnet new install ./template-package/bin/Release/Codefox.CleanApi.Template.0.1.0.nupkg --force
-```
-
-Or use:
-
-```bash
-./scripts/template.sh install
-```
-
-## Generate a new API manually
+Example for:
 
 ```bash
 dotnet new cleanapi -n Acme.Products --db PostgreSql
 ```
 
-Supported database provider values:
-
-- `PostgreSql`
-- `SqlServer`
-
-MySQL is intentionally not exposed in the initial .NET 10 version. The preferred Pomelo provider does not currently have
-stable EF Core 10 support, so MySQL support should be added later only after provider compatibility and template tests
-have been validated.
-
-## Working with `content/`
-
-The `content/` folder is a real .NET solution and should stay buildable.
-
-The raw, uninstantiated template still contains replacement tokens such as `__DB_PROVIDER__`. If you want to build or
-test the raw `content/` solution directly, set the effective provider explicitly, for example:
-
-```bash
-dotnet test -p:EffectiveDbProvider=PostgreSql
-```
-
-Template correctness should still be validated against generated projects, because that is what users receive.
-
-After running template packaging/install scripts, some `bin/` and `obj/` folders inside `content/` may be deleted
-intentionally. If Rider or the CLI complains about missing `project.assets.json`, restore the content solution:
-
-```bash
-cd content
-dotnet restore -p:EffectiveDbProvider=PostgreSql
-```
-
-or:
-
-```bash
-cd content
-dotnet build -p:EffectiveDbProvider=PostgreSql
-```
-
-## Template packaging notes
-
-The template package project should pack template content, not compile the generated application.
-
-The important setting is that files from `content/` are packed as content:
-
-```xml
-<None Include="$(MSBuildThisFileDirectory)..\content\**\*"
-      Pack="true"
-      PackagePath="content\" />
-```
-
-Avoid adding generated application files as `Compile` items in the template package project unless there is a very
-specific reason. The generated solution should compile those files, not the package project.
-
-## Development notes
-
-The template currently keeps optional infrastructure such as Keycloak and pgAdmin in the generated solution and enables
-them through configuration.
-
-This avoids half-working template parameters that remove files but leave stale solution or project references behind.
-Optional pruning can be added later, but only deliberately and with full template tests for each combination.
-
-## Recommended validation before committing
-
-Before committing provider-related changes, validate both supported providers:
-
-```bash
-./scripts/template.sh test --db PostgreSql
-./scripts/template.sh test --db SqlServer
-```
-
-For smaller changes, this is usually enough:
-
-```bash
-./scripts/template.sh test --db PostgreSql
-```
-
-## Generated project README
-
-The README delivered with the generated application lives in:
+the generated realm file is:
 
 ```text
-content/README.md
+infra/keycloak/realms/acme-products-realm.json
 ```
 
-This repository README describes template authoring. The generated README describes how to use the generated
-application.
+The realm name is:
+
+```text
+acme-products
+```
+
+The file name must match the Keycloak import convention:
+
+```text
+<realm-name>-realm.json
+```
+
+So for realm `acme-products`, the file must be named:
+
+```text
+acme-products-realm.json
+```
+
+Keycloak rejects the import if the file name and realm name do not match.
+
+### Local API client
+
+The imported realm contains a local development API client:
+
+```text
+Client ID: acme-products-api
+Client secret: local-dev-secret
+Flow: client_credentials
+```
+
+The client is intended for local development and smoke tests only.
+
+Do not reuse the local development client secret in real environments.
+
+The generated API expects:
+
+```text
+Authority: http://localhost:8080/realms/acme-products
+Audience:  acme-products-api
+```
+
+The access token must contain:
+
+```json
+{
+    "iss": "http://localhost:8080/realms/acme-products",
+    "aud": [
+        "acme-products-api",
+        "account"
+    ],
+    "scope": "profile products.read products.write email"
+}
+```
+
+The important parts are:
+
+```text
+iss
+  Must exactly match the API Authority.
+
+aud
+  Must contain the API audience.
+
+scope
+  Must contain the scopes required by the endpoint.
+```
+
+JWT issuer validation is strict. The issuer must match exactly, including port and casing.
+
+For example, these are different issuers:
+
+```text
+http://localhost:8080/realms/acme-products
+http://localhost:8080/realms/Acme-Products
+http://localhost:32804/realms/acme-products
+```
+
+### Authorization scopes
+
+The template uses OAuth scopes for API authorization.
+
+The local realm includes:
+
+```text
+products.read
+products.write
+```
+
+The sample policies are:
+
+```text
+products.read
+  Allows reading product data.
+
+products.write
+  Allows creating and modifying product data.
+```
+
+The local development client receives both scopes by default.
+
+### Token request
+
+After starting the AppHost with Keycloak enabled, request a token:
+
+```bash
+KC_URL="http://localhost:8080"
+REALM="acme-products"
+CLIENT_ID="acme-products-api"
+CLIENT_SECRET="local-dev-secret"
+
+TOKEN_RESPONSE=$(curl -s -X POST "$KC_URL/realms/$REALM/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=$CLIENT_ID" \
+  -d "client_secret=$CLIENT_SECRET")
+
+TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
+```
+
+Decode the token payload:
+
+```bash
+echo "$TOKEN" | cut -d "." -f2 | base64 -d 2>/dev/null | jq
+```
+
+If the API returns:
+
+```text
+401 Unauthorized
+WWW-Authenticate: Bearer error="invalid_token", error_description="The issuer '...' is invalid"
+```
+
+then the token issuer does not match the API `Authentication:Authority`.
+
+Common causes:
+
+- token was requested from the wrong Keycloak port
+- realm casing differs
+- API was started with stale authentication settings
+- Keycloak was started with an old persisted volume
+
+### Using Insomnia
+
+When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
+
+After importing `/openapi/v1.json`, Insomnia should be able to use the OAuth2 metadata to request tokens for protected
+endpoints.
+
+Use these local development values:
+
+```text
+Grant type: Client Credentials
+Access Token URL: http://localhost:8080/realms/acme-products/protocol/openid-connect/token
+Client ID: acme-products-api
+Client Secret: local-dev-secret
+Scope: products.read products.write
+```
+
+The token must be requested from the same Keycloak URL that the API uses as `Authentication:Authority`. Otherwise, JWT
+validation fails with an invalid issuer error.
+
+If Insomnia only shows a Bearer Token field, request the token manually with `curl` and paste the access token into the
+Bearer Token value.
+
+## Keycloak API smoke test
+
+The template includes a k6 smoke test for the local Keycloak + API setup.
+
+The script verifies:
+
+- Keycloak token retrieval through `client_credentials`
+- token issuer
+- token audience
+- `products.read` and `products.write` scopes
+- unauthenticated requests return `401`
+- invalid application requests return expected errors
+- all sample Product endpoints work end-to-end
+
+The script lives in:
+
+```text
+scripts/smoke/keycloak-api-smoke.js
+```
+
+Install k6 first:
+
+```bash
+sudo apt update
+sudo apt install -y gpg ca-certificates
+
+curl -fsSL https://dl.k6.io/key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/k6-archive-keyring.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+
+sudo apt update
+sudo apt install -y k6
+```
+
+Start the AppHost with Keycloak enabled:
+
+```json
+{
+    "AppHost": {
+        "StartKeycloak": true
+    }
+}
+```
+
+Then run:
+
+```bash
+KC_URL="http://localhost:8080" \
+API_URL="http://localhost:5080" \
+KC_REALM="acme-products" \
+KC_CLIENT_ID="acme-products-api" \
+KC_CLIENT_SECRET="local-dev-secret" \
+k6 run scripts/smoke/keycloak-api-smoke.js
+```
+
+Adjust `API_URL` if the API runs on a different local port.
+
+Expected result:
+
+```text
+checks: 100%
+http_req_failed: 0%
+```
+
+The smoke test intentionally treats some HTTP errors as expected responses:
+
+```text
+400
+  invalid application request
+
+401
+  unauthenticated request
+
+404
+  product not found
+```
+
+A `403` is not treated as expected in the full-access smoke test. If the smoke test returns `403`, the token was
+accepted but the API policy or scopes do not match.
+
+## OpenAPI
+
+In development:
+
+```text
+/openapi/v1.json
+```
+
+When authentication is disabled, the OpenAPI document contains no authentication metadata.
+
+When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
+
+The generated OpenAPI document contains:
+
+- the Keycloak token endpoint
+- the required OAuth scopes
+- `401` and `403` responses for protected endpoints
+- per-operation security requirements
+
+Example security scheme:
+
+```json
+{
+    "type": "oauth2",
+    "flows": {
+        "clientCredentials": {
+            "tokenUrl": "http://localhost:8080/realms/acme-products/protocol/openid-connect/token",
+            "scopes": {
+                "products.read": "Allows reading product data.",
+                "products.write": "Allows creating and modifying product data."
+            }
+        }
+    }
+}
+```
+
+Tools such as Insomnia can import the OpenAPI document and configure OAuth2 authentication for protected requests.
+
+For the local development realm, use:
+
+```text
+Grant type: Client Credentials
+Token URL:  http://localhost:8080/realms/acme-products/protocol/openid-connect/token
+Client ID:  acme-products-api
+Secret:     local-dev-secret
+Scopes:     products.read products.write
+```
+
+If your API tool only shows a Bearer Token field, request a token manually and paste the access token into that field.
+
+## Migrations
+
+The template uses EF Core migrations for relational schema management.
+
+The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API
+starts.
+
+### Creating the initial migration
+
+After generating a project, create the initial migration once:
+
+```bash
+dotnet ef migrations add InitialCreate \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
+```
+
+Then start the AppHost:
+
+```bash
+dotnet run --project src/Company.Template.AppHost
+```
+
+The migration service will apply the migration automatically during Aspire startup.
+
+### Adding later migrations
+
+After changing the EF Core model, add a new migration:
+
+```bash
+dotnet ef migrations add DescribeYourChange \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output-dir Persistence/Migrations
+```
+
+Then restart the AppHost. The migration service applies the pending migration.
+
+### Applying migrations manually
+
+You can also apply migrations manually:
+
+```bash
+dotnet ef database update \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext
+```
+
+When running with Aspire locally, manual migration execution is usually not needed because the migration service handles
+it.
+
+### Migration bundles
+
+For release pipelines, prefer EF Core migration bundles over running migrations from the API at startup.
+
+Create a migration bundle:
+
+```bash
+dotnet ef migrations bundle \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --output artifacts/efbundle
+```
+
+For a Linux self-contained bundle:
+
+```bash
+dotnet ef migrations bundle \
+  --project src/Company.Template.Infrastructure \
+  --startup-project src/Company.Template.Api \
+  --context ApplicationDbContext \
+  --self-contained \
+  --runtime linux-x64 \
+  --output artifacts/efbundle
+```
+
+Run the bundle with a deployment connection string:
+
+```bash
+./artifacts/efbundle --connection "$CONNECTION_STRING"
+```
+
+Recommended production flow:
+
+```text
+build application
+build migration bundle
+apply migration bundle to database
+deploy or start api
+```
+
+The migration service is mainly intended for local Aspire development. A release pipeline should apply migrations
+explicitly before the API is deployed or started.
+
+## Tests
+
+Run:
+
+```bash
+dotnet test
+```
+
+Integration tests use Testcontainers and the selected relational database provider, currently PostgreSQL or SQL Server.
+
+Do not use EF Core InMemory as a substitute for relational integration tests.
+
+Tests follow an Arrange / Act / Assert structure and use descriptive names such as:
+
+```text
+CreateProduct_WhenRequestIsValid_ShouldCreateProduct
+GetProductById_WhenProductExists_ShouldReturnProduct
+SaveChanges_WhenProductIsAdded_ShouldPersistAndReloadProduct
+```
+
+The goal is that tests act as executable documentation.
+
+## Central package management
+
+Package versions are centralized in:
+
+```text
+Directory.Packages.props
+```
+
+Project files reference packages without versions.
+
+## Adding a new feature
+
+1. Put business invariants and behavior in `Domain`.
+2. Add request records and use cases in `Application`.
+3. Implement `IUseCase<TRequest, TResult>` or `IUseCase<TRequest>`.
+4. Add feature-specific DbContext interfaces and query extensions in `Application` when persistence access is needed.
+5. Add EF Core mapping in `Infrastructure`.
+6. Implement feature-specific DbContext partials in `Infrastructure`.
+7. Add API request/response DTOs and endpoints under `Api/Endpoints/{Feature}`.
+8. Add tests at the appropriate layer.
+9. Add feature-specific logs only for meaningful business decisions.
+
+Keep endpoint handlers thin. Do not expose domain entities or EF entities directly from the API.
