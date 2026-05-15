@@ -7,6 +7,5 @@ global using Company.Template.Application.Abstractions;
 global using Company.Template.Application.Abstractions.Persistence;
 global using Company.Template.Application.Abstractions.Time;
 global using Company.Template.Application.Common;
-global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;

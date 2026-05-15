@@ -1,10 +1,10 @@
 # PERSISTENCE
 
-> Thin EF Core-friendly persistence boundaries for commands and queries.
+> Thin application persistence ports backed by EF Core infrastructure adapters.
 
 ## Persistence style
 
-The template uses EF Core as the concrete persistence technology.
+The template uses EF Core as the concrete persistence technology in Infrastructure.
 
 It does not build a large repository, unit-of-work, or specification framework around EF Core.
 
@@ -109,14 +109,14 @@ This keeps the composition root small while still making query dependencies expl
 
 This is a Ports-and-Adapters style boundary, but it is intentionally not technology-neutral fantasy.
 
-EF Core remains the concrete persistence technology.
+EF Core remains the concrete persistence technology behind the Infrastructure adapters.
 
 The template abstracts use-case dependencies, not every EF Core concept.
 
 The intended trade-off is:
 
 - use cases do not depend directly on `DbContext`, `DbSet<T>`, or `IQueryable<T>`
-- Infrastructure can still use EF Core, LINQ, tracking, projections, and migrations effectively
+- Infrastructure can still use EF Core, LINQ, tracking, projections, mappings, and migrations effectively
 - Domain remains persistence-free
 - no generic specification framework is introduced
 
