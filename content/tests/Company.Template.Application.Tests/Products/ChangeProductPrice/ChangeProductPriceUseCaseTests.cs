@@ -24,7 +24,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -58,7 +58,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_PersistsChangedPrice()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -90,7 +90,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         RecordingDomainEventDispatcher domainEventDispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync(domainEventDispatcher);
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(domainEventDispatcher);
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -125,7 +125,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithMissingProductId_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ChangeProductPriceUseCase useCase = new(
             dbContext,
@@ -147,7 +147,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithUnknownProductId_ReturnsNotFoundFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ChangeProductPriceUseCase useCase = new(
             dbContext,
@@ -172,7 +172,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithNegativePrice_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -202,7 +202,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithInvalidCurrency_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -232,7 +232,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithTooManyDecimalPlaces_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -262,7 +262,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WhenProductIsDiscontinued_ReturnsConflictFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -289,7 +289,7 @@ public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WhenProductIsDiscontinued_DoesNotChangePrice()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = await PersistProductAsync(dbContext);
 

@@ -25,7 +25,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithExistingProduct_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ProductDto product = await CreateProductAsync(dbContext);
 
@@ -47,7 +47,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithExistingProduct_PersistsDiscontinuedProduct()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ProductDto product = await CreateProductAsync(dbContext);
 
@@ -78,7 +78,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         RecordingDomainEventDispatcher domainEventDispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync(domainEventDispatcher);
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(domainEventDispatcher);
 
         ProductDto product = await CreateProductAsync(dbContext);
 
@@ -107,7 +107,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithAlreadyDiscontinuedProduct_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ProductDto product = await CreateProductAsync(dbContext);
 
@@ -139,7 +139,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithAlreadyDiscontinuedProduct_KeepsOriginalDiscontinuedAt()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         ProductDto product = await CreateProductAsync(dbContext);
 
@@ -177,7 +177,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithUnknownProductId_ReturnsNotFoundFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         DiscontinueProductUseCase useCase = new(
             dbContext,
@@ -198,7 +198,7 @@ public sealed class DiscontinueProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithEmptyProductId_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         DiscontinueProductUseCase useCase = new(
             dbContext,

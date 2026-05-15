@@ -67,7 +67,9 @@ internal static class ProductQueryExtensions
 
             if (filter.Currency.TryGetValue(out string? currency))
             {
-                query = query.Where(product => product.Price.Currency.Code == currency);
+                Currency parsedCurrency = Currency.Create(currency);
+
+                query = query.Where(product => product.Price.Currency == parsedCurrency);
             }
 
             return query;

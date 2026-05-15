@@ -22,7 +22,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -54,7 +54,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_PersistsProduct()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -91,7 +91,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         RecordingDomainEventDispatcher domainEventDispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync(domainEventDispatcher);
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(domainEventDispatcher);
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -125,7 +125,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithMissingName_ReturnsValidationFailure(string name)
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -152,7 +152,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithNegativePrice_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -179,7 +179,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithInvalidCurrency_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -206,7 +206,7 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithTooManyDecimalPlaces_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateDbContextAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         CreateProductUseCase useCase = new(
             dbContext,
