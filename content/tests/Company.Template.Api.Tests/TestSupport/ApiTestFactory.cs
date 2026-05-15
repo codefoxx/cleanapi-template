@@ -1,9 +1,9 @@
-using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
-namespace Company.Template.Api.Tests;
+namespace Company.Template.Api.Tests.TestSupport;
 
 public sealed class ApiTestFactory : WebApplicationFactory<ApiAssemblyMarker>, IAsyncLifetime
 {

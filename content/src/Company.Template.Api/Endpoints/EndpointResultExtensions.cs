@@ -73,24 +73,36 @@ internal static class EndpointResultExtensions
         return error.Type switch
         {
             ErrorType.Validation => Results.ValidationProblem(
-                new Dictionary<string, string[]> { ["request"] = [error.Message] },
                 title: "Validation failed.",
-                statusCode: StatusCodes.Status422UnprocessableEntity),
+                statusCode: StatusCodes.Status422UnprocessableEntity,
+                errors: new Dictionary<string, string[]> { ["request"] = [error.Message] },
+                extensions: CreateProblemExtensions(error)),
 
             ErrorType.NotFound => Results.Problem(
                 title: "Resource not found.",
                 detail: error.Message,
-                statusCode: StatusCodes.Status404NotFound),
+                statusCode: StatusCodes.Status404NotFound,
+                extensions: CreateProblemExtensions(error)),
 
             ErrorType.Conflict => Results.Problem(
                 title: "Conflict.",
                 detail: error.Message,
-                statusCode: StatusCodes.Status409Conflict),
+                statusCode: StatusCodes.Status409Conflict,
+                extensions: CreateProblemExtensions(error)),
 
             _ => Results.Problem(
                 title: "Request failed.",
                 detail: error.Message,
-                statusCode: StatusCodes.Status400BadRequest)
+                statusCode: StatusCodes.Status400BadRequest,
+                extensions: CreateProblemExtensions(error)),
+        };
+    }
+
+    private static Dictionary<string, object?> CreateProblemExtensions(Error error)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["code"] = error.Code
         };
     }
 }
