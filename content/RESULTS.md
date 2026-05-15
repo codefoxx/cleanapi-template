@@ -65,12 +65,16 @@ Good examples:
 - resolving an optional value from configuration or context
 - representing an optional application-level filter after validation and normalization
 
-Example:
+Examples:
 
 ```csharp
-Option<Product> maybeProduct = await _dbContext.Products
-    .WithId(productId)
-    .SingleOrNoneAsync(cancellationToken);
+Option<Product> maybeProduct =
+    await products.FindAsync(productId, cancellationToken);
+```
+
+```csharp
+Option<ProductDto> maybeProduct =
+    await _productQueries.GetByIdAsync(productId, cancellationToken);
 ```
 
 Use `Map` or `Bind` while staying in the option world.
@@ -85,11 +89,13 @@ Option<ProductDto> maybeDto = maybeProduct.Map(ProductMapper.ToDto);
 
 ```csharp
 return maybeProduct.Match(
-    some: product => Result<ProductDto>.Success(ProductMapper.ToDto(product)),
+    some: Result<ProductDto>.Success,
     none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
 ```
 
 ## Option and EF Core queries
+
+EF Core query composition belongs in Infrastructure query implementations.
 
 When composing EF Core `IQueryable<T>` queries, unwrap `Option<T>` before building the expression.
 

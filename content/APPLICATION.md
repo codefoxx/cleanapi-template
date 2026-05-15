@@ -45,6 +45,30 @@ private static async Task<IResult> DiscontinueProductAsync(
 }
 ```
 
+## Command and query persistence ports
+
+Use cases depend on application ports, not on Infrastructure classes.
+
+Command use cases use:
+
+```text
+IUnitOfWork
+IRepository<TAggregate, TKey>
+```
+
+Query use cases use named query ports, for example:
+
+```text
+IProductQueries
+```
+
+This keeps use cases independent from direct EF Core access while still allowing Infrastructure to implement persistence efficiently with EF Core.
+
+Commands and queries are intentionally treated differently:
+
+- commands load and mutate aggregates
+- queries project read models and may use optimized EF Core queries in Infrastructure
+
 ## Registration
 
 Use cases are registered automatically via Scrutor.
@@ -87,7 +111,8 @@ Use cases should:
 - return `Result<T>.Failure(...)` for expected failures
 - avoid catching domain exceptions as the normal validation mechanism
 - delegate business behavior to the domain model
-- keep persistence commits explicit through the application persistence contract
+- keep command persistence commits explicit through `IUnitOfWork`
+- keep query persistence behind named query ports
 
 ---
 

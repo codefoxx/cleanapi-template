@@ -80,10 +80,12 @@ tests/
 ## Core design principles
 
 - Keep endpoint handlers thin.
+- Follow Clean Architecture with Ports-and-Adapters style boundaries.
 - Put business behavior in the domain model or application use cases.
 - Represent expected application failures with `Result` / `Result<T>`.
 - Use exceptions for unexpected failures or violated programming contracts.
 - Keep the Domain layer persistence-free and infrastructure-free.
+- Use thin EF Core-friendly persistence ports for commands and named query ports for reads.
 - Use relational integration tests instead of EF Core InMemory.
 - Treat observability as a production concern, not an afterthought.
 
