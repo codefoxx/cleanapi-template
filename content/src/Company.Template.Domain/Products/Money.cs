@@ -111,7 +111,8 @@ public sealed record Money : IComparable<Money>
     /// </exception>
     /// <remarks>
     ///     This method delegates currency creation to <see cref="Currency.Create(string)" />.
-    ///     For expected validation failures from raw input, prefer <see cref="TryCreate(decimal, string, out Money?, out DomainError?)" />.
+    ///     For expected validation failures from raw input, prefer
+    ///     <see cref="TryCreate(decimal, string, out Money?, out DomainError?)" />.
     /// </remarks>
     public static Money Create(decimal amount, string currency)
     {

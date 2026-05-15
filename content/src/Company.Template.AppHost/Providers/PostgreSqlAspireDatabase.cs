@@ -5,7 +5,7 @@ internal static class AspireDatabase
     public static IResourceBuilder<IResourceWithConnectionString> Create(IDistributedApplicationBuilder builder)
     {
         return builder
-            .AddPostgres(AppHostNames.DatabaseResourceName)
-            .AddDatabase("DefaultConnection");
+              .AddPostgres(AppHostNames.DatabaseResourceName)
+              .AddDatabase("DefaultConnection");
     }
 }

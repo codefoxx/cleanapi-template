@@ -73,8 +73,8 @@ public sealed class ResultTests
 
         // Act
         string value = result.Match(
-            success: text => $"success:{text}",
-            failure: error => $"failure:{error.Code}");
+            text => $"success:{text}",
+            error => $"failure:{error.Code}");
 
         // Assert
         value.ShouldBe("success:ok");
@@ -88,8 +88,8 @@ public sealed class ResultTests
 
         // Act
         string value = result.Match(
-            success: text => $"success:{text}",
-            failure: error => $"failure:{error.Code}");
+            text => $"success:{text}",
+            error => $"failure:{error.Code}");
 
         // Assert
         value.ShouldBe("failure:validation_error");
@@ -140,8 +140,8 @@ public sealed class ResultTests
 
         // Act
         string value = result.Match(
-            success: () => "success",
-            failure: error => $"failure:{error.Code}");
+            () => "success",
+            error => $"failure:{error.Code}");
 
         // Assert
         value.ShouldBe("success");
@@ -155,8 +155,8 @@ public sealed class ResultTests
 
         // Act
         string value = result.Match(
-            success: () => "success",
-            failure: error => $"failure:{error.Code}");
+            () => "success",
+            error => $"failure:{error.Code}");
 
         // Assert
         value.ShouldBe("failure:conflict");

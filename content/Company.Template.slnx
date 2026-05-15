@@ -1,24 +1,24 @@
 <Solution>
     <Folder Name="/Solution Items/">
-        <File Path=".editorconfig" />
-        <File Path=".gitignore" />
-        <File Path="Directory.Build.props" />
-        <File Path="Directory.Packages.props" />
-        <File Path="README.md" />
+        <File Path=".editorconfig"/>
+        <File Path=".gitignore"/>
+        <File Path="Directory.Build.props"/>
+        <File Path="Directory.Packages.props"/>
+        <File Path="README.md"/>
     </Folder>
     <Folder Name="/src/">
-        <Project Path="src/Company.Template.Api/Company.Template.Api.csproj" />
-        <Project Path="src/Company.Template.AppHost/Company.Template.AppHost.csproj" />
-        <Project Path="src/Company.Template.Application/Company.Template.Application.csproj" />
-        <Project Path="src/Company.Template.Domain/Company.Template.Domain.csproj" />
-        <Project Path="src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj" />
-        <Project Path="src/Company.Template.MigrationService/Company.Template.MigrationService.csproj" />
-        <Project Path="src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj" />
+        <Project Path="src/Company.Template.Api/Company.Template.Api.csproj"/>
+        <Project Path="src/Company.Template.AppHost/Company.Template.AppHost.csproj"/>
+        <Project Path="src/Company.Template.Application/Company.Template.Application.csproj"/>
+        <Project Path="src/Company.Template.Domain/Company.Template.Domain.csproj"/>
+        <Project Path="src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"/>
+        <Project Path="src/Company.Template.MigrationService/Company.Template.MigrationService.csproj"/>
+        <Project Path="src/Company.Template.ServiceDefaults/Company.Template.ServiceDefaults.csproj"/>
     </Folder>
     <Folder Name="/tests/">
-        <Project Path="tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj" />
-        <Project Path="tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj" />
-        <Project Path="tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj" />
-        <Project Path="tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj" />
+        <Project Path="tests/Company.Template.Api.Tests/Company.Template.Api.Tests.csproj"/>
+        <Project Path="tests/Company.Template.Application.Tests/Company.Template.Application.Tests.csproj"/>
+        <Project Path="tests/Company.Template.Domain.Tests/Company.Template.Domain.Tests.csproj"/>
+        <Project Path="tests/Company.Template.Infrastructure.Tests/Company.Template.Infrastructure.Tests.csproj"/>
     </Folder>
 </Solution>

@@ -1,7 +1,6 @@
 using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Application.Abstractions.Persistence;
 using Company.Template.Application.Abstractions.Time;
-using Company.Template.Application.Products;
 using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.Infrastructure.Time;

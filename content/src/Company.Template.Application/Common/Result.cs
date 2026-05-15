@@ -1,14 +1,14 @@
 namespace Company.Template.Application.Common;
 
 /// <summary>
-/// Represents the outcome of an application operation that either succeeds with a value
-/// or fails with an explicit application error.
+///     Represents the outcome of an application operation that either succeeds with a value
+///     or fails with an explicit application error.
 /// </summary>
 /// <remarks>
-/// Use cases return <see cref="Result{T}"/> instead of throwing for expected outcomes such as
-/// validation failures, missing resources, or conflicts. Unexpected failures should still be exceptions.
-/// Prefer <see cref="Match{TResult}"/> at boundaries where success and failure are translated,
-/// for example from application results to HTTP responses.
+///     Use cases return <see cref="Result{T}" /> instead of throwing for expected outcomes such as
+///     validation failures, missing resources, or conflicts. Unexpected failures should still be exceptions.
+///     Prefer <see cref="Match{TResult}" /> at boundaries where success and failure are translated,
+///     for example from application results to HTTP responses.
 /// </remarks>
 public sealed class Result<T>
     where T : notnull
@@ -23,9 +23,9 @@ public sealed class Result<T>
 
     public Error Error { get; }
 
-    public bool IsSuccess => Error.IsNone;
-
     public bool IsFailure => !IsSuccess;
+
+    public bool IsSuccess => Error.IsNone;
 
     public T Value => IsSuccess
         ? _value!
@@ -64,14 +64,14 @@ public sealed class Result<T>
 }
 
 /// <summary>
-/// Represents the outcome of an application operation that either succeeds without a value
-/// or fails with an explicit application error.
+///     Represents the outcome of an application operation that either succeeds without a value
+///     or fails with an explicit application error.
 /// </summary>
 /// <remarks>
-/// Use cases return <see cref="Result"/> instead of throwing for expected outcomes such as
-/// validation failures, missing resources, or conflicts. Unexpected failures should still be exceptions.
-/// Prefer <see cref="Match{TResult}"/> at boundaries where success and failure are translated,
-/// for example from application results to HTTP responses.
+///     Use cases return <see cref="Result" /> instead of throwing for expected outcomes such as
+///     validation failures, missing resources, or conflicts. Unexpected failures should still be exceptions.
+///     Prefer <see cref="Match{TResult}" /> at boundaries where success and failure are translated,
+///     for example from application results to HTTP responses.
 /// </remarks>
 public sealed class Result
 {
@@ -82,9 +82,9 @@ public sealed class Result
 
     public Error Error { get; }
 
-    public bool IsSuccess => Error.IsNone;
-
     public bool IsFailure => !IsSuccess;
+
+    public bool IsSuccess => Error.IsNone;
 
     public static Result Success()
     {

@@ -1,12 +1,12 @@
 namespace Company.Template.Api.Middleware;
 
 /// <summary>
-/// Handles unanticipated exceptions that escape endpoint and application result handling.
+///     Handles unanticipated exceptions that escape endpoint and application result handling.
 /// </summary>
 /// <remarks>
-/// Expected validation, not-found, and conflict outcomes should remain explicit <c>Result</c> failures.
-/// Request cancellations are not treated as application failures. This handler is the last API boundary
-/// for exceptional failures, logging the exception while returning a stable problem response.
+///     Expected validation, not-found, and conflict outcomes should remain explicit <c>Result</c> failures.
+///     Request cancellations are not treated as application failures. This handler is the last API boundary
+///     for exceptional failures, logging the exception while returning a stable problem response.
 /// </remarks>
 internal sealed partial class GlobalExceptionHandler : IExceptionHandler
 {

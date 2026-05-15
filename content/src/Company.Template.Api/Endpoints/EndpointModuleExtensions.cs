@@ -4,14 +4,6 @@ namespace Company.Template.Api.Endpoints;
 
 internal static class EndpointModuleExtensions
 {
-    extension(IEndpointRouteBuilder app)
-    {
-        public IEndpointRouteBuilder MapEndpointModulesFromAssembly<TAssemblyMarker>()
-        {
-            return MapEndpointModulesFromAssemblies(app, typeof(TAssemblyMarker).Assembly);
-        }
-    }
-
     private static IEndpointRouteBuilder MapEndpointModulesFromAssemblies(
         IEndpointRouteBuilder app,
         params Assembly[] assemblies)
@@ -40,5 +32,13 @@ internal static class EndpointModuleExtensions
         }
 
         return app;
+    }
+
+    extension(IEndpointRouteBuilder app)
+    {
+        public IEndpointRouteBuilder MapEndpointModulesFromAssembly<TAssemblyMarker>()
+        {
+            return MapEndpointModulesFromAssemblies(app, typeof(TAssemblyMarker).Assembly);
+        }
     }
 }

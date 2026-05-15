@@ -18,8 +18,8 @@ internal static class EndpointResultExtensions
         ArgumentNullException.ThrowIfNull(onSuccess);
 
         return result.Match(
-            success: onSuccess,
-            failure: ToProblem);
+            onSuccess,
+            ToProblem);
     }
 
     public static IResult ToHttpResult(this Result result)
@@ -27,8 +27,8 @@ internal static class EndpointResultExtensions
         ArgumentNullException.ThrowIfNull(result);
 
         return result.Match(
-            success: Results.NoContent,
-            failure: ToProblem);
+            Results.NoContent,
+            ToProblem);
     }
 
     public static IResult ToHttpResult<TSource, TResponse>(
@@ -39,8 +39,8 @@ internal static class EndpointResultExtensions
         ArgumentNullException.ThrowIfNull(mapItem);
 
         return result.Match(
-            success: pagedResult => Results.Ok(ToPagedResponse(pagedResult, mapItem)),
-            failure: ToProblem);
+            pagedResult => Results.Ok(ToPagedResponse(pagedResult, mapItem)),
+            ToProblem);
     }
 
     public static IResult ToProblemResult<T>(this Result<T> result)
@@ -48,10 +48,10 @@ internal static class EndpointResultExtensions
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        return result.Match<IResult>(
-            success: _ => throw new InvalidOperationException(
+        return result.Match(
+            _ => throw new InvalidOperationException(
                 "A successful result cannot be converted to a problem response."),
-            failure: ToProblem);
+            ToProblem);
     }
 
     private static PagedResponse<TResponse> ToPagedResponse<TSource, TResponse>(
@@ -94,7 +94,7 @@ internal static class EndpointResultExtensions
                 title: "Request failed.",
                 detail: error.Message,
                 statusCode: StatusCodes.Status400BadRequest,
-                extensions: CreateProblemExtensions(error)),
+                extensions: CreateProblemExtensions(error))
         };
     }
 

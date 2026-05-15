@@ -1,7 +1,7 @@
 namespace Company.Template.Application.Common;
 
 /// <summary>
-/// Describes an expected application failure that can be translated by the outer boundary.
+///     Describes an expected application failure that can be translated by the outer boundary.
 /// </summary>
 /// <param name="Type">The category of the error.</param>
 /// <param name="Code">A machine-readable unique identifier for the error.</param>

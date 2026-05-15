@@ -9,8 +9,8 @@ namespace Company.Template.Application.Tests.Products.ChangeProductPrice;
 
 public sealed class ChangeProductPriceUseCaseTests : IClassFixture<TestDatabase>
 {
-    private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset ChangedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DiscontinuedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
     private readonly TestDatabase _database;
