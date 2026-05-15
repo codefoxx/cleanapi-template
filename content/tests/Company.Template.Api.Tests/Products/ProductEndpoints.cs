@@ -5,18 +5,23 @@ internal static class ProductEndpoints
     public static readonly ApiEndpoint Collection = ApiEndpoint.Get("/api/products");
     public static readonly ApiEndpoint Create = ApiEndpoint.Post("/api/products");
 
-    public static ApiEndpoint ById(Guid id)
+    public static ApiEndpoint CollectionWithQuery(string queryString)
     {
-        return ApiEndpoint.Get($"/api/products/{id}");
+        return ApiEndpoint.Get($"/api/products?{queryString.TrimStart('?')}");
     }
 
-    public static ApiEndpoint ChangePrice(Guid id)
+    public static ApiEndpoint ById(Guid productId)
     {
-        return ApiEndpoint.Put($"/api/products/{id}/price");
+        return ApiEndpoint.Get($"/api/products/{productId}");
     }
 
-    public static ApiEndpoint Discontinue(Guid id)
+    public static ApiEndpoint ChangePrice(Guid productId)
     {
-        return ApiEndpoint.Post($"/api/products/{id}/discontinue");
+        return ApiEndpoint.Put($"/api/products/{productId}/price");
+    }
+
+    public static ApiEndpoint Discontinue(Guid productId)
+    {
+        return ApiEndpoint.Post($"/api/products/{productId}/discontinue");
     }
 }

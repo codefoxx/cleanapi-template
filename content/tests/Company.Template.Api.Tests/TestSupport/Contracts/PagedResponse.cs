@@ -1,16 +1,16 @@
 namespace Company.Template.Api.Tests.TestSupport.Contracts;
 
-internal sealed record PagedResponse<TItem>(
-    IReadOnlyList<TItem> Items,
+internal sealed record PagedResponse<T>(
+    IReadOnlyList<T> Items,
     PageResponse Page,
     TotalResponse Total);
 
 internal sealed record PageResponse(
-    int PageNumber,
-    int PageSize,
-    bool HasPreviousPage,
-    bool HasNextPage);
+    int Number,
+    int Size,
+    bool HasPrevious,
+    bool HasNext);
 
 internal sealed record TotalResponse(
-    int TotalCount,
-    int TotalPages);
+    int Items,
+    int Pages);

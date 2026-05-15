@@ -1,4 +1,4 @@
-namespace Company.Template.Api.Tests.Products;
+namespace Company.Template.Api.Tests.Products.Contracts;
 
 internal sealed record CreateProductRequest(
     string Name,
@@ -8,9 +8,9 @@ internal sealed record CreateProductRequest(
     public static CreateProductRequest Valid()
     {
         return new CreateProductRequest(
-            Name: "Keyboard",
-            Price: 99.99m,
-            Currency: "USD");
+            "Keyboard",
+            99.90m,
+            "CHF");
     }
 
     public CreateProductRequest WithName(string name)
