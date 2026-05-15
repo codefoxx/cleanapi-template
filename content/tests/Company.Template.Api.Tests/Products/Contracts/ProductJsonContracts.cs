@@ -1,4 +1,4 @@
-namespace Company.Template.Api.Tests.Products;
+namespace Company.Template.Api.Tests.Products.Contracts;
 
 internal static class ProductJsonContracts
 {
