@@ -2,34 +2,47 @@ namespace Company.Template.Application.Products.GetProducts;
 
 public sealed class ProductSortField
 {
+    static ProductSortField()
+    {
+        CreatedAt = new ProductSortField(
+            "createdAt",
+            "created-at",
+            "created_at");
+
+        Name = new ProductSortField("name");
+        Price = new ProductSortField("price");
+        Status = new ProductSortField("status");
+
+        All =
+        [
+            Name,
+            Price,
+            CreatedAt,
+            Status
+        ];
+    }
+
     private ProductSortField(string value, params string[] aliases)
     {
         Value = value;
         Aliases = aliases;
     }
 
-    public static IReadOnlyList<ProductSortField> All { get; } =
-    [
-        Name,
-        Price,
-        CreatedAt,
-        Status
-    ];
+    public static IReadOnlyList<ProductSortField> All { get; }
 
-    public static string AllowedValues => string.Join(", ", All.Select<ProductSortField, string>(@field => @field.Value));
+    public static string AllowedValues => string.Join(
+        ", ",
+        All.Select(sortField => sortField.Value));
 
-    public static ProductSortField CreatedAt { get; } = new(
-        "createdAt",
-        "created-at",
-        "created_at");
+    public static ProductSortField CreatedAt { get; }
 
     public static ProductSortField Default => CreatedAt;
 
-    public static ProductSortField Name { get; } = new("name");
+    public static ProductSortField Name { get; }
 
-    public static ProductSortField Price { get; } = new("price");
+    public static ProductSortField Price { get; }
 
-    public static ProductSortField Status { get; } = new("status");
+    public static ProductSortField Status { get; }
 
     public IReadOnlyCollection<string> Aliases { get; }
 
