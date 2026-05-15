@@ -98,11 +98,14 @@ public sealed class ErrorTests
     public void ToApplicationError_AllKnownDomainErrorCodes_AreMapped()
     {
         // Arrange
-        DomainErrorCode[] codes = [.. typeof(DomainErrorCodes)
-                                 .GetFields(BindingFlags.Public | BindingFlags.Static)
-                                 .Where(field => field.FieldType == typeof(DomainErrorCode))
-                                 .Select(field => (DomainErrorCode)field.GetValue(null)!)
-                                 .Where(code => !code.IsNone)];
+        DomainErrorCode[] codes =
+        [
+            .. typeof(DomainErrorCodes)
+              .GetFields(BindingFlags.Public | BindingFlags.Static)
+              .Where(field => field.FieldType == typeof(DomainErrorCode))
+              .Select(field => (DomainErrorCode)field.GetValue(null)!)
+              .Where(code => !code.IsNone)
+        ];
 
         // Act
         Error[] errors = [.. codes.Select(code => DomainError.Create(code, "Test message.").ToApplicationError())];

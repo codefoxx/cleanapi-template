@@ -1,7 +1,7 @@
 namespace Company.Template.Application.Common;
 
 /// <summary>
-/// Categorizes expected application failures so outer boundaries can translate them consistently.
+///     Categorizes expected application failures so outer boundaries can translate them consistently.
 /// </summary>
 public enum ErrorType
 {
@@ -17,7 +17,7 @@ public enum ErrorType
     Conflict,
 
     /// <summary>
-    /// The operation failed with a known error code that has no more specific application category yet.
+    ///     The operation failed with a known error code that has no more specific application category yet.
     /// </summary>
     Unknown
 }

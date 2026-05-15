@@ -58,8 +58,8 @@ public sealed class OptionTests
 
         // Act
         string result = option.Match(
-            some: value => $"some:{value}",
-            none: () => "none");
+            value => $"some:{value}",
+            () => "none");
 
         // Assert
         result.ShouldBe("some:value");
@@ -73,8 +73,8 @@ public sealed class OptionTests
 
         // Act
         string result = option.Match(
-            some: value => $"some:{value}",
-            none: () => "none");
+            value => $"some:{value}",
+            () => "none");
 
         // Assert
         result.ShouldBe("none");

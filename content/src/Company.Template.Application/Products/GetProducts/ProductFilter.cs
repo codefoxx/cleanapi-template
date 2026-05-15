@@ -3,11 +3,12 @@ using Company.Template.Domain.Products;
 namespace Company.Template.Application.Products.GetProducts;
 
 /// <summary>
-/// Validated and normalized product query filters.
+///     Validated and normalized product query filters.
 /// </summary>
 /// <remarks>
-/// Optional values mean that the corresponding filter should not be applied.
-/// Raw HTTP query-string values should be translated through <see cref="Create"/> before this type is used by queries.
+///     Optional values mean that the corresponding filter should not be applied.
+///     Raw HTTP query-string values should be translated through <see cref="Create" /> before this type is used by
+///     queries.
 /// </remarks>
 public sealed record ProductFilter(
     Option<string> Search,

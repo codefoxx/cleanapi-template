@@ -48,7 +48,7 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
         // Arrange
         using HttpClient httpClient = _factory.CreateClient();
         CreateProductRequest request = CreateProductRequest.Valid()
-                                                            .WithName("");
+                                                           .WithName("");
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(
@@ -69,7 +69,7 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
         // Arrange
         using HttpClient httpClient = _factory.CreateClient();
         CreateProductRequest request = CreateProductRequest.Valid()
-                                                            .WithCurrency("US");
+                                                           .WithCurrency("US");
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(
@@ -87,7 +87,7 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
         // Arrange
         using HttpClient httpClient = _factory.CreateClient();
         CreateProductRequest request = CreateProductRequest.Valid()
-                                                            .WithPrice(-1m);
+                                                           .WithPrice(-1m);
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(

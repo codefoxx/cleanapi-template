@@ -20,14 +20,14 @@ public sealed record DomainErrorCode
     public static DomainErrorCode None { get; } = new("none");
 
     /// <summary>
-    ///     Gets the machine-readable code.
-    /// </summary>
-    public string Value { get; }
-
-    /// <summary>
     ///     Gets a value indicating whether this code represents the absence of an error.
     /// </summary>
     public bool IsNone => this == None;
+
+    /// <summary>
+    ///     Gets the machine-readable code.
+    /// </summary>
+    public string Value { get; }
 
     /// <summary>
     ///     Creates a domain error code.

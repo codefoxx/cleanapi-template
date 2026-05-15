@@ -19,8 +19,8 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
         ProductResponse createdProduct = await httpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
-                                                                      .WithPrice(249.50m)
-                                                                      .WithCurrency("EUR");
+                                                                     .WithPrice(249.50m)
+                                                                     .WithCurrency("EUR");
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(
@@ -64,7 +64,7 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
         ProductResponse createdProduct = await httpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
-                                                                      .WithCurrency("EU");
+                                                                     .WithCurrency("EU");
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(
@@ -84,7 +84,7 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
         ProductResponse createdProduct = await httpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
-                                                                      .WithPrice(-1m);
+                                                                     .WithPrice(-1m);
 
         // Act
         HttpResponseMessage response = await httpClient.SendJsonAsync(

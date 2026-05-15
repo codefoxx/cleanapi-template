@@ -8,6 +8,14 @@ public sealed class ProductSortField
         Aliases = aliases;
     }
 
+    public static IReadOnlyList<ProductSortField> All { get; } =
+    [
+        Name,
+        Price,
+        CreatedAt,
+        Status
+    ];
+
     public static string AllowedValues => string.Join(", ", All.Select<ProductSortField, string>(@field => @field.Value));
 
     public static ProductSortField CreatedAt { get; } = new(
@@ -22,14 +30,6 @@ public sealed class ProductSortField
     public static ProductSortField Price { get; } = new("price");
 
     public static ProductSortField Status { get; } = new("status");
-
-    public static IReadOnlyList<ProductSortField> All { get; } =
-    [
-        Name,
-        Price,
-        CreatedAt,
-        Status
-    ];
 
     public IReadOnlyCollection<string> Aliases { get; }
 

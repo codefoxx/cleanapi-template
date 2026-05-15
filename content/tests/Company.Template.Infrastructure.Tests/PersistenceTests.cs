@@ -4,7 +4,6 @@ using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.Infrastructure.Tests.TestSupport;
 
-
 namespace Company.Template.Infrastructure.Tests;
 
 public sealed class PersistenceTests : IClassFixture<TestDatabase>

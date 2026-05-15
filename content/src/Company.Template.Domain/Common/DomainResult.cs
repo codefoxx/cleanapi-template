@@ -27,14 +27,14 @@ public sealed class DomainResult<T>
     public DomainError Error { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether the result succeeded.
-    /// </summary>
-    public bool IsSuccess => Error.IsNone;
-
-    /// <summary>
     ///     Gets a value indicating whether the result failed.
     /// </summary>
     public bool IsFailure => !IsSuccess;
+
+    /// <summary>
+    ///     Gets a value indicating whether the result succeeded.
+    /// </summary>
+    public bool IsSuccess => Error.IsNone;
 
     /// <summary>
     ///     Gets the successful value.
@@ -108,14 +108,14 @@ public sealed class DomainResult
     public DomainError Error { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether the result succeeded.
-    /// </summary>
-    public bool IsSuccess => Error.IsNone;
-
-    /// <summary>
     ///     Gets a value indicating whether the result failed.
     /// </summary>
     public bool IsFailure => !IsSuccess;
+
+    /// <summary>
+    ///     Gets a value indicating whether the result succeeded.
+    /// </summary>
+    public bool IsSuccess => Error.IsNone;
 
     /// <summary>
     ///     Creates a successful result.

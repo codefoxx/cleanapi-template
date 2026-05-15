@@ -28,9 +28,10 @@ internal static class JsonContractAssertions
         {
             if (current.ValueKind == JsonValueKind.Array)
             {
-                current.GetArrayLength().ShouldBeGreaterThan(
-                    0,
-                    $"Expected array at '{path}' to contain at least one item.");
+                current.GetArrayLength()
+                       .ShouldBeGreaterThan(
+                            0,
+                            $"Expected array at '{path}' to contain at least one item.");
 
                 current = current[0];
             }

@@ -34,8 +34,8 @@ internal sealed class ProductEndpoints : IEndpointModule
         group
            .MapGet("/", GetProductsAsync)
            .WithName("GetProducts")
-           .Produces<PagedResponse<ProductResponse>>(StatusCodes.Status200OK)
-           .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+           .Produces<PagedResponse<ProductResponse>>()
+           .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
@@ -43,22 +43,22 @@ internal sealed class ProductEndpoints : IEndpointModule
            .MapPost("/", CreateProductAsync)
            .WithName("CreateProduct")
            .Produces<ProductResponse>(StatusCodes.Status201Created)
-           .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+           .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
            .MapGet("/{id:guid}", GetProductByIdAsync)
            .WithName("GetProductById")
-           .Produces<ProductResponse>(StatusCodes.Status200OK)
+           .Produces<ProductResponse>()
            .ProducesProblem(StatusCodes.Status404NotFound)
            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
            .MapPut("/{id:guid}/price", ChangeProductPriceAsync)
            .WithName("ChangeProductPrice")
-           .Produces<ProductResponse>(StatusCodes.Status200OK)
-           .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+           .Produces<ProductResponse>()
+           .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
            .ProducesProblem(StatusCodes.Status404NotFound)
            .ProducesProblem(StatusCodes.Status409Conflict)
@@ -71,7 +71,6 @@ internal sealed class ProductEndpoints : IEndpointModule
            .ProducesProblem(StatusCodes.Status404NotFound)
            .ProducesProblem(StatusCodes.Status409Conflict)
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
-
     }
 
     private static async Task<IResult> CreateProductAsync(

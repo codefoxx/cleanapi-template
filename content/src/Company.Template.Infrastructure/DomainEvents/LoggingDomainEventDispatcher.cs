@@ -4,11 +4,11 @@ using Company.Template.Domain.Common;
 namespace Company.Template.Infrastructure.DomainEvents;
 
 /// <summary>
-/// Infrastructure domain-event dispatcher that records observed events to logs.
+///     Infrastructure domain-event dispatcher that records observed events to logs.
 /// </summary>
 /// <remarks>
-/// This implementation represents a composition placeholder: aggregates only record facts, and dispatching happens
-/// after persistence through the application abstraction without feeding reactions back into the aggregate.
+///     This implementation represents a composition placeholder: aggregates only record facts, and dispatching happens
+///     after persistence through the application abstraction without feeding reactions back into the aggregate.
 /// </remarks>
 internal sealed partial class LoggingDomainEventDispatcher : IDomainEventDispatcher
 {

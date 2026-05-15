@@ -11,11 +11,11 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
 {
     private static readonly DateTimeOffset AlphaCreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset BetaCreatedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset GammaCreatedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DeltaCreatedAt = new(2026, 1, 4, 10, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset EchoCreatedAt = new(2026, 1, 5, 10, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset DiscontinuedCreatedAt = new(2026, 1, 6, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DiscontinuedAt = new(2026, 1, 7, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset DiscontinuedCreatedAt = new(2026, 1, 6, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset EchoCreatedAt = new(2026, 1, 5, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset GammaCreatedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
     private readonly TestDatabase _database;
 
@@ -52,9 +52,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(),
-            CreateSort(sortBy: "createdAt", sortDirection: "asc"));
+            CreateSort("createdAt", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -71,14 +71,15 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         page.HasNextPage.ShouldBeFalse();
         page.HasPreviousPage.ShouldBeFalse();
 
-        page.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Alpha Keyboard",
-            "Beta Mouse",
-            "Gamma Keyboard",
-            "Delta Monitor",
-            "Echo Cable"
-        ]);
+        page.Items.Select(product => product.Name)
+            .ShouldBe(
+             [
+                 "Alpha Keyboard",
+                 "Beta Mouse",
+                 "Gamma Keyboard",
+                 "Delta Monitor",
+                 "Echo Cable"
+             ]);
 
         page.Items.ShouldAllBe(product => product.Status == ProductStatus.Active);
     }
@@ -91,9 +92,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
-            CreateFilter(search: "Keyboard"),
-            CreateSort(sortBy: "name", sortDirection: "asc"));
+            CreatePage(1, 20),
+            CreateFilter("Keyboard"),
+            CreateSort("name", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -104,11 +105,12 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         PagedResult<ProductDto> page = result.Value;
 
         page.TotalCount.ShouldBe(2);
-        page.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Alpha Keyboard",
-            "Gamma Keyboard"
-        ]);
+        page.Items.Select(product => product.Name)
+            .ShouldBe(
+             [
+                 "Alpha Keyboard",
+                 "Gamma Keyboard"
+             ]);
     }
 
     [Fact]
@@ -119,9 +121,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(currency: "CHF"),
-            CreateSort(sortBy: "name", sortDirection: "asc"));
+            CreateSort("name", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -132,12 +134,13 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         PagedResult<ProductDto> page = result.Value;
 
         page.TotalCount.ShouldBe(3);
-        page.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Alpha Keyboard",
-            "Beta Mouse",
-            "Delta Monitor"
-        ]);
+        page.Items.Select(product => product.Name)
+            .ShouldBe(
+             [
+                 "Alpha Keyboard",
+                 "Beta Mouse",
+                 "Delta Monitor"
+             ]);
 
         page.Items.ShouldAllBe(product => product.Price.Currency.Code == "CHF");
     }
@@ -150,9 +153,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(status: "active"),
-            CreateSort(sortBy: "name", sortDirection: "asc"));
+            CreateSort("name", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -174,9 +177,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(),
-            CreateSort(sortBy: "name", sortDirection: "desc"));
+            CreateSort("name", "desc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -184,14 +187,15 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         // Assert
         result.IsSuccess.ShouldBeTrue();
 
-        result.Value.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Gamma Keyboard",
-            "Echo Cable",
-            "Delta Monitor",
-            "Beta Mouse",
-            "Alpha Keyboard"
-        ]);
+        result.Value.Items.Select(product => product.Name)
+              .ShouldBe(
+               [
+                   "Gamma Keyboard",
+                   "Echo Cable",
+                   "Delta Monitor",
+                   "Beta Mouse",
+                   "Alpha Keyboard"
+               ]);
     }
 
     [Fact]
@@ -202,9 +206,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(),
-            CreateSort(sortBy: "price", sortDirection: "asc"));
+            CreateSort("price", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -212,14 +216,15 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         // Assert
         result.IsSuccess.ShouldBeTrue();
 
-        result.Value.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Echo Cable",
-            "Beta Mouse",
-            "Alpha Keyboard",
-            "Gamma Keyboard",
-            "Delta Monitor"
-        ]);
+        result.Value.Items.Select(product => product.Name)
+              .ShouldBe(
+               [
+                   "Echo Cable",
+                   "Beta Mouse",
+                   "Alpha Keyboard",
+                   "Gamma Keyboard",
+                   "Delta Monitor"
+               ]);
     }
 
     [Fact]
@@ -230,9 +235,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 1, pageSize: 20),
+            CreatePage(1, 20),
             CreateFilter(),
-            CreateSort(sortBy: "createdAt", sortDirection: "desc"));
+            CreateSort("createdAt", "desc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -240,14 +245,15 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         // Assert
         result.IsSuccess.ShouldBeTrue();
 
-        result.Value.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Echo Cable",
-            "Delta Monitor",
-            "Gamma Keyboard",
-            "Beta Mouse",
-            "Alpha Keyboard"
-        ]);
+        result.Value.Items.Select(product => product.Name)
+              .ShouldBe(
+               [
+                   "Echo Cable",
+                   "Delta Monitor",
+                   "Gamma Keyboard",
+                   "Beta Mouse",
+                   "Alpha Keyboard"
+               ]);
     }
 
     [Fact]
@@ -258,9 +264,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
-            CreatePage(pageNumber: 2, pageSize: 2),
+            CreatePage(2, 2),
             CreateFilter(),
-            CreateSort(sortBy: "name", sortDirection: "asc"));
+            CreateSort("name", "asc"));
 
         // Act
         Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
@@ -277,11 +283,12 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
         page.HasNextPage.ShouldBeTrue();
         page.HasPreviousPage.ShouldBeTrue();
 
-        page.Items.Select(product => product.Name).ShouldBe(
-        [
-            "Delta Monitor",
-            "Echo Cable"
-        ]);
+        page.Items.Select(product => product.Name)
+            .ShouldBe(
+             [
+                 "Delta Monitor",
+                 "Echo Cable"
+             ]);
     }
 
     private static GetProductsUseCase CreateUseCase(ApplicationDbContext dbContext)

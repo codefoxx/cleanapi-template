@@ -6,11 +6,11 @@ namespace Company.Template.Api.Tests.TestSupport;
 public sealed class TestDatabase : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:18")
-        .WithDatabase("company_template_api_tests")
-        .WithUsername("postgres")
-        .WithPassword("postgres")
-        .Build();
+                                                     .WithImage("postgres:18")
+                                                     .WithDatabase("company_template_api_tests")
+                                                     .WithUsername("postgres")
+                                                     .WithPassword("postgres")
+                                                     .Build();
 
     public Task InitializeAsync()
     {

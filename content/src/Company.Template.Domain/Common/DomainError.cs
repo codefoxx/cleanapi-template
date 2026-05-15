@@ -27,15 +27,10 @@ public sealed record DomainError
         Message = message;
     }
 
-    public static DomainError Create(DomainErrorCode code, string message)
-    {
-        return new DomainError(code, message, allowNone: false);
-    }
-
     /// <summary>
     ///     Represents the absence of a domain error.
     /// </summary>
-    public static DomainError None { get; } = new(DomainErrorCode.None, NoneMessage, allowNone: true);
+    public static DomainError None { get; } = new(DomainErrorCode.None, NoneMessage, true);
 
     /// <summary>
     ///     Gets the stable machine-readable domain error code.
@@ -43,12 +38,17 @@ public sealed record DomainError
     public DomainErrorCode Code { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this value represents the absence of a domain error.
+    /// </summary>
+    public bool IsNone => Code.IsNone;
+
+    /// <summary>
     ///     Gets the human-readable domain error message.
     /// </summary>
     public string Message { get; }
 
-    /// <summary>
-    ///     Gets a value indicating whether this value represents the absence of a domain error.
-    /// </summary>
-    public bool IsNone => Code.IsNone;
+    public static DomainError Create(DomainErrorCode code, string message)
+    {
+        return new DomainError(code, message, false);
+    }
 }
