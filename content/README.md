@@ -67,7 +67,7 @@ tests/
 | [APPLICATION.md](APPLICATION.md) | Use cases, decorators, application behavior |
 | [API.md](API.md) | Minimal APIs, endpoint modules, HTTP result mapping |
 | [RESULTS.md](RESULTS.md) | `Result<T>`, `Error`, `Option<T>`, expected failures |
-| [PERSISTENCE.md](PERSISTENCE.md) | EF Core style, query extensions, DbContext boundaries |
+| [PERSISTENCE.md](PERSISTENCE.md) | Persistence ports, EF Core adapters, command/query boundaries |
 | [OBSERVABILITY.md](OBSERVABILITY.md) | OpenTelemetry, logs, traces, metrics |
 | [DATABASE.md](DATABASE.md) | Provider selection, generated provider configuration |
 | [ASPIRE.md](ASPIRE.md) | Local orchestration, startup order, pgAdmin |

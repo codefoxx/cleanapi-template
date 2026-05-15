@@ -82,7 +82,9 @@ flowchart LR
     EfCore --> Database[(Relational Database)]
 ```
 
-The ports are intentionally pragmatic. They do not try to hide every EF Core detail. Instead, they keep use cases independent from direct `DbContext`, `DbSet<T>`, and `IQueryable<T>` usage while still allowing Infrastructure to use EF Core effectively.
+The ports are intentionally pragmatic. Application use cases do not depend on `DbContext`, `DbSet<T>`, or `IQueryable<T>`.
+
+Infrastructure is free to use EF Core effectively behind those ports, including tracking, LINQ, projections, migrations, and provider-specific mapping.
 
 ## Application boundary
 
@@ -108,7 +110,7 @@ This creates a deliberate command/query split:
 | Commands | `IUnitOfWork`, `IRepository<TAggregate, TKey>` | `ApplicationDbContext`, EF Core tracking |
 | Queries | named query interfaces such as `IProductQueries` | EF Core LINQ, projections, `AsNoTracking()` |
 
-The abstraction is intentionally thin and EF Core-friendly.
+The abstraction is intentionally thin and Infrastructure-backed. It protects use cases from EF Core APIs without pretending that the generated application can switch persistence technology without design work.
 
 The template does not introduce:
 
