@@ -6,11 +6,11 @@ using Company.Template.Domain.Products;
 
 namespace Company.Template.Infrastructure.Persistence.Queries;
 
-public sealed class DbContextProductQueries : IProductQueries
+public sealed class ProductQueries : IProductQueries
 {
     private readonly ApplicationDbContext _dbContext;
 
-    public DbContextProductQueries(ApplicationDbContext dbContext)
+    public ProductQueries(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
