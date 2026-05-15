@@ -8,11 +8,13 @@ namespace Company.Template.Infrastructure.Persistence;
 ///     EF Core unit-of-work implementation for the template application.
 /// </summary>
 /// <remarks>
-///     The context applies persistence mappings and dispatches domain events after changes have been saved.
-///     Recorded events are cleared after the save cycle so aggregate instances do not retain stale facts
-///     across units of work.
-///     This is a simple in-process domain-event mechanism. It is suitable for local side effects that belong
-///     to the same application. Use an outbox when event delivery must be durable or retried reliably.
+///     The context applies persistence mappings and demonstrates simple in-process domain event dispatch.
+///     Recorded domain events are collected before EF Core saves changes, dispatched after the database save,
+///     and cleared from tracked aggregate instances at the end of the save cycle.
+///     This is intentionally not a production-ready durable event delivery mechanism. If dispatch fails after
+///     persistence succeeds, the state change remains committed and the event is not retried by this template.
+///     Use a transactional Outbox or a dedicated messaging framework for external side effects, retries,
+///     or guaranteed delivery.
 /// </remarks>
 public sealed partial class ApplicationDbContext : DbContext, IUnitOfWork
 {

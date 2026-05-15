@@ -2,7 +2,6 @@ using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
-using Company.Template.Infrastructure.Tests.TestSupport;
 
 namespace Company.Template.Infrastructure.Tests;
 
@@ -19,11 +18,7 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
     public async Task SaveChanges_WhenProductIsAdded_ShouldPersistAndReloadProduct()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = new(
-            _database.CreateDbContextOptions(),
-            new NoOpDomainEventDispatcher());
-
-        await dbContext.Database.EnsureCreatedAsync();
+        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
 
         Product product = Product.Create(
             ProductName.Create("Keyboard"),
@@ -45,13 +40,5 @@ public sealed class PersistenceTests : IClassFixture<TestDatabase>
         loaded.Name.Value.ShouldBe("Keyboard");
         loaded.Price.Amount.ShouldBe(99.99m);
         loaded.Price.Currency.Code.ShouldBe("USD");
-    }
-
-    private sealed class NoOpDomainEventDispatcher : IDomainEventDispatcher
-    {
-        public Task DispatchAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
     }
 }
