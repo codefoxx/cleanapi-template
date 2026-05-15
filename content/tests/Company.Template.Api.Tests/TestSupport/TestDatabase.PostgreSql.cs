@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
 namespace Company.Template.Api.Tests.TestSupport;

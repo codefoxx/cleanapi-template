@@ -1,4 +1,4 @@
-﻿namespace Company.Template.Api.Tests;
+namespace Company.Template.Api.Tests.Products.Contracts;
 
 internal sealed record ProductResponse(
     Guid Id,
@@ -8,4 +8,6 @@ internal sealed record ProductResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset? DiscontinuedAt);
 
-internal sealed record MoneyResponse(decimal Amount, string Currency);
+internal sealed record MoneyResponse(
+    decimal Amount,
+    string Currency);
