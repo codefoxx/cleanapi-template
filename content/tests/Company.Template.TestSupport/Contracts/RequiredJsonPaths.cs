@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Contracts;
+namespace Company.Template.TestSupport.Contracts;
 
-internal sealed record RequiredJsonPaths(params string[] Paths)
+public sealed record RequiredJsonPaths(params string[] Paths)
 {
     public static RequiredJsonPaths Empty => new();
 

@@ -1,6 +1,8 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+using Company.Template.TestSupport.Contracts;
 
-internal static class JsonContractAssertions
+namespace Company.Template.TestSupport.Http;
+
+public static class JsonContractAssertions
 {
     public static async Task ShouldContainJsonPathsAsync(
         this HttpContent content,

@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Contracts;
+namespace Company.Template.TestSupport.Contracts;
 
-internal sealed record ApiProblemDetails(
+public sealed record ApiProblemDetails(
     string? Type,
     string? Title,
     int? Status,

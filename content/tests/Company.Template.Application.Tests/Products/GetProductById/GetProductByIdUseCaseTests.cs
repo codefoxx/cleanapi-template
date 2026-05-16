@@ -8,23 +8,26 @@ using Company.Template.Infrastructure.Persistence.Queries;
 
 namespace Company.Template.Application.Tests.Products.GetProductById;
 
-public sealed class GetProductByIdUseCaseTests : IClassFixture<TestDatabase>
+[Collection(DatabaseCollection.Name)]
+public sealed class GetProductByIdUseCaseTests
 {
     private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DiscontinuedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly TestDatabase _database;
+    private readonly TestDatabaseServer _server;
 
-    public GetProductByIdUseCaseTests(TestDatabase database)
+    public GetProductByIdUseCaseTests(TestDatabaseServer server)
     {
-        _database = database;
+        _server = server;
     }
 
     [Fact]
     public async Task ExecuteAsync_WithExistingProduct_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         Product product = CreateProduct();
 
         dbContext.Products.Add(product);
@@ -48,7 +51,9 @@ public sealed class GetProductByIdUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithDiscontinuedProduct_ReturnsProductSnapshot()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         Product product = CreateProduct();
 
         product.Discontinue(DiscontinuedAt);
@@ -74,7 +79,9 @@ public sealed class GetProductByIdUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithUnknownProductId_ReturnsNotFoundFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductByIdUseCase useCase = CreateUseCase(dbContext);
         GetProductByIdQuery query = new(Guid.NewGuid());
 
@@ -90,7 +97,9 @@ public sealed class GetProductByIdUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithEmptyProductId_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductByIdUseCase useCase = CreateUseCase(dbContext);
         GetProductByIdQuery query = new(Guid.Empty);
 

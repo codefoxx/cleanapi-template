@@ -1,6 +1,6 @@
 using Company.Template.Application.Abstractions.Time;
 
-namespace Company.Template.Application.Tests.TestSupport;
+namespace Company.Template.TestSupport.Application;
 
 /// <summary>
 ///     Provides a deterministic clock for tests that need stable time-dependent assertions.

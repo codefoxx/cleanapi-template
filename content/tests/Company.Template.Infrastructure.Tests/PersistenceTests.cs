@@ -1,24 +1,24 @@
-using Company.Template.Application.Abstractions.DomainEvents;
-using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
 
 namespace Company.Template.Infrastructure.Tests;
 
-public sealed class PersistenceTests : IClassFixture<TestDatabase>
+[Collection(DatabaseCollection.Name)]
+public sealed class PersistenceTests
 {
-    private readonly TestDatabase _database;
+    private readonly TestDatabaseServer _server;
 
-    public PersistenceTests(TestDatabase database)
+    public PersistenceTests(TestDatabaseServer server)
     {
-        _database = database;
+        _server = server;
     }
 
     [Fact]
     public async Task SaveChanges_WhenProductIsAdded_ShouldPersistAndReloadProduct()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         Product product = Product.Create(
             ProductName.Create("Keyboard"),

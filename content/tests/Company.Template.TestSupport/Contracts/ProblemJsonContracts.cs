@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Contracts;
+namespace Company.Template.TestSupport.Contracts;
 
-internal static class ProblemJsonContracts
+public static class ProblemJsonContracts
 {
     public static readonly RequiredJsonPaths Problem = new(
         "$.title",

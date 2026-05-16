@@ -2,24 +2,26 @@ using Company.Template.Api.Tests.Products.Contracts;
 
 namespace Company.Template.Api.Tests.Products;
 
-public sealed class DiscontinueProductEndpointTests : IClassFixture<ApiTestFactory>
+[Collection(DatabaseCollection.Name)]
+public sealed class DiscontinueProductEndpointTests
 {
-    private readonly ApiTestFactory _factory;
+    private readonly TestDatabaseServer _server;
 
-    public DiscontinueProductEndpointTests(ApiTestFactory factory)
+    public DiscontinueProductEndpointTests(TestDatabaseServer server)
     {
-        _factory = factory;
+        _server = server;
     }
 
     [Fact]
     public async Task DiscontinueProduct_WithExistingProduct_ReturnsNoContent()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse product = await httpClient.CreateProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse product = await context.HttpClient.CreateProductAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.Discontinue(product.Id));
 
         // Assert
@@ -30,10 +32,10 @@ public sealed class DiscontinueProductEndpointTests : IClassFixture<ApiTestFacto
     public async Task DiscontinueProduct_WithUnknownProduct_ReturnsNotFoundProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.Discontinue(Guid.NewGuid()));
 
         // Assert
@@ -45,11 +47,12 @@ public sealed class DiscontinueProductEndpointTests : IClassFixture<ApiTestFacto
     public async Task DiscontinueProduct_WhenAlreadyDiscontinued_ReturnsNoContent()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse product = await httpClient.CreateDiscontinuedProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse product = await context.HttpClient.CreateDiscontinuedProductAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.Discontinue(product.Id));
 
         // Assert

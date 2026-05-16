@@ -2,24 +2,26 @@ using Company.Template.Api.Tests.Products.Contracts;
 
 namespace Company.Template.Api.Tests.Products;
 
-public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
+[Collection(DatabaseCollection.Name)]
+public sealed class CreateProductEndpointTests
 {
-    private readonly ApiTestFactory _factory;
+    private readonly TestDatabaseServer _server;
 
-    public CreateProductEndpointTests(ApiTestFactory factory)
+    public CreateProductEndpointTests(TestDatabaseServer server)
     {
-        _factory = factory;
+        _server = server;
     }
 
     [Fact]
     public async Task CreateProduct_WithValidRequest_ReturnsCreatedProduct()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
         CreateProductRequest request = CreateProductRequest.Valid();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.Create,
             request);
 
@@ -46,12 +48,13 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
     public async Task CreateProduct_WithEmptyName_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
         CreateProductRequest request = CreateProductRequest.Valid()
                                                            .WithName("");
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.Create,
             request);
 
@@ -67,12 +70,13 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
     public async Task CreateProduct_WithInvalidCurrency_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
         CreateProductRequest request = CreateProductRequest.Valid()
                                                            .WithCurrency("US");
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.Create,
             request);
 
@@ -85,12 +89,13 @@ public sealed class CreateProductEndpointTests : IClassFixture<ApiTestFactory>
     public async Task CreateProduct_WithNegativePrice_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
         CreateProductRequest request = CreateProductRequest.Valid()
                                                            .WithPrice(-1m);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.Create,
             request);
 

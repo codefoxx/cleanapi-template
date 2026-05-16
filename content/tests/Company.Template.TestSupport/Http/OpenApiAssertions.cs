@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+namespace Company.Template.TestSupport.Http;
 
-internal static class OpenApiAssertions
+public static class OpenApiAssertions
 {
     public static async Task<JsonDocument> GetOpenApiDocumentAsync(
         this HttpClient client)

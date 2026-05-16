@@ -4,25 +4,28 @@ using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
+using Company.Template.TestSupport.Application;
 
 namespace Company.Template.Application.Tests.Products.CreateProduct;
 
-public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
+[Collection(DatabaseCollection.Name)]
+public sealed class CreateProductUseCaseTests
 {
     private static readonly DateTimeOffset UtcNow = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly TestDatabase _database;
+    private readonly TestDatabaseServer _server;
 
-    public CreateProductUseCaseTests(TestDatabase database)
+    public CreateProductUseCaseTests(TestDatabaseServer server)
     {
-        _database = database;
+        _server = server;
     }
 
     [Fact]
     public async Task ExecuteAsync_WithValidCommand_ReturnsSuccess()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -54,7 +57,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithValidCommand_PersistsProduct()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -91,7 +95,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
         // Arrange
         RecordingDomainEventDispatcher domainEventDispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(domainEventDispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(domainEventDispatcher);
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -125,7 +130,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithMissingName_ReturnsValidationFailure(string name)
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -152,7 +158,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithNegativePrice_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -179,7 +186,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithInvalidCurrency_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,
@@ -206,7 +214,8 @@ public sealed class CreateProductUseCaseTests : IClassFixture<TestDatabase>
     public async Task ExecuteAsync_WithTooManyDecimalPlaces_ReturnsValidationFailure()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         CreateProductUseCase useCase = new(
             dbContext,

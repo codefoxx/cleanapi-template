@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+namespace Company.Template.TestSupport.Http;
 
-internal static class HttpResponseMessageExtensions
+public static class HttpResponseMessageExtensions
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

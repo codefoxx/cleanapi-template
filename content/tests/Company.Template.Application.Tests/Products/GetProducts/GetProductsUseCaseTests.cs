@@ -7,7 +7,8 @@ using Company.Template.Infrastructure.Persistence.Queries;
 
 namespace Company.Template.Application.Tests.Products.GetProducts;
 
-public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyncLifetime
+[Collection(DatabaseCollection.Name)]
+public sealed class GetProductsUseCaseTests
 {
     private static readonly DateTimeOffset AlphaCreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset BetaCreatedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
@@ -17,38 +18,20 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     private static readonly DateTimeOffset EchoCreatedAt = new(2026, 1, 5, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset GammaCreatedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly TestDatabase _database;
+    private readonly TestDatabaseServer _server;
 
-    public GetProductsUseCaseTests(TestDatabase database)
+    public GetProductsUseCaseTests(TestDatabaseServer server)
     {
-        _database = database;
-    }
-
-    public async Task InitializeAsync()
-    {
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync();
-
-        dbContext.Products.AddRange(
-            CreateProduct("Alpha Keyboard", 99.90m, "CHF", AlphaCreatedAt),
-            CreateProduct("Beta Mouse", 49.90m, "CHF", BetaCreatedAt),
-            CreateProduct("Gamma Keyboard", 129.00m, "EUR", GammaCreatedAt),
-            CreateProduct("Delta Monitor", 299.00m, "CHF", DeltaCreatedAt),
-            CreateProduct("Echo Cable", 9.90m, "USD", EchoCreatedAt),
-            CreateDiscontinuedProduct());
-
-        await dbContext.SaveChangesAsync();
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
+        _server = server;
     }
 
     [Fact]
     public async Task ExecuteAsync_WithoutFilters_ReturnsActiveProductsOnly()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -88,7 +71,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithSearchFilter_ReturnsMatchingActiveProducts()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -117,7 +102,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithCurrencyFilter_ReturnsMatchingActiveProducts()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -149,7 +136,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithActiveStatusFilter_ReturnsActiveProducts()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -173,7 +162,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithNameSorting_ReturnsProductsInNameOrder()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -202,7 +193,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithPriceSorting_ReturnsProductsInPriceOrder()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -231,7 +224,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithCreatedAtSorting_ReturnsProductsInCreatedAtOrder()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -260,7 +255,9 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
     public async Task ExecuteAsync_WithPaging_ReturnsRequestedPage()
     {
         // Arrange
-        await using ApplicationDbContext dbContext = _database.CreateDbContext();
+        await using TestDatabase database = await CreateSeededDatabaseAsync();
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         GetProductsUseCase useCase = CreateUseCase(dbContext);
 
         GetProductsQuery query = new(
@@ -289,6 +286,25 @@ public sealed class GetProductsUseCaseTests : IClassFixture<TestDatabase>, IAsyn
                  "Delta Monitor",
                  "Echo Cable"
              ]);
+    }
+
+    private async Task<TestDatabase> CreateSeededDatabaseAsync()
+    {
+        TestDatabase database = await TestDatabase.CreateAsync(_server);
+
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        dbContext.Products.AddRange(
+            CreateProduct("Alpha Keyboard", 99.90m, "CHF", AlphaCreatedAt),
+            CreateProduct("Beta Mouse", 49.90m, "CHF", BetaCreatedAt),
+            CreateProduct("Gamma Keyboard", 129.00m, "EUR", GammaCreatedAt),
+            CreateProduct("Delta Monitor", 299.00m, "CHF", DeltaCreatedAt),
+            CreateProduct("Echo Cable", 9.90m, "USD", EchoCreatedAt),
+            CreateDiscontinuedProduct());
+
+        await dbContext.SaveChangesAsync();
+
+        return database;
     }
 
     private static GetProductsUseCase CreateUseCase(ApplicationDbContext dbContext)

@@ -1,6 +1,8 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+using Company.Template.TestSupport.Contracts;
 
-internal static class ProblemDetailsAssertions
+namespace Company.Template.TestSupport.Http;
+
+public static class ProblemDetailsAssertions
 {
     extension(HttpResponseMessage response)
     {

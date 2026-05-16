@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+namespace Company.Template.TestSupport.Http;
 
-internal static class HttpClientExtensions
+public static class HttpClientExtensions
 {
     extension(HttpClient client)
     {

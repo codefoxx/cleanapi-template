@@ -8,6 +8,7 @@
         <ProjectReference Include="..\..\src\Company.Template.Application\Company.Template.Application.csproj"/>
         <ProjectReference Include="..\..\src\Company.Template.Domain\Company.Template.Domain.csproj"/>
         <ProjectReference Include="..\..\src\Company.Template.Infrastructure\Company.Template.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Company.Template.TestSupport\Company.Template.TestSupport.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +29,10 @@
     <ItemGroup>
         <Compile Remove="TestSupport\TestDatabase.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
         <Compile Remove="TestSupport\TestDatabase.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

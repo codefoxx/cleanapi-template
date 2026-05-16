@@ -1,6 +1,6 @@
-namespace Company.Template.Api.Tests.TestSupport.Http;
+namespace Company.Template.TestSupport.Http;
 
-internal sealed record ApiEndpoint(HttpMethod Method, string Path)
+public sealed record ApiEndpoint(HttpMethod Method, string Path)
 {
     public static ApiEndpoint Get(string path)
     {
