@@ -1,14 +1,14 @@
-using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
-namespace Company.Template.Domain.Tests.Products;
+namespace Company.Template.Domain.Tests.SharedKernel;
 
-public sealed class KnownCurrenciesTests
+public sealed class Iso4217CurrencyCodesTests
 {
     [Fact]
     public void Chf_ReturnsSwissFranc()
     {
         // Act
-        Currency currency = KnownCurrencies.Chf;
+        Currency currency = Iso4217CurrencyCodes.Chf;
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -19,7 +19,7 @@ public sealed class KnownCurrenciesTests
     public void Eur_ReturnsEuro()
     {
         // Act
-        Currency currency = KnownCurrencies.Eur;
+        Currency currency = Iso4217CurrencyCodes.Eur;
 
         // Assert
         currency.Code.ShouldBe("EUR");
@@ -30,7 +30,7 @@ public sealed class KnownCurrenciesTests
     public void Usd_ReturnsUsDollar()
     {
         // Act
-        Currency currency = KnownCurrencies.Usd;
+        Currency currency = Iso4217CurrencyCodes.Usd;
 
         // Assert
         currency.Code.ShouldBe("USD");

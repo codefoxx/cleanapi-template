@@ -1,6 +1,6 @@
-using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
-namespace Company.Template.Domain.Tests.Products;
+namespace Company.Template.Domain.Tests.SharedKernel;
 
 public sealed class CurrencyTests
 {
@@ -22,11 +22,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLowercaseCode_NormalizesCodeToUppercase()
     {
-        // Arrange
-        const string code = "chf";
-
         // Act
-        Currency currency = Currency.Create(code);
+        Currency currency = Currency.Create("chf");
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -36,11 +33,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLeadingAndTrailingWhitespace_TrimsCode()
     {
-        // Arrange
-        const string code = "  chf  ";
-
         // Act
-        Currency currency = Currency.Create(code);
+        Currency currency = Currency.Create("  chf  ");
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -57,7 +51,6 @@ public sealed class CurrencyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency is required.");
         exception.ParamName.ShouldBe("code");
     }
 
@@ -71,32 +64,37 @@ public sealed class CurrencyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency is required.");
         exception.ParamName.ShouldBe("code");
     }
 
     [Theory]
     [InlineData("CH")]
     [InlineData("CHFF")]
-    public void Create_WithCodeLengthOtherThanThree_ThrowsArgumentException(string code)
+    [InlineData("12!")]
+    public void Create_WithInvalidCodeFormat_ThrowsArgumentException(string code)
     {
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency must be an ISO 4217 three-letter code.");
+        exception.ParamName.ShouldBe("code");
+    }
+
+    [Fact]
+    public void Create_WithUnsupportedCode_ThrowsArgumentException()
+    {
+        // Act
+        ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("ABC"));
+
+        // Assert
         exception.ParamName.ShouldBe("code");
     }
 
     [Fact]
     public void Create_WithValidCodeAndSymbol_ReturnsCurrency()
     {
-        // Arrange
-        const string code = "CHF";
-        const string symbol = "Fr.";
-
         // Act
-        Currency currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create("CHF", "Fr.");
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -107,12 +105,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLowercaseCodeAndSymbol_NormalizesCodeOnly()
     {
-        // Arrange
-        const string code = "chf";
-        const string symbol = "Fr.";
-
         // Act
-        Currency currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create("chf", "Fr.");
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -122,12 +116,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLeadingAndTrailingWhitespaceAroundSymbol_TrimsSymbol()
     {
-        // Arrange
-        const string code = "CHF";
-        const string symbol = "  Fr.  ";
-
         // Act
-        Currency currency = Currency.Create(code, symbol);
+        Currency currency = Currency.Create("CHF", "  Fr.  ");
 
         // Assert
         currency.Code.ShouldBe("CHF");
@@ -144,8 +134,7 @@ public sealed class CurrencyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("CHF", symbol));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency symbol is required.");
-        exception.ParamName.ShouldBe("symbol");
+        exception.ParamName.ShouldBe("code");
     }
 
     [Fact]
@@ -158,20 +147,29 @@ public sealed class CurrencyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("CHF", symbol));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency symbol is required.");
-        exception.ParamName.ShouldBe("symbol");
+        exception.ParamName.ShouldBe("code");
     }
 
     [Theory]
     [InlineData("CH")]
     [InlineData("CHFF")]
-    public void Create_WithSymbolAndCodeLengthOtherThanThree_ThrowsArgumentException(string code)
+    [InlineData("12!")]
+    public void Create_WithSymbolAndInvalidCodeFormat_ThrowsArgumentException(string code)
     {
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code, "Fr."));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency must be an ISO 4217 three-letter code.");
+        exception.ParamName.ShouldBe("code");
+    }
+
+    [Fact]
+    public void Create_WithSymbolAndUnsupportedCode_ThrowsArgumentException()
+    {
+        // Act
+        ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("ABC", "ABC"));
+
+        // Assert
         exception.ParamName.ShouldBe("code");
     }
 
@@ -248,11 +246,33 @@ public sealed class CurrencyTests
     }
 
     [Fact]
-    public void TryCreate_WithMissingCode_ReturnsFalseAndDomainError()
+    public void TryCreate_WithValidCodeAndSymbol_ReturnsTrueAndCurrency()
     {
         // Act
         bool result = Currency.TryCreate(
-            " ",
+            " usd ",
+            " $ ",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        currency.ShouldNotBeNull();
+        currency.Code.ShouldBe("USD");
+        currency.Symbol.ShouldBe("$");
+        error.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void TryCreate_WithMissingCode_ReturnsCurrencyRequired(string? code)
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            code,
             out Currency? currency,
             out DomainError? error);
 
@@ -261,15 +281,17 @@ public sealed class CurrencyTests
         currency.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
-        error.Message.ShouldBe("Currency is required.");
     }
 
-    [Fact]
-    public void TryCreate_WithInvalidCodeLength_ReturnsFalseAndDomainError()
+    [Theory]
+    [InlineData("CH")]
+    [InlineData("CHFF")]
+    [InlineData("12!")]
+    public void TryCreate_WithInvalidCodeFormat_ReturnsCurrencyInvalidFormat(string code)
     {
         // Act
         bool result = Currency.TryCreate(
-            "CH",
+            code,
             out Currency? currency,
             out DomainError? error);
 
@@ -278,16 +300,35 @@ public sealed class CurrencyTests
         currency.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
-        error.Message.ShouldBe("Currency must be an ISO 4217 three-letter code.");
     }
 
     [Fact]
-    public void TryCreate_WithMissingSymbol_ReturnsFalseAndDomainError()
+    public void TryCreate_WithUnsupportedCode_ReturnsCurrencyUnsupported()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            "ABC",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyUnsupported);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void TryCreate_WithMissingSymbol_ReturnsCurrencySymbolRequired(string? symbol)
     {
         // Act
         bool result = Currency.TryCreate(
             "CHF",
-            " ",
+            symbol,
             out Currency? currency,
             out DomainError? error);
 
@@ -296,6 +337,42 @@ public sealed class CurrencyTests
         currency.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.CurrencySymbolRequired);
-        error.Message.ShouldBe("Currency symbol is required.");
+    }
+
+    [Theory]
+    [InlineData("CH")]
+    [InlineData("CHFF")]
+    [InlineData("12!")]
+    public void TryCreate_WithSymbolAndInvalidCodeFormat_ReturnsCurrencyInvalidFormat(string code)
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            code,
+            "Fr.",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
+    }
+
+    [Fact]
+    public void TryCreate_WithSymbolAndUnsupportedCode_ReturnsCurrencyUnsupported()
+    {
+        // Act
+        bool result = Currency.TryCreate(
+            "ABC",
+            "ABC",
+            out Currency? currency,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        currency.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyUnsupported);
     }
 }

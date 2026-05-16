@@ -36,7 +36,7 @@ public sealed class ProductQueries : IProductQueries
     {
         IQueryable<Product> query = _dbContext.Products
                                               .AsNoTracking()
-                                              .Active()
+                                              .WithDefaultVisibility(filter)
                                               .WithFilter(filter);
 
         int totalCount = await query.CountAsync(cancellationToken);

@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Company.Template.Domain.Common;
+using Company.Template.Domain.SharedKernel;
 
 namespace Company.Template.Domain.Products;
 
@@ -116,21 +117,12 @@ public sealed class Product : AggregateRoot
         [NotNullWhen(true)] out Product? product,
         [NotNullWhen(false)] out DomainError? error)
     {
-        product = null;
-        error = null;
+        DomainResult<Product> result = CreateProduct(name, price, currency, createdAt);
 
-        if (!ProductName.TryCreate(name, out ProductName? productName, out error))
-        {
-            return false;
-        }
+        product = result.IsSuccess ? result.Value : null;
+        error = result.IsSuccess ? null : result.Error;
 
-        if (!Money.TryCreate(price, currency, out Money? money, out error))
-        {
-            return false;
-        }
-
-        product = Create(productName, money, createdAt);
-        return true;
+        return result.IsSuccess;
     }
 
     /// <summary>
@@ -140,19 +132,15 @@ public sealed class Product : AggregateRoot
     /// <exception cref="ArgumentNullException">
     ///     Thrown when <paramref name="newName" /> is <see langword="null" />.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when attempting to rename a discontinued product.
-    /// </exception>
     public DomainResult Rename(ProductName newName)
     {
         ArgumentNullException.ThrowIfNull(newName);
 
-        if (Status == ProductStatus.Discontinued)
+        DomainResult canBeChanged = EnsureCanBeChanged();
+
+        if (!canBeChanged.IsSuccess)
         {
-            return DomainResult.Failure(
-                DomainError.Create(
-                    DomainErrorCodes.DiscontinuedProductCannotBeChanged,
-                    "Discontinued product cannot be changed"));
+            return canBeChanged;
         }
 
         if (Name == newName)
@@ -180,12 +168,11 @@ public sealed class Product : AggregateRoot
     {
         ArgumentNullException.ThrowIfNull(newPrice);
 
-        if (Status == ProductStatus.Discontinued)
+        DomainResult canBeChanged = EnsureCanBeChanged();
+
+        if (!canBeChanged.IsSuccess)
         {
-            return DomainResult.Failure(
-                DomainError.Create(
-                    DomainErrorCodes.DiscontinuedProductCannotBeChanged,
-                    "Discontinued product cannot be changed"));
+            return canBeChanged;
         }
 
         if (Price == newPrice)
@@ -222,5 +209,39 @@ public sealed class Product : AggregateRoot
         AddDomainEvent(new ProductDiscontinuedDomainEvent(Id, discontinuedAt));
 
         return DomainResult.Success();
+    }
+
+    private static DomainResult<Product> CreateProduct(
+        string name,
+        decimal price,
+        string currency,
+        DateTimeOffset createdAt)
+    {
+        return CreateProductName(name)
+           .Bind(productName => CreateMoney(price, currency)
+               .Map(money => Create(productName, money, createdAt)));
+    }
+
+    private static DomainResult<ProductName> CreateProductName(string name)
+    {
+        return ProductName.TryCreate(name, out ProductName? productName, out DomainError? error)
+            ? DomainResult<ProductName>.Success(productName)
+            : DomainResult<ProductName>.Failure(error);
+    }
+
+    private static DomainResult<Money> CreateMoney(decimal price, string currency)
+    {
+        return Money.TryCreate(price, currency, out Money? money, out DomainError? error)
+            ? DomainResult<Money>.Success(money)
+            : DomainResult<Money>.Failure(error);
+    }
+
+    private DomainResult EnsureCanBeChanged()
+    {
+        return Status == ProductStatus.Discontinued
+            ? DomainResult.Failure(DomainError.Create(
+                DomainErrorCodes.DiscontinuedProductCannotBeChanged,
+                "Discontinued product cannot be changed"))
+            : DomainResult.Success();
     }
 }

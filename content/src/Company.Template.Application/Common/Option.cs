@@ -171,9 +171,12 @@ public readonly record struct Option<T> where T : notnull
     /// <summary>
     ///     Attempts to get the contained value.
     /// </summary>
-    public bool TryGetValue([MaybeNullWhen(false)] out T value)
+    public bool TryGetValue([NotNullWhen(true)] out T value)
     {
-        value = HasValue ? Value : default;
+        value = HasValue
+            ? Value
+            : default!;
+
         return HasValue;
     }
 }

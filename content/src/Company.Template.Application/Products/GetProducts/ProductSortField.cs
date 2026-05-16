@@ -32,7 +32,7 @@ public sealed class ProductSortField
 
     public static string AllowedValues => string.Join(
         ", ",
-        All.Select(sortField => sortField.Value));
+        All.Select<ProductSortField, string>(sortField => sortField.Value));
 
     public static ProductSortField CreatedAt { get; }
 

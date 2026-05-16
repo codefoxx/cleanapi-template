@@ -1,4 +1,5 @@
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 using Company.Template.Infrastructure.Persistence;
 
 namespace Company.Template.Infrastructure.Tests;

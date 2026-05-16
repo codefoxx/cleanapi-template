@@ -3,6 +3,7 @@ using Company.Template.Application.Products;
 using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.TestSupport.Application;
 
@@ -47,7 +48,7 @@ public sealed class CreateProductUseCaseTests
 
         product.Id.ShouldNotBe(Guid.Empty);
         product.Name.ShouldBe("Keyboard");
-        product.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        product.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
         product.Status.ShouldBe(ProductStatus.Active);
         product.CreatedAt.ShouldBe(UtcNow);
         product.DiscontinuedAt.ShouldBeNull();
@@ -83,7 +84,7 @@ public sealed class CreateProductUseCaseTests
 
         persistedProduct.Id.Value.ShouldBe(product.Id);
         persistedProduct.Name.ShouldBe(ProductName.Create("Keyboard"));
-        persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
         persistedProduct.Status.ShouldBe(ProductStatus.Active);
         persistedProduct.CreatedAt.ShouldBe(UtcNow);
         persistedProduct.DiscontinuedAt.ShouldBeNull();

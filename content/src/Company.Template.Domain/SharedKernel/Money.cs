@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Company.Template.Domain.Common;
 
-namespace Company.Template.Domain.Products;
+namespace Company.Template.Domain.SharedKernel;
 
 /// <summary>
 ///     Represents a monetary value with a specific currency.
@@ -82,22 +82,14 @@ public sealed record Money : IComparable<Money>
     {
         ArgumentNullException.ThrowIfNull(currency);
 
-        return amount switch
+        if (TryCreate(amount, currency, out Money? money, out DomainError? error))
         {
-            < 0 => throw new ArgumentOutOfRangeException(
-                nameof(amount),
-                "Price cannot be negative."),
+            return money;
+        }
 
-            > 0 when currency.IsEmpty => throw new ArgumentException(
-                "Currency is required when amount is greater than zero.",
-                nameof(currency)),
-
-            _ when HasMoreDecimalPlacesThan(amount, Scale) => throw new ArgumentException(
-                $"Price cannot have more than {Scale} decimal places.",
-                nameof(amount)),
-
-            _ => new Money(amount, currency)
-        };
+        throw error.Code == DomainErrorCodes.AmountNegative
+            ? new ArgumentOutOfRangeException(nameof(amount), error.Message)
+            : new ArgumentException(error.Message, nameof(amount));
     }
 
     /// <summary>
@@ -116,7 +108,14 @@ public sealed record Money : IComparable<Money>
     /// </remarks>
     public static Money Create(decimal amount, string currency)
     {
-        return Create(amount, Currency.Create(currency));
+        if (TryCreate(amount, currency, out Money? money, out DomainError? error))
+        {
+            return money;
+        }
+
+        throw error.Code == DomainErrorCodes.AmountNegative
+            ? new ArgumentOutOfRangeException(nameof(amount), error.Message)
+            : new ArgumentException(error.Message, nameof(currency));
     }
 
     /// <summary>
@@ -142,44 +141,12 @@ public sealed record Money : IComparable<Money>
         [NotNullWhen(true)] out Money? money,
         [NotNullWhen(false)] out DomainError? error)
     {
-        money = null;
+        DomainResult<Money> result = CreateMoney(amount, currency);
 
-        if (currency is null)
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.CurrencyRequired,
-                "Currency is required.");
-            return false;
-        }
+        money = result.IsSuccess ? result.Value : null;
+        error = result.IsSuccess ? null : result.Error;
 
-        if (amount < 0)
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.AmountNegative,
-                "Amount cannot be negative.");
-            return false;
-        }
-
-        if (amount > 0 && currency.IsEmpty)
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.CurrencyRequired,
-                "Currency is required when amount is greater than zero.");
-            return false;
-        }
-
-        if (HasMoreDecimalPlacesThan(amount, Scale))
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.AmountTooManyDecimalPlaces,
-                $"Price cannot have more than {Scale} decimal places.");
-            return false;
-        }
-
-        money = new Money(amount, currency);
-        error = null;
-
-        return true;
+        return result.IsSuccess;
     }
 
     /// <summary>
@@ -206,13 +173,12 @@ public sealed record Money : IComparable<Money>
         [NotNullWhen(true)] out Money? money,
         [NotNullWhen(false)] out DomainError? error)
     {
-        if (!Currency.TryCreate(currency, out Currency? parsedCurrency, out error))
-        {
-            money = null;
-            return false;
-        }
+        DomainResult<Money> result = CreateMoney(amount, currency);
 
-        return TryCreate(amount, parsedCurrency, out money, out error);
+        money = result.IsSuccess ? result.Value : null;
+        error = result.IsSuccess ? null : result.Error;
+
+        return result.IsSuccess;
     }
 
     /// <summary>
@@ -394,6 +360,64 @@ public sealed record Money : IComparable<Money>
         return Currency.IsEmpty
             ? Amount.ToString("0.00", CultureInfo.InvariantCulture)
             : $"{Amount.ToString("0.00", CultureInfo.InvariantCulture)} {Currency.Code}";
+    }
+
+    private static DomainResult<Money> CreateMoney(decimal amount, string currency)
+    {
+        return CreateCurrency(currency)
+           .Bind(validCurrency => CreateMoney(amount, validCurrency));
+    }
+
+    private static DomainResult<Money> CreateMoney(decimal amount, Currency? currency)
+    {
+        return RequireCurrency(currency)
+              .Bind(validCurrency => EnsureAmountIsNotNegative(amount, validCurrency))
+              .Bind(validCurrency => EnsureCurrencyIsPresentWhenAmountIsPositive(amount, validCurrency))
+              .Bind(validCurrency => EnsureAmountScaleIsValid(amount, validCurrency))
+              .Map(validCurrency => new Money(amount, validCurrency));
+    }
+
+    private static DomainResult<Currency> CreateCurrency(string currency)
+    {
+        return Currency.TryCreate(currency, out Currency? parsedCurrency, out DomainError? error)
+            ? DomainResult<Currency>.Success(parsedCurrency)
+            : DomainResult<Currency>.Failure(error);
+    }
+
+    private static DomainResult<Currency> RequireCurrency(Currency? currency)
+    {
+        return currency is null
+            ? DomainResult<Currency>.Failure(DomainError.Create(
+                DomainErrorCodes.CurrencyRequired,
+                "Currency is required."))
+            : DomainResult<Currency>.Success(currency);
+    }
+
+    private static DomainResult<Currency> EnsureAmountIsNotNegative(decimal amount, Currency currency)
+    {
+        return amount >= 0
+            ? DomainResult<Currency>.Success(currency)
+            : DomainResult<Currency>.Failure(DomainError.Create(
+                DomainErrorCodes.AmountNegative,
+                "Amount cannot be negative."));
+    }
+
+    private static DomainResult<Currency> EnsureCurrencyIsPresentWhenAmountIsPositive(decimal amount, Currency currency)
+    {
+        return amount == 0 || !currency.IsEmpty
+            ? DomainResult<Currency>.Success(currency)
+            : DomainResult<Currency>.Failure(DomainError.Create(
+                DomainErrorCodes.CurrencyRequired,
+                "Currency is required when amount is greater than zero."));
+    }
+
+    private static DomainResult<Currency> EnsureAmountScaleIsValid(decimal amount, Currency currency)
+    {
+        return !HasMoreDecimalPlacesThan(amount, Scale)
+            ? DomainResult<Currency>.Success(currency)
+            : DomainResult<Currency>.Failure(DomainError.Create(
+                DomainErrorCodes.AmountTooManyDecimalPlaces,
+                $"Price cannot have more than {Scale} decimal places."));
     }
 
     private static bool HasMoreDecimalPlacesThan(decimal value, int scale)

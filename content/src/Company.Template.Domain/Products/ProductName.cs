@@ -44,12 +44,9 @@ public sealed record ProductName
     /// </remarks>
     public static ProductName Create(string value)
     {
-        if (!TryCreate(value, out ProductName? productName, out DomainError? error))
-        {
-            throw new ArgumentException(error.Message, nameof(value));
-        }
-
-        return productName;
+        return TryCreate(value, out ProductName? productName, out DomainError? error)
+            ? productName
+            : throw new ArgumentException(error.Message, nameof(value));
     }
 
     /// <summary>
@@ -69,38 +66,52 @@ public sealed record ProductName
     ///     otherwise <see langword="false" />.
     /// </returns>
     public static bool TryCreate(
-        string value,
+        string? value,
         [NotNullWhen(true)] out ProductName? productName,
         [NotNullWhen(false)] out DomainError? error)
     {
-        productName = null;
-        error = null;
+        DomainResult<ProductName> result = CreateProductName(value);
 
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.ProductNameRequired,
-                "Product name is required.");
-            return false;
-        }
+        productName = result.IsSuccess ? result.Value : null;
+        error = result.IsSuccess ? null : result.Error;
 
-        string trimmed = value.Trim();
-
-        if (trimmed.Length > MaxLength)
-        {
-            error = DomainError.Create(
-                DomainErrorCodes.ProductNameTooLong,
-                $"Product name cannot exceed {MaxLength} characters.");
-            return false;
-        }
-
-        productName = new ProductName(trimmed);
-        return true;
+        return result.IsSuccess;
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
         return Value;
+    }
+
+    private static DomainResult<ProductName> CreateProductName(string? value)
+    {
+        return RequireValue(value)
+              .Map(Normalize)
+              .Bind(EnsureMaxLength)
+              .Map(validValue => new ProductName(validValue));
+    }
+
+    private static DomainResult<string> RequireValue(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? DomainResult<string>.Failure(DomainError.Create(
+                DomainErrorCodes.ProductNameRequired,
+                "Product name is required."))
+            : DomainResult<string>.Success(value);
+    }
+
+    private static string Normalize(string value)
+    {
+        return value.Trim();
+    }
+
+    private static DomainResult<string> EnsureMaxLength(string value)
+    {
+        return value.Length <= MaxLength
+            ? DomainResult<string>.Success(value)
+            : DomainResult<string>.Failure(DomainError.Create(
+                DomainErrorCodes.ProductNameTooLong,
+                $"Product name cannot exceed {MaxLength} characters."));
     }
 }

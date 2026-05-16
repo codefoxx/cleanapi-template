@@ -3,6 +3,7 @@ using Company.Template.Application.Products;
 using Company.Template.Application.Products.ChangeProductPrice;
 using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.TestSupport.Application;
 
@@ -51,7 +52,7 @@ public sealed class ChangeProductPriceUseCaseTests
 
         dto.Id.ShouldBe(product.Id.Value);
         dto.Name.ShouldBe("Keyboard");
-        dto.Price.ShouldBe(Money.Create(129.90m, KnownCurrencies.Chf));
+        dto.Price.ShouldBe(Money.Create(129.90m, Iso4217CurrencyCodes.Chf));
         dto.Status.ShouldBe(ProductStatus.Active);
         dto.CreatedAt.ShouldBe(CreatedAt);
         dto.DiscontinuedAt.ShouldBeNull();
@@ -85,7 +86,7 @@ public sealed class ChangeProductPriceUseCaseTests
                                                   .AsNoTracking()
                                                   .SingleAsync();
 
-        persistedProduct.Price.ShouldBe(Money.Create(129.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(129.90m, Iso4217CurrencyCodes.Chf));
     }
 
     [Fact]
@@ -121,8 +122,8 @@ public sealed class ChangeProductPriceUseCaseTests
                                                                           .ShouldBeOfType<ProductPriceChangedDomainEvent>();
 
         domainEvent.ProductId.ShouldBe(product.Id);
-        domainEvent.OldPrice.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
-        domainEvent.NewPrice.ShouldBe(Money.Create(129.90m, KnownCurrencies.Chf));
+        domainEvent.OldPrice.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
+        domainEvent.NewPrice.ShouldBe(Money.Create(129.90m, Iso4217CurrencyCodes.Chf));
         domainEvent.OccurredAt.ShouldBe(ChangedAt);
     }
 
@@ -203,7 +204,7 @@ public sealed class ChangeProductPriceUseCaseTests
                                                   .AsNoTracking()
                                                   .SingleAsync();
 
-        persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
     }
 
     [Fact]
@@ -234,7 +235,7 @@ public sealed class ChangeProductPriceUseCaseTests
                                                   .AsNoTracking()
                                                   .SingleAsync();
 
-        persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
     }
 
     [Fact]
@@ -265,7 +266,7 @@ public sealed class ChangeProductPriceUseCaseTests
                                                   .AsNoTracking()
                                                   .SingleAsync();
 
-        persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
     }
 
     [Fact]
@@ -327,7 +328,7 @@ public sealed class ChangeProductPriceUseCaseTests
                                                   .AsNoTracking()
                                                   .SingleAsync();
 
-        persistedProduct.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
         persistedProduct.Status.ShouldBe(ProductStatus.Discontinued);
         persistedProduct.DiscontinuedAt.ShouldBe(DiscontinuedAt);
     }
@@ -336,7 +337,7 @@ public sealed class ChangeProductPriceUseCaseTests
     {
         Product product = Product.Create(
             ProductName.Create("Keyboard"),
-            Money.Create(99.90m, KnownCurrencies.Chf),
+            Money.Create(99.90m, Iso4217CurrencyCodes.Chf),
             CreatedAt);
 
         dbContext.Products.Add(product);

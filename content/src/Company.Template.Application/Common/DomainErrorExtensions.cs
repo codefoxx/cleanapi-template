@@ -7,15 +7,16 @@ public static class DomainErrorExtensions
     private static readonly IReadOnlyDictionary<DomainErrorCode, ErrorType> ErrorTypes =
         new Dictionary<DomainErrorCode, ErrorType>
         {
+            [DomainErrorCodes.AmountNegative] = ErrorType.Validation,
+            [DomainErrorCodes.AmountTooManyDecimalPlaces] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencyInvalidFormat] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencyRequired] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencySymbolRequired] = ErrorType.Validation,
+            [DomainErrorCodes.CurrencyUnsupported] = ErrorType.Validation,
+            [DomainErrorCodes.DiscontinuedProductCannotBeChanged] = ErrorType.Conflict,
             [DomainErrorCodes.ProductIdRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameTooLong] = ErrorType.Validation,
-            [DomainErrorCodes.CurrencyRequired] = ErrorType.Validation,
-            [DomainErrorCodes.CurrencyInvalidFormat] = ErrorType.Validation,
-            [DomainErrorCodes.CurrencySymbolRequired] = ErrorType.Validation,
-            [DomainErrorCodes.AmountNegative] = ErrorType.Validation,
-            [DomainErrorCodes.AmountTooManyDecimalPlaces] = ErrorType.Validation,
-            [DomainErrorCodes.DiscontinuedProductCannotBeChanged] = ErrorType.Conflict
         };
 
     public static Error ToApplicationError(this DomainError error)
