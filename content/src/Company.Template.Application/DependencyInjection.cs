@@ -25,7 +25,7 @@ public static class DependencyInjection
         private IServiceCollection AddUseCasesFromAssembly(Assembly assembly)
         {
             services.Scan(scan => scan
-                                 .FromAssemblyDependencies(assembly)
+                                 .FromAssemblies(assembly)
                                  .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<,>)))
                                  .AsImplementedInterfaces()
                                  .WithScopedLifetime()

@@ -55,6 +55,35 @@ For application use cases, expected failures should be asserted as `Result<T>.Fa
 
 Do not assert expected validation behavior by catching exceptions from use cases.
 
+
+## Database-backed tests
+
+Database-backed tests use the shared `Company.Template.TestSupport` project.
+
+The expensive database server container is owned by `TestDatabaseServer` and is shared per test assembly.
+Individual tests create isolated logical databases with `TestDatabase`. This keeps tests deterministic without
+starting one PostgreSQL or SQL Server container per test class or test method.
+
+```text
+Test assembly
+└── one shared database server container
+    └── isolated logical databases for tests
+```
+
+Use this pattern for application, infrastructure, and API tests that need real relational behavior.
+Avoid EF Core InMemory for persistence tests because it does not exercise provider mappings, relational constraints,
+or SQL translation.
+
+## API test factories
+
+API tests distinguish between lightweight and database-backed hosts:
+
+- `ApiLightweightTestFactory` starts the API host without a database provider. Use it for OpenAPI, root endpoint,
+  or HTTP-pipeline tests that must not touch persistence.
+- `ApiDatabaseTestFactory` is used through `ApiTestContext` for endpoint behavior tests that write or query data.
+
+This keeps metadata-style tests cheap while preserving full persistence coverage where it matters.
+
 ## Smoke tests
 
 Keycloak + API smoke tests are documented in [AUTHENTICATION.md](AUTHENTICATION.md).

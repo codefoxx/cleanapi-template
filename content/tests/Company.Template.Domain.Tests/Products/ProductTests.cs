@@ -1,4 +1,5 @@
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
 namespace Company.Template.Domain.Tests.Products;
 
@@ -13,7 +14,7 @@ public sealed class ProductTests
     {
         // Arrange
         ProductName name = ProductName.Create("Keyboard");
-        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
+        Money price = Money.Create(99.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         Product product = Product.Create(name, price, CreatedAt);
@@ -32,7 +33,7 @@ public sealed class ProductTests
     {
         // Arrange
         ProductName name = ProductName.Create("Keyboard");
-        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
+        Money price = Money.Create(99.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         Product product = Product.Create(name, price, CreatedAt);
@@ -53,7 +54,7 @@ public sealed class ProductTests
     {
         // Arrange
         ProductName name = null!;
-        Money price = Money.Create(99.90m, KnownCurrencies.Chf);
+        Money price = Money.Create(99.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         ArgumentNullException exception = Should.Throw<ArgumentNullException>(() => Product.Create(name, price, CreatedAt));
@@ -146,7 +147,7 @@ public sealed class ProductTests
     {
         // Arrange
         Product product = CreateProduct();
-        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         DomainResult result = product.ChangePrice(newPrice, ChangedAt);
@@ -164,7 +165,7 @@ public sealed class ProductTests
         product.ClearDomainEvents();
 
         Money oldPrice = product.Price;
-        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         DomainResult result = product.ChangePrice(newPrice, ChangedAt);
@@ -224,7 +225,7 @@ public sealed class ProductTests
         product.ClearDomainEvents();
 
         Money originalPrice = product.Price;
-        Money newPrice = Money.Create(129.90m, KnownCurrencies.Chf);
+        Money newPrice = Money.Create(129.90m, Iso4217CurrencyCodes.Chf);
 
         // Act
         DomainResult result = product.ChangePrice(newPrice, ChangedAt);
@@ -323,7 +324,7 @@ public sealed class ProductTests
         result.ShouldBeTrue();
         product.ShouldNotBeNull();
         product.Name.ShouldBe(ProductName.Create("Keyboard"));
-        product.Price.ShouldBe(Money.Create(99.90m, KnownCurrencies.Chf));
+        product.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
         product.Status.ShouldBe(ProductStatus.Active);
         product.CreatedAt.ShouldBe(CreatedAt);
         error.ShouldBeNull();
@@ -373,7 +374,7 @@ public sealed class ProductTests
     {
         return Product.Create(
             ProductName.Create("Keyboard"),
-            Money.Create(99.90m, KnownCurrencies.Chf),
+            Money.Create(99.90m, Iso4217CurrencyCodes.Chf),
             CreatedAt);
     }
 }

@@ -1,4 +1,5 @@
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
 namespace Company.Template.Infrastructure.Persistence.Configurations;
 

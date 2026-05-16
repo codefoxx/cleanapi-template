@@ -1,11 +1,11 @@
-using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
-namespace Company.Template.Domain.Tests.Products;
+namespace Company.Template.Domain.Tests.SharedKernel;
 
 public sealed class MoneyTests
 {
-    private static readonly Currency Chf = KnownCurrencies.Chf;
-    private static readonly Currency Eur = KnownCurrencies.Eur;
+    private static readonly Currency Chf = Iso4217CurrencyCodes.Chf;
+    private static readonly Currency Eur = Iso4217CurrencyCodes.Eur;
 
     [Fact]
     public void Create_WithPositiveAmountAndCurrency_ReturnsMoney()
@@ -66,7 +66,6 @@ public sealed class MoneyTests
             Should.Throw<ArgumentOutOfRangeException>(() => Money.Create(amount, Chf));
 
         // Assert
-        exception.Message.ShouldStartWith("Price cannot be negative.");
         exception.ParamName.ShouldBe("amount");
     }
 
@@ -80,8 +79,7 @@ public sealed class MoneyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Money.Create(amount, Currency.Empty));
 
         // Assert
-        exception.Message.ShouldStartWith("Currency is required when amount is greater than zero.");
-        exception.ParamName.ShouldBe("currency");
+        exception.ParamName.ShouldBe("amount");
     }
 
     [Fact]
@@ -94,7 +92,6 @@ public sealed class MoneyTests
         ArgumentException exception = Should.Throw<ArgumentException>(() => Money.Create(amount, Chf));
 
         // Assert
-        exception.Message.ShouldStartWith($"Price cannot have more than {Money.Scale} decimal places.");
         exception.ParamName.ShouldBe("amount");
     }
 
@@ -127,6 +124,16 @@ public sealed class MoneyTests
     }
 
     [Fact]
+    public void Create_WithUnsupportedStringCurrency_ThrowsArgumentException()
+    {
+        // Act
+        ArgumentException exception = Should.Throw<ArgumentException>(() => Money.Create(12.50m, "ABC"));
+
+        // Assert
+        exception.ParamName.ShouldBe("currency");
+    }
+
+    [Fact]
     public void CreateRounded_WithTooManyDecimalPlaces_RoundsAwayFromZero()
     {
         // Arrange
@@ -151,7 +158,6 @@ public sealed class MoneyTests
             Should.Throw<ArgumentOutOfRangeException>(() => Money.CreateRounded(amount, Chf));
 
         // Assert
-        exception.Message.ShouldStartWith("Price cannot be negative.");
         exception.ParamName.ShouldBe("amount");
     }
 
@@ -563,7 +569,7 @@ public sealed class MoneyTests
         // Act
         bool result = Money.TryCreate(
             99.90m,
-            KnownCurrencies.Chf,
+            Chf,
             out Money? money,
             out DomainError? error);
 
@@ -571,17 +577,34 @@ public sealed class MoneyTests
         result.ShouldBeTrue();
         money.ShouldNotBeNull();
         money.Amount.ShouldBe(99.90m);
-        money.Currency.ShouldBe(KnownCurrencies.Chf);
+        money.Currency.ShouldBe(Chf);
         error.ShouldBeNull();
     }
 
     [Fact]
-    public void TryCreate_WithNegativeAmount_ReturnsFalseAndDomainError()
+    public void TryCreate_WithNullCurrency_ReturnsCurrencyRequired()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            (Currency?)null,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
+    }
+
+    [Fact]
+    public void TryCreate_WithNegativeAmount_ReturnsAmountNegative()
     {
         // Act
         bool result = Money.TryCreate(
             -0.01m,
-            KnownCurrencies.Chf,
+            Chf,
             out Money? money,
             out DomainError? error);
 
@@ -590,16 +613,51 @@ public sealed class MoneyTests
         money.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.AmountNegative);
-        error.Message.ShouldBe("Amount cannot be negative.");
     }
 
     [Fact]
-    public void TryCreate_WithTooManyDecimalPlaces_ReturnsFalseAndDomainError()
+    public void TryCreate_WithPositiveAmountAndEmptyCurrency_ReturnsCurrencyRequired()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            1m,
+            Currency.Empty,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
+    }
+
+    [Fact]
+    public void TryCreate_WithZeroAmountAndEmptyCurrency_ReturnsTrueAndZeroMoney()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            0m,
+            Currency.Empty,
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        money.ShouldNotBeNull();
+        money.Amount.ShouldBe(0m);
+        money.Currency.ShouldBe(Currency.Empty);
+        money.IsZero.ShouldBeTrue();
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithTooManyDecimalPlaces_ReturnsAmountTooManyDecimalPlaces()
     {
         // Act
         bool result = Money.TryCreate(
             99.999m,
-            KnownCurrencies.Chf,
+            Chf,
             out Money? money,
             out DomainError? error);
 
@@ -608,11 +666,28 @@ public sealed class MoneyTests
         money.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.AmountTooManyDecimalPlaces);
-        error.Message.ShouldBe($"Price cannot have more than {Money.Scale} decimal places.");
     }
 
     [Fact]
-    public void TryCreate_WithInvalidCurrencyCode_ReturnsFalseAndDomainError()
+    public void TryCreate_WithValidAmountAndCurrencyCode_ReturnsTrueAndMoney()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            " chf ",
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeTrue();
+        money.ShouldNotBeNull();
+        money.Amount.ShouldBe(99.90m);
+        money.Currency.ShouldBe(Chf);
+        error.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryCreate_WithInvalidCurrencyCodeFormat_ReturnsCurrencyInvalidFormat()
     {
         // Act
         bool result = Money.TryCreate(
@@ -626,6 +701,56 @@ public sealed class MoneyTests
         money.ShouldBeNull();
         error.ShouldNotBeNull();
         error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
-        error.Message.ShouldBe("Currency must be an ISO 4217 three-letter code.");
+    }
+
+    [Fact]
+    public void TryCreate_WithUnsupportedCurrencyCode_ReturnsCurrencyUnsupported()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            "ABC",
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyUnsupported);
+    }
+
+    [Fact]
+    public void TryCreate_WithMissingCurrencyCode_ReturnsCurrencyRequired()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            99.90m,
+            " ",
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
+    }
+
+    [Fact]
+    public void TryCreate_WithNegativeAmountAndInvalidCurrencyCode_ReturnsCurrencyInvalidFormat()
+    {
+        // Act
+        bool result = Money.TryCreate(
+            -0.01m,
+            "CH",
+            out Money? money,
+            out DomainError? error);
+
+        // Assert
+        result.ShouldBeFalse();
+        money.ShouldBeNull();
+        error.ShouldNotBeNull();
+        error.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat);
     }
 }

@@ -1,6 +1,7 @@
 using Company.Template.Application.Common;
 using Company.Template.Application.Products.GetProducts;
 using Company.Template.Domain.Products;
+using Company.Template.Domain.SharedKernel;
 
 namespace Company.Template.Infrastructure.Persistence.Queries;
 
@@ -11,6 +12,16 @@ internal static class ProductQueryExtensions
         public IQueryable<Product> Active()
         {
             return products.Where(product => product.Status == ProductStatus.Active);
+        }
+
+        public IQueryable<Product> WithDefaultVisibility(ProductFilter filter)
+        {
+            ArgumentNullException.ThrowIfNull(products);
+            ArgumentNullException.ThrowIfNull(filter);
+
+            return filter.Status.HasValue
+                ? products
+                : products.Active();
         }
 
         public IQueryable<Product> WithId(ProductId productId)
@@ -55,7 +66,7 @@ internal static class ProductQueryExtensions
 
             IQueryable<Product> query = products;
 
-            if (filter.Search.TryGetValue(out string? search))
+            if (filter.Search.TryGetValue(out string search))
             {
                 query = query.Where(product => product.Name.Value.Contains(search));
             }
@@ -65,11 +76,9 @@ internal static class ProductQueryExtensions
                 query = query.Where(product => product.Status == status);
             }
 
-            if (filter.Currency.TryGetValue(out string? currency))
+            if (filter.Currency.TryGetValue(out Currency currency))
             {
-                Currency parsedCurrency = Currency.Create(currency);
-
-                query = query.Where(product => product.Price.Currency == parsedCurrency);
+                query = query.Where(product => product.Price.Currency == currency);
             }
 
             return query;

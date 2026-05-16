@@ -1,4 +1,5 @@
 using Company.Template.Domain.Common;
+using Company.Template.Domain.SharedKernel;
 
 namespace Company.Template.Domain.Products;
 

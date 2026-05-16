@@ -260,18 +260,16 @@
                     "condition": "(db != \"PostgreSql\")",
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
-                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.PostgreSql.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.PostgreSql.cs",
-                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.PostgreSql.cs"
+                        "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
+                        "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs"
                     ]
                 },
                 {
                     "condition": "(db != \"SqlServer\")",
                     "exclude": [
                         "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
-                        "tests/Company.Template.Infrastructure.Tests/TestSupport/TestDatabase.SqlServer.cs",
-                        "tests/Company.Template.Api.Tests/TestSupport/TestDatabase.SqlServer.cs",
-                        "tests/Company.Template.Application.Tests/TestSupport/TestDatabase.SqlServer.cs"
+                        "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
+                        "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
                     ]
                 }
             ]
