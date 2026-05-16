@@ -1,10 +1,10 @@
 namespace Company.Template.Api.Tests.Api;
 
-public sealed class OpenApiMetadataTests : IClassFixture<ApiTestFactory>
+public sealed class OpenApiMetadataTests : IClassFixture<ApiLightweightTestFactory>
 {
-    private readonly ApiTestFactory _factory;
+    private readonly ApiLightweightTestFactory _factory;
 
-    public OpenApiMetadataTests(ApiTestFactory factory)
+    public OpenApiMetadataTests(ApiLightweightTestFactory factory)
     {
         _factory = factory;
     }

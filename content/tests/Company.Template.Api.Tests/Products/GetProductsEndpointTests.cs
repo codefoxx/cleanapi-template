@@ -2,25 +2,26 @@ using Company.Template.Api.Tests.Products.Contracts;
 
 namespace Company.Template.Api.Tests.Products;
 
-public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
+[Collection(DatabaseCollection.Name)]
+public sealed class GetProductsEndpointTests
 {
-    private readonly ApiTestFactory _factory;
+    private readonly TestDatabaseServer _server;
 
-    public GetProductsEndpointTests(ApiTestFactory factory)
+    public GetProductsEndpointTests(TestDatabaseServer server)
     {
-        _factory = factory;
+        _server = server;
     }
 
     [Fact]
     public async Task GetProducts_WithoutQuery_ReturnsPagedProducts()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
-        await SeedProductsAsync(httpClient);
+        await SeedProductsAsync(context.HttpClient);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(ProductEndpoints.Collection);
+        HttpResponseMessage response = await context.HttpClient.SendAsync(ProductEndpoints.Collection);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -42,12 +43,12 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithSearchFilter_ReturnsMatchingProducts()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
-        await SeedProductsAsync(httpClient);
+        await SeedProductsAsync(context.HttpClient);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("search=Keyboard&sortBy=name&sortDirection=asc"));
 
         // Assert
@@ -64,12 +65,12 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithCurrencyFilter_ReturnsMatchingProducts()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
-        await SeedProductsAsync(httpClient);
+        await SeedProductsAsync(context.HttpClient);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("currency=CHF&sortBy=name&sortDirection=asc"));
 
         // Assert
@@ -84,12 +85,12 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithPaging_ReturnsRequestedPage()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
-        await SeedProductsAsync(httpClient);
+        await SeedProductsAsync(context.HttpClient);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("pageNumber=2&pageSize=2&sortBy=name&sortDirection=asc"));
 
         // Assert
@@ -108,10 +109,10 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithInvalidStatus_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("status=unknown"));
 
         // Assert
@@ -123,10 +124,10 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithInvalidSortBy_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("sortBy=unknown"));
 
         // Assert
@@ -138,10 +139,10 @@ public sealed class GetProductsEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProducts_WithInvalidPageSize_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.CollectionWithQuery("pageSize=0"));
 
         // Assert

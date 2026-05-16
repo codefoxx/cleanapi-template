@@ -2,27 +2,28 @@ using Company.Template.Api.Tests.Products.Contracts;
 
 namespace Company.Template.Api.Tests.Products;
 
-public sealed class GetProductByIdEndpointTests : IClassFixture<ApiTestFactory>
+[Collection(DatabaseCollection.Name)]
+public sealed class GetProductByIdEndpointTests
 {
-    private readonly ApiTestFactory _factory;
+    private readonly TestDatabaseServer _server;
 
-    public GetProductByIdEndpointTests(ApiTestFactory factory)
+    public GetProductByIdEndpointTests(TestDatabaseServer server)
     {
-        _factory = factory;
+        _server = server;
     }
 
     [Fact]
     public async Task GetProductById_WithExistingProduct_ReturnsProduct()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
-        ProductResponse createdProduct = await httpClient.CreateProductAsync(
+        ProductResponse createdProduct = await context.HttpClient.CreateProductAsync(
             CreateProductRequest.Valid()
                                 .WithName("Mechanical Keyboard"));
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.ById(createdProduct.Id));
 
         // Assert
@@ -42,10 +43,10 @@ public sealed class GetProductByIdEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProductById_WithUnknownProduct_ReturnsNotFoundProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.ById(Guid.NewGuid()));
 
         // Assert
@@ -57,11 +58,11 @@ public sealed class GetProductByIdEndpointTests : IClassFixture<ApiTestFactory>
     public async Task GetProductById_WithDiscontinuedProduct_ReturnsProductSnapshot()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse discontinuedProduct = await httpClient.CreateDiscontinuedProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+        ProductResponse discontinuedProduct = await context.HttpClient.CreateDiscontinuedProductAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendAsync(
+        HttpResponseMessage response = await context.HttpClient.SendAsync(
             ProductEndpoints.ById(discontinuedProduct.Id));
 
         // Assert

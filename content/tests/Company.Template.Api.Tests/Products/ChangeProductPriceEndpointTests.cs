@@ -2,28 +2,30 @@ using Company.Template.Api.Tests.Products.Contracts;
 
 namespace Company.Template.Api.Tests.Products;
 
-public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFactory>
+[Collection(DatabaseCollection.Name)]
+public sealed class ChangeProductPriceEndpointTests
 {
-    private readonly ApiTestFactory _factory;
+    private readonly TestDatabaseServer _server;
 
-    public ChangeProductPriceEndpointTests(ApiTestFactory factory)
+    public ChangeProductPriceEndpointTests(TestDatabaseServer server)
     {
-        _factory = factory;
+        _server = server;
     }
 
     [Fact]
     public async Task ChangeProductPrice_WithExistingProduct_ReturnsUpdatedProduct()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse createdProduct = await httpClient.CreateProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse createdProduct = await context.HttpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
                                                                      .WithPrice(249.50m)
                                                                      .WithCurrency("EUR");
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.ChangePrice(createdProduct.Id),
             request);
 
@@ -44,10 +46,10 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
     public async Task ChangeProductPrice_WithUnknownProduct_ReturnsNotFoundProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.ChangePrice(Guid.NewGuid()),
             ChangeProductPriceRequest.Valid());
 
@@ -60,14 +62,15 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
     public async Task ChangeProductPrice_WithInvalidCurrency_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse createdProduct = await httpClient.CreateProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse createdProduct = await context.HttpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
                                                                      .WithCurrency("EU");
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.ChangePrice(createdProduct.Id),
             request);
 
@@ -80,14 +83,15 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
     public async Task ChangeProductPrice_WithNegativePrice_ReturnsValidationProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse createdProduct = await httpClient.CreateProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse createdProduct = await context.HttpClient.CreateProductAsync();
 
         ChangeProductPriceRequest request = ChangeProductPriceRequest.Valid()
                                                                      .WithPrice(-1m);
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.ChangePrice(createdProduct.Id),
             request);
 
@@ -100,11 +104,12 @@ public sealed class ChangeProductPriceEndpointTests : IClassFixture<ApiTestFacto
     public async Task ChangeProductPrice_WithDiscontinuedProduct_ReturnsConflictProblem()
     {
         // Arrange
-        using HttpClient httpClient = _factory.CreateClient();
-        ProductResponse discontinuedProduct = await httpClient.CreateDiscontinuedProductAsync();
+        await using ApiTestContext context = await _server.CreateApiTestContextAsync();
+
+        ProductResponse discontinuedProduct = await context.HttpClient.CreateDiscontinuedProductAsync();
 
         // Act
-        HttpResponseMessage response = await httpClient.SendJsonAsync(
+        HttpResponseMessage response = await context.HttpClient.SendJsonAsync(
             ProductEndpoints.ChangePrice(discontinuedProduct.Id),
             ChangeProductPriceRequest.Valid());
 

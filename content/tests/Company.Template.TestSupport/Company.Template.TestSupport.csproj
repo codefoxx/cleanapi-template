@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Company.Template.Application\Company.Template.Application.csproj"/>
+        <ProjectReference Include="..\..\src\Company.Template.Domain\Company.Template.Domain.csproj"/>
+        <ProjectReference Include="..\..\src\Company.Template.Infrastructure\Company.Template.Infrastructure.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="xunit"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'PostgreSql'">
+        <PackageReference Include="Npgsql"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'SqlServer'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+        <PackageReference Include="Testcontainers.MsSql"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
+        <Compile Remove="Database\TestDatabase.PostgreSql.cs"/>
+        <Compile Remove="Database\TestDatabaseServer.PostgreSql.cs"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
+        <Compile Remove="Database\TestDatabase.SqlServer.cs"/>
+        <Compile Remove="Database\TestDatabaseServer.SqlServer.cs"/>
+    </ItemGroup>
+
+</Project>

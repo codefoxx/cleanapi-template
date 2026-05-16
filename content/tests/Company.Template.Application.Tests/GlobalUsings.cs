@@ -4,6 +4,8 @@ global using System.Linq;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using Company.Template.Application.Tests.TestSupport;
+global using Company.Template.TestSupport.Application.DomainEvents;
+global using Company.Template.TestSupport.Database;
 global using Microsoft.EntityFrameworkCore;
 global using Shouldly;
 global using Xunit;

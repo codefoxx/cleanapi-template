@@ -1,19 +1,19 @@
-using Company.Template.Application.Abstractions.DomainEvents;
-using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Infrastructure.Persistence;
+using Company.Template.TestSupport.Application.DomainEvents;
 
 namespace Company.Template.Infrastructure.Tests.Persistence;
 
-public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDatabase>
+[Collection(DatabaseCollection.Name)]
+public sealed class ApplicationDbContextDomainEventTests
 {
     private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly TestDatabase _database;
+    private readonly TestDatabaseServer _server;
 
-    public ApplicationDbContextDomainEventTests(TestDatabase database)
+    public ApplicationDbContextDomainEventTests(TestDatabaseServer server)
     {
-        _database = database;
+        _server = server;
     }
 
     [Fact]
@@ -22,7 +22,8 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Arrange
         RecordingDomainEventDispatcher dispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(dispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(dispatcher);
 
         Product product = CreateProduct();
 
@@ -43,7 +44,8 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Arrange
         RecordingDomainEventDispatcher dispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(dispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(dispatcher);
 
         Product product = CreateProduct();
 
@@ -62,7 +64,8 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Arrange
         ThrowingDomainEventDispatcher dispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(dispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(dispatcher);
 
         Product product = CreateProduct();
 
@@ -75,7 +78,7 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Assert
         exception.Message.ShouldBe(ThrowingDomainEventDispatcher.ExceptionMessage);
 
-        await using ApplicationDbContext verificationContext = _database.CreateDbContext();
+        await using ApplicationDbContext verificationContext = database.CreateDbContext();
 
         Product? persistedProduct = await verificationContext.Products.FindAsync(product.Id);
 
@@ -89,7 +92,8 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Arrange
         ThrowingDomainEventDispatcher dispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(dispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(dispatcher);
 
         Product product = CreateProduct();
 
@@ -109,7 +113,8 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
         // Arrange
         RecordingDomainEventDispatcher dispatcher = new();
 
-        await using ApplicationDbContext dbContext = await _database.CreateCleanDbContextAsync(dispatcher);
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(dispatcher);
 
         // Act
         await dbContext.SaveChangesAsync();
@@ -124,33 +129,5 @@ public sealed class ApplicationDbContextDomainEventTests : IClassFixture<TestDat
             ProductName.Create("Mechanical Keyboard"),
             Money.Create(199.90m, Currency.Create("CHF")),
             CreatedAt);
-    }
-
-    private sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
-    {
-        private readonly List<IDomainEvent> _dispatchedEvents = [];
-
-        public IReadOnlyList<IDomainEvent> DispatchedEvents => _dispatchedEvents;
-
-        public Task DispatchAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            _dispatchedEvents.AddRange(domainEvents);
-
-            return Task.CompletedTask;
-        }
-    }
-
-    private sealed class ThrowingDomainEventDispatcher : IDomainEventDispatcher
-    {
-        public const string ExceptionMessage = "Domain event dispatch failed.";
-
-        public Task DispatchAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            throw new InvalidOperationException(ExceptionMessage);
-        }
     }
 }

@@ -1,7 +1,7 @@
 using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Domain.Common;
 
-namespace Company.Template.Application.Tests.TestSupport;
+namespace Company.Template.TestSupport.Application.DomainEvents;
 
 /// <summary>
 ///     Captures dispatched domain events so application tests can assert observable side effects.
@@ -11,7 +11,7 @@ namespace Company.Template.Application.Tests.TestSupport;
 ///     infrastructure handlers, or a mocking framework. It is intended for application-level tests
 ///     that need to verify which events were published after persistence.
 /// </remarks>
-internal sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
+public sealed class RecordingDomainEventDispatcher : IDomainEventDispatcher
 {
     private readonly List<IDomainEvent> _dispatchedEvents = [];
 
