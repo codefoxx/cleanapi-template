@@ -14,9 +14,6 @@ namespace Company.Template.Domain.SharedKernel;
 /// </remarks>
 public sealed record Money : IComparable<Money>
 {
-    /// <summary>
-    ///     The standard number of decimal places for monetary values.
-    /// </summary>
     public const int Scale = 2;
 
     private Money(decimal amount, Currency currency)
@@ -25,19 +22,10 @@ public sealed record Money : IComparable<Money>
         Currency = currency;
     }
 
-    /// <summary>
-    ///     Gets the monetary amount.
-    /// </summary>
     public decimal Amount { get; }
 
-    /// <summary>
-    ///     Gets the currency of the monetary amount.
-    /// </summary>
     public Currency Currency { get; }
 
-    /// <summary>
-    ///     Gets a value indicating whether this instance represents the neutral zero money value.
-    /// </summary>
     public bool IsZero => Amount == 0 && Currency == Currency.Empty;
 
     /// <inheritdoc />
@@ -58,22 +46,6 @@ public sealed record Money : IComparable<Money>
         return Amount.CompareTo(other.Amount);
     }
 
-    /// <summary>
-    ///     Creates a money value from values that are expected to be valid.
-    /// </summary>
-    /// <param name="amount">The monetary amount.</param>
-    /// <param name="currency">The currency.</param>
-    /// <returns>A valid <see cref="Money" /> instance.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown when <paramref name="currency" /> is <see langword="null" />.
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="amount" /> is negative.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when a non-zero amount has no currency, or when the amount has more than
-    ///     <see cref="Scale" /> decimal places.
-    /// </exception>
     /// <remarks>
     ///     This method is intentionally strict. For expected validation failures from raw input,
     ///     prefer <c>TryCreate</c> so the caller can translate the returned <see cref="DomainError" /> explicitly.
@@ -92,15 +64,6 @@ public sealed record Money : IComparable<Money>
             : new ArgumentException(error.Message, nameof(amount));
     }
 
-    /// <summary>
-    ///     Creates a money value from an amount and currency code that are expected to be valid.
-    /// </summary>
-    /// <param name="amount">The monetary amount.</param>
-    /// <param name="currency">The currency code.</param>
-    /// <returns>A valid <see cref="Money" /> instance.</returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when the currency code or amount does not satisfy the money invariants.
-    /// </exception>
     /// <remarks>
     ///     This method delegates currency creation to <see cref="Currency.Create(string)" />.
     ///     For expected validation failures from raw input, prefer
@@ -118,23 +81,6 @@ public sealed record Money : IComparable<Money>
             : new ArgumentException(error.Message, nameof(currency));
     }
 
-    /// <summary>
-    ///     Attempts to create a valid money value without throwing for expected validation failures.
-    /// </summary>
-    /// <param name="amount">The monetary amount.</param>
-    /// <param name="currency">The currency.</param>
-    /// <param name="money">
-    ///     The created money value when the method returns <see langword="true" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <param name="error">
-    ///     The domain error when the method returns <see langword="false" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <returns>
-    ///     <see langword="true" /> when a valid money value could be created;
-    ///     otherwise <see langword="false" />.
-    /// </returns>
     public static bool TryCreate(
         decimal amount,
         Currency? currency,
@@ -149,24 +95,6 @@ public sealed record Money : IComparable<Money>
         return result.IsSuccess;
     }
 
-    /// <summary>
-    ///     Attempts to create a valid money value from an amount and currency code without throwing
-    ///     for expected validation failures.
-    /// </summary>
-    /// <param name="amount">The monetary amount.</param>
-    /// <param name="currency">The raw currency code input.</param>
-    /// <param name="money">
-    ///     The created money value when the method returns <see langword="true" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <param name="error">
-    ///     The domain error when the method returns <see langword="false" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <returns>
-    ///     <see langword="true" /> when a valid money value could be created;
-    ///     otherwise <see langword="false" />.
-    /// </returns>
     public static bool TryCreate(
         decimal amount,
         string currency,
@@ -181,18 +109,6 @@ public sealed record Money : IComparable<Money>
         return result.IsSuccess;
     }
 
-    /// <summary>
-    ///     Creates a money value by rounding the amount to <see cref="Scale" /> decimal places.
-    /// </summary>
-    /// <param name="amount">The amount to round.</param>
-    /// <param name="currency">The currency.</param>
-    /// <returns>A valid rounded <see cref="Money" /> instance.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown when <paramref name="currency" /> is <see langword="null" />.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when the rounded value does not satisfy the money invariants.
-    /// </exception>
     public static Money CreateRounded(decimal amount, Currency currency)
     {
         ArgumentNullException.ThrowIfNull(currency);
@@ -205,23 +121,15 @@ public sealed record Money : IComparable<Money>
         return Create(roundedAmount, currency);
     }
 
-    /// <summary>
-    ///     Creates the neutral zero money value without a currency.
-    /// </summary>
-    /// <returns>A zero money value using <see cref="Currency.Empty" />.</returns>
+    /// <remarks>
+    ///     The neutral zero value has no currency. Use <see cref="Zero(Currency)" /> when the zero value should
+    ///     participate in normal money operations for a specific currency.
+    /// </remarks>
     public static Money Zero()
     {
         return Zero(Currency.Empty);
     }
 
-    /// <summary>
-    ///     Creates a zero money value for the specified currency.
-    /// </summary>
-    /// <param name="currency">The currency of the zero value.</param>
-    /// <returns>A zero money value.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown when <paramref name="currency" /> is <see langword="null" />.
-    /// </exception>
     public static Money Zero(Currency currency)
     {
         ArgumentNullException.ThrowIfNull(currency);
@@ -229,17 +137,6 @@ public sealed record Money : IComparable<Money>
         return new Money(0, currency);
     }
 
-    /// <summary>
-    ///     Adds another money value with the same currency.
-    /// </summary>
-    /// <param name="other">The money value to add.</param>
-    /// <returns>The sum of both money values.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown when <paramref name="other" /> is <see langword="null" />.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the currencies do not match.
-    /// </exception>
     public Money Add(Money other)
     {
         ArgumentNullException.ThrowIfNull(other);
@@ -249,17 +146,6 @@ public sealed record Money : IComparable<Money>
         return Create(Amount + other.Amount, Currency);
     }
 
-    /// <summary>
-    ///     Subtracts another money value with the same currency.
-    /// </summary>
-    /// <param name="other">The money value to subtract.</param>
-    /// <returns>The difference between both money values.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown when <paramref name="other" /> is <see langword="null" />.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the currencies do not match or the result would be negative.
-    /// </exception>
     public Money Subtract(Money other)
     {
         ArgumentNullException.ThrowIfNull(other);
@@ -274,14 +160,6 @@ public sealed record Money : IComparable<Money>
         return Create(Amount - other.Amount, Currency);
     }
 
-    /// <summary>
-    ///     Scales the money value by a non-negative factor and rounds the result.
-    /// </summary>
-    /// <param name="factor">The factor to multiply the amount by.</param>
-    /// <returns>The scaled and rounded money value.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="factor" /> is negative.
-    /// </exception>
     public Money ScaleBy(decimal factor)
     {
         if (factor < 0)
@@ -294,9 +172,6 @@ public sealed record Money : IComparable<Money>
         return CreateRounded(Amount * factor, Currency);
     }
 
-    /// <summary>
-    ///     Adds two money values.
-    /// </summary>
     public static Money operator +(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -304,9 +179,6 @@ public sealed record Money : IComparable<Money>
         return left.Add(right);
     }
 
-    /// <summary>
-    ///     Subtracts the right money value from the left money value.
-    /// </summary>
     public static Money operator -(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -314,9 +186,6 @@ public sealed record Money : IComparable<Money>
         return left.Subtract(right);
     }
 
-    /// <summary>
-    ///     Determines whether the left money value is less than the right money value.
-    /// </summary>
     public static bool operator <(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -324,9 +193,6 @@ public sealed record Money : IComparable<Money>
         return left.CompareTo(right) < 0;
     }
 
-    /// <summary>
-    ///     Determines whether the left money value is less than or equal to the right money value.
-    /// </summary>
     public static bool operator <=(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -334,9 +200,6 @@ public sealed record Money : IComparable<Money>
         return left.CompareTo(right) <= 0;
     }
 
-    /// <summary>
-    ///     Determines whether the left money value is greater than the right money value.
-    /// </summary>
     public static bool operator >(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -344,9 +207,6 @@ public sealed record Money : IComparable<Money>
         return left.CompareTo(right) > 0;
     }
 
-    /// <summary>
-    ///     Determines whether the left money value is greater than or equal to the right money value.
-    /// </summary>
     public static bool operator >=(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
