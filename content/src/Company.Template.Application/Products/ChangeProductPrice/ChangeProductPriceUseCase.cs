@@ -42,20 +42,29 @@ public sealed class ChangeProductPriceUseCase : IUseCase<ChangeProductPriceComma
 
         Option<Product> maybe = await products.FindAsync(productId, cancellationToken);
 
-        if (!maybe.TryGetValue(out Product? product))
-        {
-            return Result<ProductDto>.Failure(Error.NotFound("Product was not found."));
-        }
+        return await maybe.Match(
+            some: product => ChangePriceAsync(product, money, cancellationToken),
+            none: () => Task.FromResult(ProductNotFound()));
+    }
 
+    private async Task<Result<ProductDto>> ChangePriceAsync(
+        Product product,
+        Money money,
+        CancellationToken cancellationToken)
+    {
         DomainResult result = product.ChangePrice(money, _clock.UtcNow);
 
-        if (result.IsFailure)
-        {
-            return Result<ProductDto>.Failure(result.Error.ToApplicationError());
-        }
+        return await result.Match(
+            success: async () =>
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return Result<ProductDto>.Success(ProductMapper.ToDto(product));
+            },
+            failure: error => Task.FromResult(Result<ProductDto>.Failure(error.ToApplicationError())));
+    }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result<ProductDto>.Success(ProductMapper.ToDto(product));
+    private static Result<ProductDto> ProductNotFound()
+    {
+        return Result<ProductDto>.Failure(Error.NotFound("Product was not found."));
     }
 }
