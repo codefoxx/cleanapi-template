@@ -55,7 +55,9 @@ For application use cases, expected failures should be asserted as `Result<T>.Fa
 
 Do not assert expected validation behavior by catching exceptions from use cases.
 
-For `TryCreate` / `TryFrom` tests, prefer asserting stable error codes over human-readable messages. Messages may change without changing the behavior being protected.
+For `TryCreate` / `TryFrom` tests, prefer asserting stable domain error codes over human-readable messages. Messages may change without changing the behavior being protected.
+
+For application use case tests, assert `ErrorType` for behavior and `ErrorCode` for the application contract. Domain-derived failures may preserve the domain code value, but `Error.Code` is application-owned.
 
 ## API problem tests
 
@@ -70,7 +72,7 @@ ApiProblemDetails problem = await response.ReadValidationProblemAsync();
 
 problem.Title.ShouldBe("Validation failed.");
 problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
-problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+problem.Code.ShouldBe(ErrorCodes.ValidationError.Value);
 problem.Detail.ShouldBe("One or more validation errors occurred.");
 
 problem.Errors.ShouldNotBeNull();
