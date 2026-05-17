@@ -82,9 +82,8 @@ internal sealed class ProductEndpoints : IEndpointModule
               .ToCommand()
               .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
               .ToHttpResultAsync(product =>
-                   Results.CreatedAtRoute(
-                       ApiRoutes.Products.Names.GetProductById,
-                       new { productId = product.Id },
+                   Results.Created(
+                       ApiRoutes.Products.Location(product.Id),
                        ProductEndpointMapper.ToResponse(product)));
     }
 
