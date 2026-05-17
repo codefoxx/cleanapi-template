@@ -4,13 +4,11 @@ using Company.Template.Domain.Products;
 namespace Company.Template.Application.Products.CreateProduct;
 
 /// <summary>
-///     Coordinates the process of creating a new product.
+///     Coordinates product creation by delegating invariant checks to the domain model and persisting the aggregate.
 /// </summary>
 /// <remarks>
-///     This use case handles request-level validation, delegates domain construction to
-///     <see cref="Product" />, <see cref="ProductName" />, and <see cref="Money" />, and persists
-///     the new aggregate. It returns a <see cref="Result{T}" /> which callers can translate
-///     at their own boundary.
+///     The API boundary validates request shape before command creation. The use case still uses safe domain APIs as the
+///     final guard because commands are application input, not domain objects.
 /// </remarks>
 public sealed class CreateProductUseCase : IUseCase<CreateProductCommand, ProductDto>
 {
