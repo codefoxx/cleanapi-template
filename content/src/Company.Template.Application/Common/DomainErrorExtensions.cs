@@ -20,7 +20,6 @@ public static class DomainErrorExtensions
             [DomainErrorCodes.ProductNameRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameTooLong] = ErrorType.Validation,
             [DomainErrorCodes.ValidationError] = ErrorType.Validation,
-
         };
 
     public static Error ToApplicationError(this DomainError error)
@@ -31,6 +30,6 @@ public static class DomainErrorExtensions
             ? mappedType
             : ErrorType.Unknown;
 
-        return Error.Create(type, error.Code, error.Message);
+        return Error.Create(type, ErrorCode.FromDomain(error.Code), error.Message);
     }
 }
