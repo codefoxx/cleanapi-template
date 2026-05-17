@@ -156,6 +156,34 @@ public sealed class CreateProductUseCaseTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_WithTooLongName_ReturnsValidationFailure()
+    {
+        // Arrange
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        CreateProductUseCase useCase = new(
+            dbContext,
+            new FixedClock(UtcNow));
+
+        CreateProductCommand command = new(
+            new string('A', ProductName.MaxLength + 1),
+            99.90m,
+            "CHF");
+
+        // Act
+        Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
+
+        // Assert
+        AssertError(result, ErrorType.Validation, ErrorCodes.ProductNameTooLong);
+
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
+        productWasPersisted.ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task ExecuteAsync_WithNegativePrice_ReturnsValidationFailure()
     {
         // Arrange
@@ -204,6 +232,34 @@ public sealed class CreateProductUseCaseTests
 
         // Assert
         AssertError(result, ErrorType.Validation, ErrorCodes.CurrencyInvalidFormat);
+
+        bool productWasPersisted = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .AnyAsync();
+        productWasPersisted.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithUnsupportedCurrency_ReturnsValidationFailure()
+    {
+        // Arrange
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        CreateProductUseCase useCase = new(
+            dbContext,
+            new FixedClock(UtcNow));
+
+        CreateProductCommand command = new(
+            "Keyboard",
+            99.90m,
+            "ABC");
+
+        // Act
+        Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
+
+        // Assert
+        AssertError(result, ErrorType.Validation, ErrorCodes.CurrencyUnsupported);
 
         bool productWasPersisted = await dbContext.Products
                                                   .AsNoTracking()
