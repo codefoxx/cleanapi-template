@@ -289,6 +289,37 @@ public sealed class GetProductsUseCaseTests
              ]);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WithEmptyCatalog_ReturnsEmptyPage()
+    {
+        // Arrange
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        GetProductsUseCase useCase = new(new ProductQueries(dbContext));
+
+        GetProductsQuery query = new(
+            CreatePage(1, 20),
+            ProductFilter.Empty,
+            ProductSort.Default);
+
+        // Act
+        Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+
+        PagedResult<ProductDto> page = result.Value;
+
+        page.PageNumber.ShouldBe(1);
+        page.PageSize.ShouldBe(20);
+        page.TotalCount.ShouldBe(0);
+        page.TotalPages.ShouldBe(0);
+        page.HasNextPage.ShouldBeFalse();
+        page.HasPreviousPage.ShouldBeFalse();
+        page.Items.ShouldBeEmpty();
+    }
+
     private async Task<TestDatabase> CreateSeededDatabaseAsync()
     {
         TestDatabase database = await TestDatabase.CreateAsync(_server);

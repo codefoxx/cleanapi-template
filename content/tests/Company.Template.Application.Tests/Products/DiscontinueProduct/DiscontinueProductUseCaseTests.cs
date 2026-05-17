@@ -222,6 +222,42 @@ public sealed class DiscontinueProductUseCaseTests
         AssertError(result, ErrorType.Validation, ErrorCodes.ProductIdRequired);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WithAlreadyDiscontinuedProduct_DoesNotDispatchDomainEventAgain()
+    {
+        // Arrange
+        RecordingDomainEventDispatcher domainEventDispatcher = new();
+
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(domainEventDispatcher);
+
+        ProductDto product = await CreateProductAsync(dbContext);
+
+        DiscontinueProductUseCase firstUseCase = new(
+            dbContext,
+            new FixedClock(DiscontinuedAt));
+
+        Result firstResult = await firstUseCase.ExecuteAsync(
+            new DiscontinueProductCommand(product.Id),
+            CancellationToken.None);
+
+        firstResult.IsSuccess.ShouldBeTrue();
+        domainEventDispatcher.ClearDispatchedEvents();
+
+        DiscontinueProductUseCase secondUseCase = new(
+            dbContext,
+            new FixedClock(LaterDiscontinuedAt));
+
+        // Act
+        Result result = await secondUseCase.ExecuteAsync(
+            new DiscontinueProductCommand(product.Id),
+            CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        domainEventDispatcher.DispatchedEvents.ShouldBeEmpty();
+    }
+
     private static async Task<ProductDto> CreateProductAsync(ApplicationDbContext dbContext)
     {
         CreateProductUseCase useCase = new(

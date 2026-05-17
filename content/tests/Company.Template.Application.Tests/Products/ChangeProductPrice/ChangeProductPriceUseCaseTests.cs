@@ -333,6 +333,66 @@ public sealed class ChangeProductPriceUseCaseTests
         persistedProduct.DiscontinuedAt.ShouldBe(DiscontinuedAt);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WithUnsupportedCurrency_ReturnsValidationFailure()
+    {
+        // Arrange
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        Product product = await PersistProductAsync(dbContext);
+
+        ChangeProductPriceUseCase useCase = new(
+            dbContext,
+            new FixedClock(ChangedAt));
+
+        ChangeProductPriceCommand command = new(
+            product.Id.Value,
+            129.90m,
+            "ABC");
+
+        // Act
+        Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
+
+        // Assert
+        AssertError(result, ErrorType.Validation, ErrorCodes.CurrencyUnsupported);
+
+        Product persistedProduct = await dbContext.Products
+                                                  .AsNoTracking()
+                                                  .SingleAsync();
+
+        persistedProduct.Price.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithSamePrice_DoesNotDispatchProductPriceChangedDomainEvent()
+    {
+        // Arrange
+        RecordingDomainEventDispatcher domainEventDispatcher = new();
+
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext(domainEventDispatcher);
+
+        Product product = await PersistProductAsync(dbContext);
+        domainEventDispatcher.ClearDispatchedEvents();
+
+        ChangeProductPriceUseCase useCase = new(
+            dbContext,
+            new FixedClock(ChangedAt));
+
+        ChangeProductPriceCommand command = new(
+            product.Id.Value,
+            99.90m,
+            "CHF");
+
+        // Act
+        Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        domainEventDispatcher.DispatchedEvents.ShouldBeEmpty();
+    }
+
     private static async Task<Product> PersistProductAsync(ApplicationDbContext dbContext)
     {
         Product product = Product.Create(

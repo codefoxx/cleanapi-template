@@ -113,6 +113,25 @@ public sealed class GetProductByIdUseCaseTests
         result.Error.Code.ShouldBeEquivalentTo(ErrorCodes.ProductIdRequired);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WithUnknownProductId_ReturnsNotFoundCode()
+    {
+        // Arrange
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        GetProductByIdUseCase useCase = new(new ProductQueries(dbContext));
+        GetProductByIdQuery query = new(Guid.NewGuid());
+
+        // Act
+        Result<ProductDto> result = await useCase.ExecuteAsync(query, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.ShouldBeTrue();
+        result.Error.Type.ShouldBe(ErrorType.NotFound);
+        result.Error.Code.ShouldBeEquivalentTo(ErrorCodes.NotFound);
+    }
+
     private static Product CreateProduct()
     {
         return Product.Create(
