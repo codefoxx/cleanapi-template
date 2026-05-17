@@ -362,7 +362,7 @@ public sealed class ChangeProductPriceUseCaseTests
 
         error.ShouldNotBe(Error.None);
         error.Type.ShouldBe(expectedType);
-        error.Code.Value.ShouldBeEquivalentTo(expectedCode.Value);
+        error.Code.ShouldBeEquivalentTo(expectedCode);
 
         return error;
     }
