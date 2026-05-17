@@ -48,11 +48,20 @@ public sealed record ErrorCode
 
 public static class ErrorCodes
 {
+    public static readonly ErrorCode AmountNegative =
+        ErrorCode.Create("amount_negative");
+
     public static readonly ErrorCode Conflict =
         ErrorCode.Create("conflict");
 
+    public static readonly ErrorCode CurrencyRequired =
+        ErrorCode.Create("currency_required");
+
     public static readonly ErrorCode NotFound =
         ErrorCode.Create("not_found");
+
+    public static readonly ErrorCode ProductNameRequired =
+        ErrorCode.Create("product_name_required");
 
     public static readonly ErrorCode ValidationError =
         ErrorCode.Create("validation_error");
