@@ -46,22 +46,31 @@ public sealed record ErrorCode
     }
 }
 
-public static class ErrorCodes
+public static partial class ErrorCodes
 {
     public static readonly ErrorCode AmountNegative =
         ErrorCode.Create("amount_negative");
 
+    public static readonly ErrorCode AmountTooManyDecimalPlaces =
+        ErrorCode.Create("amount_too_many_decimal_places");
+
     public static readonly ErrorCode Conflict =
         ErrorCode.Create("conflict");
+
+    public static readonly ErrorCode CurrencyInvalidFormat =
+        ErrorCode.Create("currency_invalid_format");
 
     public static readonly ErrorCode CurrencyRequired =
         ErrorCode.Create("currency_required");
 
+    public static readonly ErrorCode CurrencySymbolRequired =
+        ErrorCode.Create("currency_symbol_required");
+
+    public static readonly ErrorCode CurrencyUnsupported =
+        ErrorCode.Create("currency_unsupported");
+
     public static readonly ErrorCode NotFound =
         ErrorCode.Create("not_found");
-
-    public static readonly ErrorCode ProductNameRequired =
-        ErrorCode.Create("product_name_required");
 
     public static readonly ErrorCode ValidationError =
         ErrorCode.Create("validation_error");

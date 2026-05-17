@@ -147,7 +147,7 @@ public sealed class CreateProductUseCaseTests
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        AssertError(result, ErrorType.Validation, DomainErrorCodes.ProductNameRequired);
+        AssertError(result, ErrorType.Validation, ErrorCodes.ProductNameRequired);
 
         bool productWasPersisted = await dbContext.Products
                                                   .AsNoTracking()
@@ -175,7 +175,7 @@ public sealed class CreateProductUseCaseTests
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountNegative);
+        AssertError(result, ErrorType.Validation, ErrorCodes.AmountNegative);
 
         bool productWasPersisted = await dbContext.Products
                                                   .AsNoTracking()
@@ -203,7 +203,7 @@ public sealed class CreateProductUseCaseTests
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        AssertError(result, ErrorType.Validation, DomainErrorCodes.CurrencyInvalidFormat);
+        AssertError(result, ErrorType.Validation, ErrorCodes.CurrencyInvalidFormat);
 
         bool productWasPersisted = await dbContext.Products
                                                   .AsNoTracking()
@@ -231,7 +231,7 @@ public sealed class CreateProductUseCaseTests
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountTooManyDecimalPlaces);
+        AssertError(result, ErrorType.Validation, ErrorCodes.AmountTooManyDecimalPlaces);
 
         bool productWasPersisted = await dbContext.Products
                                                   .AsNoTracking()
@@ -242,7 +242,7 @@ public sealed class CreateProductUseCaseTests
     private static Error AssertError<T>(
         Result<T> result,
         ErrorType expectedType,
-        DomainErrorCode expectedCode)
+        ErrorCode expectedCode)
         where T : notnull
     {
         result.IsSuccess.ShouldBeFalse();
@@ -252,7 +252,7 @@ public sealed class CreateProductUseCaseTests
 
         error.ShouldNotBe(Error.None);
         error.Type.ShouldBe(expectedType);
-        error.Code.ShouldBe(expectedCode);
+        error.Code.ShouldBeEquivalentTo(expectedCode);
 
         return error;
     }
