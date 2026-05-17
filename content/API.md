@@ -140,7 +140,9 @@ Domain validation that happens later in a use case may still produce a validatio
 
 HTTP status mapping should use `ErrorType`, not string error codes.
 
-`Error.Code` is a stable machine-readable identifier. It should not decide transport status by itself.
+`Error.Code` exposes an application-owned `ErrorCode` value. It is a stable machine-readable identifier for clients, tests, logs, and diagnostics, but it should not decide transport status by itself.
+
+`DomainErrorCode` belongs to the Domain layer. If a domain failure reaches the Application layer, the domain code value may be preserved through the `DomainError` to `Error` mapping, but the API still exposes it as an application `ErrorCode` value.
 
 For validation responses, the top-level code is usually `validation_error`. More specific domain/application codes may still exist inside the collected validation details or in non-aggregated validation failures.
 
