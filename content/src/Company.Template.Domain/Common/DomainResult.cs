@@ -9,7 +9,6 @@ namespace Company.Template.Domain.Common;
 ///     validation or business-rule failure should be communicated without throwing.
 ///     Unexpected failures and programming errors may still use exceptions.
 /// </remarks>
-/// <typeparam name="T">The type of the successful value.</typeparam>
 public sealed class DomainResult<T>
     where T : notnull
 {
@@ -21,34 +20,16 @@ public sealed class DomainResult<T>
         Error = error;
     }
 
-    /// <summary>
-    ///     Gets the domain error for failed results, or <see cref="DomainError.None" /> for successful results.
-    /// </summary>
     public DomainError Error { get; }
 
-    /// <summary>
-    ///     Gets a value indicating whether the result failed.
-    /// </summary>
     public bool IsFailure => !IsSuccess;
 
-    /// <summary>
-    ///     Gets a value indicating whether the result succeeded.
-    /// </summary>
     public bool IsSuccess => Error.IsNone;
 
-    /// <summary>
-    ///     Gets the successful value.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the result is a failure.
-    /// </exception>
     public T Value => IsSuccess
         ? _value!
         : throw new InvalidOperationException("A failure result has no value.");
 
-    /// <summary>
-    ///     Creates a successful result.
-    /// </summary>
     public static DomainResult<T> Success(T value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -56,9 +37,6 @@ public sealed class DomainResult<T>
         return new DomainResult<T>(value, DomainError.None);
     }
 
-    /// <summary>
-    ///     Creates a failed result.
-    /// </summary>
     public static DomainResult<T> Failure(DomainError error)
     {
         ArgumentNullException.ThrowIfNull(error);
@@ -71,9 +49,6 @@ public sealed class DomainResult<T>
         return new DomainResult<T>(default, error);
     }
 
-    /// <summary>
-    ///     Handles both success and failure cases.
-    /// </summary>
     public TResult Match<TResult>(
         Func<T, TResult> success,
         Func<DomainError, TResult> failure)
@@ -102,32 +77,17 @@ public sealed class DomainResult
         Error = error;
     }
 
-    /// <summary>
-    ///     Gets the domain error for failed results, or <see cref="DomainError.None" /> for successful results.
-    /// </summary>
     public DomainError Error { get; }
 
-    /// <summary>
-    ///     Gets a value indicating whether the result failed.
-    /// </summary>
     public bool IsFailure => !IsSuccess;
 
-    /// <summary>
-    ///     Gets a value indicating whether the result succeeded.
-    /// </summary>
     public bool IsSuccess => Error.IsNone;
 
-    /// <summary>
-    ///     Creates a successful result.
-    /// </summary>
     public static DomainResult Success()
     {
         return new DomainResult(DomainError.None);
     }
 
-    /// <summary>
-    ///     Creates a failed result.
-    /// </summary>
     public static DomainResult Failure(DomainError error)
     {
         ArgumentNullException.ThrowIfNull(error);
@@ -140,9 +100,6 @@ public sealed class DomainResult
         return new DomainResult(error);
     }
 
-    /// <summary>
-    ///     Handles both success and failure cases.
-    /// </summary>
     public TResult Match<TResult>(
         Func<TResult> success,
         Func<DomainError, TResult> failure)
