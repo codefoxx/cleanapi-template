@@ -46,8 +46,14 @@ public sealed class OpenApiMetadataTests : IClassFixture<ApiLightweightTestFacto
     private static class ProductPaths
     {
         public const string Collection = ApiRoutes.Products.Group;
-        public const string ById = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.ById}";
-        public const string Price = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.Price}";
-        public const string Discontinue = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.Discontinue}";
+
+        public static readonly string ById = ToOpenApiPath(ApiRoutes.Products.ById);
+        public static readonly string Price = ToOpenApiPath(ApiRoutes.Products.Price);
+        public static readonly string Discontinue = ToOpenApiPath(ApiRoutes.Products.Discontinue);
+
+        private static string ToOpenApiPath(string routeTemplate)
+        {
+            return $"{ApiRoutes.Products.Group}{routeTemplate}".Replace(":guid", string.Empty, StringComparison.Ordinal);
+        }
     }
 }
