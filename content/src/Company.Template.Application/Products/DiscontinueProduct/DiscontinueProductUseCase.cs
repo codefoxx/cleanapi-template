@@ -37,20 +37,26 @@ public sealed class DiscontinueProductUseCase : IUseCase<DiscontinueProductComma
 
         Option<Product> maybe = await products.FindAsync(productId, cancellationToken);
 
-        if (!maybe.TryGetValue(out Product? product))
-        {
-            return Result.Failure(Error.NotFound("Product was not found."));
-        }
+        return await maybe.Match(
+            some: product => DiscontinueAsync(product, cancellationToken),
+            none: () => Task.FromResult(ProductNotFound()));
+    }
 
+    private async Task<Result> DiscontinueAsync(Product product, CancellationToken cancellationToken)
+    {
         DomainResult result = product.Discontinue(_clock.UtcNow);
 
-        if (result.IsFailure)
-        {
-            return Result.Failure(result.Error.ToApplicationError());
-        }
+        return await result.Match(
+            success: async () =>
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return Result.Success();
+            },
+            failure: error => Task.FromResult(Result.Failure(error.ToApplicationError())));
+    }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
+    private static Result ProductNotFound()
+    {
+        return Result.Failure(Error.NotFound("Product was not found."));
     }
 }
