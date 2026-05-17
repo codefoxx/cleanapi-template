@@ -37,7 +37,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                      .HasMaxLength(Currency.CodeLength)
                      .HasConversion(
                           currency => currency.Code,
-                          Currency.Create)
+                          code => Currency.Create(code))
                      .IsRequired();
             });
 
