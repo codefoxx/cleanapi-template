@@ -129,9 +129,10 @@ public sealed class ResultTests
     {
         // Arrange
         Result<string> result = Result<string>.Success("ok");
+        Func<string, int> map = null!;
 
         // Act
-        Action action = () => result.Map<int>(null!);
+        Action action = () => result.Map(map);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -171,9 +172,10 @@ public sealed class ResultTests
     {
         // Arrange
         Result<string> result = Result<string>.Success("ok");
+        Func<string, Result<int>> bind = null!;
 
         // Act
-        Action action = () => result.Bind<int>(null!);
+        Action action = () => result.Bind(bind);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -213,9 +215,10 @@ public sealed class ResultTests
     {
         // Arrange
         Result<string> result = Result<string>.Success("ok");
+        Func<string, Task<Result<int>>> bind = null!;
 
         // Act
-        Func<Task> action = () => result.BindAsync<int>(null!);
+        Func<Task> action = () => result.BindAsync(bind);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
