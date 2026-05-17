@@ -1,3 +1,4 @@
+using Company.Template.Api.Routing;
 using Company.Template.Api.Tests.Products.Contracts;
 using Company.Template.Domain.Common;
 
@@ -32,7 +33,7 @@ public sealed class CreateProductEndpointTests
         ProductResponse product = await response.ReadJsonAsync<ProductResponse>();
 
         response.Headers.Location.ShouldNotBeNull();
-        response.Headers.Location!.ToString().ShouldBe($"/api/products/{product.Id}");
+        GetLocationPath(response.Headers.Location!).ShouldBe(ApiRoutes.Products.Location(product.Id));
 
         product.Id.ShouldNotBe(Guid.Empty);
         product.Name.ShouldBe(request.Name);
@@ -122,5 +123,12 @@ public sealed class CreateProductEndpointTests
         problem.Errors.ShouldNotBeNull();
         problem.Errors.ShouldContainKey("price");
         problem.Errors["price"].ShouldContain("Price cannot be negative.");
+    }
+
+    private static string GetLocationPath(Uri location)
+    {
+        return location.IsAbsoluteUri
+            ? location.AbsolutePath
+            : location.ToString();
     }
 }
