@@ -1,4 +1,5 @@
 using Company.Template.Api.Options;
+using Company.Template.Api.Routing;
 using Company.Template.Api.Security;
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
@@ -16,8 +17,7 @@ namespace Company.Template.Api.Endpoints.Products;
 /// </summary>
 /// <remarks>
 ///     Endpoints translate transport contracts into application commands and queries, delegate workflow coordination to
-///     use
-///     cases, and map explicit application results back to HTTP responses.
+///     use cases, and map explicit application results back to HTTP responses.
 /// </remarks>
 internal sealed class ProductEndpoints : IEndpointModule
 {
@@ -28,35 +28,35 @@ internal sealed class ProductEndpoints : IEndpointModule
                                                          .Value;
 
         RouteGroupBuilder group = app
-                                 .MapGroup("/api/products")
+                                 .MapGroup(ApiRoutes.Products.Group)
                                  .WithTags("Products");
 
         group
-           .MapGet("/", GetProductsAsync)
-           .WithName("GetProducts")
+           .MapGet(ApiRoutes.Products.Collection, GetProductsAsync)
+           .WithName(ApiRoutes.Products.Names.GetProducts)
            .Produces<PagedResponse<ProductResponse>>()
            .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
-           .MapPost("/", CreateProductAsync)
-           .WithName("CreateProduct")
+           .MapPost(ApiRoutes.Products.Collection, CreateProductAsync)
+           .WithName(ApiRoutes.Products.Names.CreateProduct)
            .Produces<ProductResponse>(StatusCodes.Status201Created)
            .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-           .MapGet("/{productId:guid}", GetProductByIdAsync)
-           .WithName("GetProductById")
+           .MapGet(ApiRoutes.Products.ById, GetProductByIdAsync)
+           .WithName(ApiRoutes.Products.Names.GetProductById)
            .Produces<ProductResponse>()
            .ProducesProblem(StatusCodes.Status404NotFound)
            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
-           .MapPut("/{productId:guid}/price", ChangeProductPriceAsync)
-           .WithName("ChangeProductPrice")
+           .MapPut(ApiRoutes.Products.Price, ChangeProductPriceAsync)
+           .WithName(ApiRoutes.Products.Names.ChangeProductPrice)
            .Produces<ProductResponse>()
            .ProducesValidationProblem()
            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
@@ -65,8 +65,8 @@ internal sealed class ProductEndpoints : IEndpointModule
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-           .MapPost("/{productId:guid}/discontinue", DiscontinueProductAsync)
-           .WithName("DiscontinueProduct")
+           .MapPost(ApiRoutes.Products.Discontinue, DiscontinueProductAsync)
+           .WithName(ApiRoutes.Products.Names.DiscontinueProduct)
            .Produces(StatusCodes.Status204NoContent)
            .ProducesProblem(StatusCodes.Status404NotFound)
            .ProducesProblem(StatusCodes.Status409Conflict)
@@ -82,7 +82,10 @@ internal sealed class ProductEndpoints : IEndpointModule
               .ToCommand()
               .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
               .ToHttpResultAsync(product =>
-                   Results.Created($"/api/products/{product.Id}", ProductEndpointMapper.ToResponse(product)));
+                   Results.CreatedAtRoute(
+                       ApiRoutes.Products.Names.GetProductById,
+                       new { productId = product.Id },
+                       ProductEndpointMapper.ToResponse(product)));
     }
 
     private static async Task<IResult> GetProductByIdAsync(
