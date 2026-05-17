@@ -8,7 +8,7 @@ public sealed class ApiRoutesTests
     public void ProductsRoutes_ShouldExposeExpectedRouteTemplates()
     {
         ApiRoutes.Root.ShouldBe("/api");
-        ApiRoutes.Products.Group.ShouldBe("/api/products");
+        ApiRoutes.Products.Base.ShouldBe("/api/products");
         ApiRoutes.Products.Collection.ShouldBe("");
         ApiRoutes.Products.ById.ShouldBe("/{productId:guid}");
         ApiRoutes.Products.Price.ShouldBe("/{productId:guid}/price");

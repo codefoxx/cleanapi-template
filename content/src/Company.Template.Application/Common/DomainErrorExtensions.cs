@@ -19,7 +19,7 @@ public static class DomainErrorExtensions
             [DomainErrorCodes.ProductIdRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameTooLong] = ErrorType.Validation,
-            [DomainErrorCodes.ValidationError] = ErrorType.Validation,
+            [DomainErrorCodes.ValidationError] = ErrorType.Validation
         };
 
     public static Error ToApplicationError(this DomainError error)

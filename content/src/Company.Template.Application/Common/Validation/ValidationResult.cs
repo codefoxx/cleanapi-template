@@ -17,13 +17,13 @@ public sealed class ValidationResult<T>
         Errors = errors;
     }
 
+    public IReadOnlyList<Error> Errors { get; }
+
     public bool IsValid => Errors.Count == 0;
 
     public T Value => IsValid
         ? _value!
         : throw new InvalidOperationException("Validation result has no value.");
-
-    public IReadOnlyList<Error> Errors { get; }
 
     public static ValidationResult<T> Success(T value)
     {

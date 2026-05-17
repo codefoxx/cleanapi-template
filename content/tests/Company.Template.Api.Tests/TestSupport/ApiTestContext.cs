@@ -17,15 +17,15 @@ internal sealed class ApiTestContext : IAsyncDisposable, IDisposable
 
     public HttpClient HttpClient { get; }
 
-    public void Dispose()
-    {
-        HttpClient.Dispose();
-        _factory.Dispose();
-    }
-
     public async ValueTask DisposeAsync()
     {
         Dispose();
         await _database.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        HttpClient.Dispose();
+        _factory.Dispose();
     }
 }

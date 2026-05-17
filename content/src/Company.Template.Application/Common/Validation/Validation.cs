@@ -49,8 +49,8 @@ public static class Validation
 public sealed class ValidationBuilder<T>
     where T : notnull
 {
-    private readonly T _value;
     private readonly List<Error> _errors = [];
+    private readonly T _value;
 
     /// <summary>
     ///     Creates a validation builder for the supplied value.

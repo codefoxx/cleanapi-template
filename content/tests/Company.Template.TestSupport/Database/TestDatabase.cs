@@ -25,6 +25,11 @@ public sealed partial class TestDatabase : IAsyncDisposable
         _databaseName = databaseName;
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        await _server.DropDatabaseAsync(_databaseName);
+    }
+
     public static async Task<TestDatabase> CreateAsync(TestDatabaseServer server)
     {
         ArgumentNullException.ThrowIfNull(server);
@@ -38,11 +43,6 @@ public sealed partial class TestDatabase : IAsyncDisposable
         await dbContext.Database.EnsureCreatedAsync();
 
         return database;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _server.DropDatabaseAsync(_databaseName);
     }
 
     public async Task<ApplicationDbContext> CreateCleanDbContextAsync(

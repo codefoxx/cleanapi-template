@@ -21,9 +21,9 @@ public static class OpenApiAssertions
         JsonElement paths = document.RootElement.GetProperty("paths");
 
         string? actualPath = paths
-            .EnumerateObject()
-            .Select(property => property.Name)
-            .FirstOrDefault(openApiPath => NormalizePath(openApiPath) == path);
+                            .EnumerateObject()
+                            .Select(property => property.Name)
+                            .FirstOrDefault(openApiPath => NormalizePath(openApiPath) == path);
 
         actualPath.ShouldNotBeNull($"Expected OpenAPI path '{path}' to exist.");
 
