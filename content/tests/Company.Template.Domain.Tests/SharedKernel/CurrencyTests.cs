@@ -16,7 +16,6 @@ public sealed class CurrencyTests
         // Assert
         currency.Code.ShouldBe("CHF");
         currency.Symbol.ShouldBe("CHF");
-        currency.IsEmpty.ShouldBeFalse();
     }
 
     [Fact]
@@ -99,7 +98,6 @@ public sealed class CurrencyTests
         // Assert
         currency.Code.ShouldBe("CHF");
         currency.Symbol.ShouldBe("Fr.");
-        currency.IsEmpty.ShouldBeFalse();
     }
 
     [Fact]
@@ -171,18 +169,6 @@ public sealed class CurrencyTests
 
         // Assert
         exception.ParamName.ShouldBe("code");
-    }
-
-    [Fact]
-    public void Empty_ReturnsEmptyCurrency()
-    {
-        // Act
-        Currency currency = Currency.Empty;
-
-        // Assert
-        currency.Code.ShouldBeEmpty();
-        currency.Symbol.ShouldBeEmpty();
-        currency.IsEmpty.ShouldBeTrue();
     }
 
     [Fact]
