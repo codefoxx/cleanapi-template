@@ -26,7 +26,7 @@ public sealed record Money : IComparable<Money>
 
     public Currency Currency { get; }
 
-    public bool IsZero => Amount == 0 && Currency == Currency.Empty;
+    public bool IsZero => Amount == 0;
 
     /// <inheritdoc />
     public int CompareTo(Money? other)
@@ -34,11 +34,6 @@ public sealed record Money : IComparable<Money>
         if (other is null)
         {
             return 1;
-        }
-
-        if (IsZero || other.IsZero)
-        {
-            return Amount.CompareTo(other.Amount);
         }
 
         EnsureSameCurrency(other);
@@ -119,15 +114,6 @@ public sealed record Money : IComparable<Money>
             MidpointRounding.AwayFromZero);
 
         return Create(roundedAmount, currency);
-    }
-
-    /// <remarks>
-    ///     The neutral zero value has no currency. Use <see cref="Zero(Currency)" /> when the zero value should
-    ///     participate in normal money operations for a specific currency.
-    /// </remarks>
-    public static Money Zero()
-    {
-        return Zero(Currency.Empty);
     }
 
     public static Money Zero(Currency currency)
@@ -217,9 +203,7 @@ public sealed record Money : IComparable<Money>
     /// <inheritdoc />
     public override string ToString()
     {
-        return Currency.IsEmpty
-            ? Amount.ToString("0.00", CultureInfo.InvariantCulture)
-            : $"{Amount.ToString("0.00", CultureInfo.InvariantCulture)} {Currency.Code}";
+        return $"{Amount.ToString("0.00", CultureInfo.InvariantCulture)} {Currency.Code}";
     }
 
     private static DomainResult<Money> CreateMoney(decimal amount, string currency)
@@ -232,7 +216,6 @@ public sealed record Money : IComparable<Money>
     {
         return RequireCurrency(currency)
               .Bind(validCurrency => EnsureAmountIsNotNegative(amount, validCurrency))
-              .Bind(validCurrency => EnsureCurrencyIsPresentWhenAmountIsPositive(amount, validCurrency))
               .Bind(validCurrency => EnsureAmountScaleIsValid(amount, validCurrency))
               .Map(validCurrency => new Money(amount, validCurrency));
     }
@@ -260,15 +243,6 @@ public sealed record Money : IComparable<Money>
             : DomainResult<Currency>.Failure(DomainError.Create(
                 DomainErrorCodes.AmountNegative,
                 "Amount cannot be negative."));
-    }
-
-    private static DomainResult<Currency> EnsureCurrencyIsPresentWhenAmountIsPositive(decimal amount, Currency currency)
-    {
-        return amount == 0 || !currency.IsEmpty
-            ? DomainResult<Currency>.Success(currency)
-            : DomainResult<Currency>.Failure(DomainError.Create(
-                DomainErrorCodes.CurrencyRequired,
-                "Currency is required when amount is greater than zero."));
     }
 
     private static DomainResult<Currency> EnsureAmountScaleIsValid(decimal amount, Currency currency)
