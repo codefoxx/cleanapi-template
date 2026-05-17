@@ -28,7 +28,7 @@ public sealed class GetProductsUseCaseAdditionalTests
 
         GetProductsQuery query = new(
             CreatePage(1, 20),
-            CreateFilter(),
+            ProductFilter.Empty,
             ProductSort.Default);
 
         // Act
@@ -51,15 +51,6 @@ public sealed class GetProductsUseCaseAdditionalTests
     private static PageRequest CreatePage(int pageNumber, int pageSize)
     {
         Result<PageRequest> result = PageRequest.Create(pageNumber, pageSize);
-
-        result.IsSuccess.ShouldBeTrue();
-
-        return result.Value;
-    }
-
-    private static ProductFilter CreateFilter()
-    {
-        Result<ProductFilter> result = ProductFilter.Create();
 
         result.IsSuccess.ShouldBeTrue();
 
