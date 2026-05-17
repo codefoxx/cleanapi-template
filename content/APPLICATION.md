@@ -43,7 +43,9 @@ private static Task<IResult> CreateProductAsync(
         .ToCommand()
         .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
         .ToHttpResultAsync(product =>
-            Results.Created($"/api/products/{product.Id}", ProductEndpointMapper.ToResponse(product)));
+            Results.Created(
+                ApiRoutes.Products.Location(product.Id),
+                ProductEndpointMapper.ToResponse(product)));
 }
 ```
 
