@@ -199,7 +199,7 @@ public sealed class DiscontinueProductUseCaseTests
         // Assert
         Error error = AssertError(result, ErrorType.NotFound);
 
-        error.Code.ShouldBeEquivalentTo(DomainErrorCodes.NotFound);
+        error.Code.ShouldBeEquivalentTo(ErrorCodes.NotFound);
     }
 
     [Fact]
@@ -219,7 +219,7 @@ public sealed class DiscontinueProductUseCaseTests
         Result result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
         // Assert
-        AssertError(result, ErrorType.Validation, DomainErrorCodes.ProductIdRequired);
+        AssertError(result, ErrorType.Validation, ErrorCodes.ProductIdRequired);
     }
 
     private static async Task<ProductDto> CreateProductAsync(ApplicationDbContext dbContext)
@@ -258,7 +258,7 @@ public sealed class DiscontinueProductUseCaseTests
     private static Error AssertError(
         Result result,
         ErrorType expectedType,
-        DomainErrorCode expectedCode)
+        ErrorCode expectedCode)
     {
         Error error = AssertError(result, expectedType);
 
