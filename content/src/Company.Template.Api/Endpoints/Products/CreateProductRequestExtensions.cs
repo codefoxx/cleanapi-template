@@ -1,7 +1,6 @@
 using Company.Template.Application.Common;
 using Company.Template.Application.Common.Validation;
 using Company.Template.Application.Products.CreateProduct;
-using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Endpoints.Products;
 
@@ -29,7 +28,7 @@ internal static class CreateProductRequestExtensions
     {
         return string.IsNullOrWhiteSpace(name)
             ? Error.Validation(
-                DomainErrorCodes.ProductNameRequired,
+                ErrorCodes.ProductNameRequired,
                 "Product name is required.")
             : null;
     }
@@ -38,7 +37,7 @@ internal static class CreateProductRequestExtensions
     {
         return price < 0
             ? Error.Validation(
-                DomainErrorCodes.AmountNegative,
+                ErrorCodes.AmountNegative,
                 "Price cannot be negative.")
             : null;
     }
@@ -47,7 +46,7 @@ internal static class CreateProductRequestExtensions
     {
         return string.IsNullOrWhiteSpace(currency)
             ? Error.Validation(
-                DomainErrorCodes.CurrencyRequired,
+                ErrorCodes.CurrencyRequired,
                 "Currency is required.")
             : null;
     }
