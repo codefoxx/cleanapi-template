@@ -1,35 +1,28 @@
-using Company.Template.Application.Common;
-using Company.Template.Application.Products;
 using Company.Template.Application.Products.ChangeProductPrice;
-using Company.Template.Domain.Common;
 using Company.Template.Domain.Products;
 using Company.Template.Domain.SharedKernel;
-using Company.Template.Infrastructure.Persistence;
-using Company.Template.TestSupport.Application;
 
 namespace Company.Template.Application.Tests.Products.ChangeProductPrice;
 
-[Collection(DatabaseCollection.Name)]
-public sealed class ChangeProductPriceUseCaseTests
+public sealed class ChangeProductPriceUseCaseTests : IClassFixture<ApplicationTestServer>
 {
-    private static readonly DateTimeOffset ChangedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset CreatedAt = new(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset ChangedAt = new(2026, 1, 2, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset DiscontinuedAt = new(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
 
-    private readonly TestDatabaseServer _server;
+    private readonly ApplicationTestServer _server;
 
-    public ChangeProductPriceUseCaseTests(TestDatabaseServer server)
+    public ChangeProductPriceUseCaseTests(ApplicationTestServer server)
     {
         _server = server;
     }
 
-
     [Fact]
-    public async Task ExecuteAsync_WithValidCommand_ReturnsSuccess()
+    public async Task ExecuteAsync_WithValidCommand_ChangesPriceAndReturnsUpdatedProduct()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
+
         Product product = await PersistProductAsync(dbContext);
 
         ChangeProductPriceUseCase useCase = new(
@@ -41,27 +34,19 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Error.IsNone.ShouldBeTrue();
-
-        ProductDto dto = result.Value;
-
-        dto.Id.ShouldBe(product.Id.Value);
-        dto.Name.ShouldBe("Keyboard");
-        dto.Price.ShouldBe(Money.Create(129.90m, Iso4217CurrencyCodes.Chf));
-        dto.Status.ShouldBe(ProductStatus.Active);
-        dto.CreatedAt.ShouldBe(CreatedAt);
-        dto.DiscontinuedAt.ShouldBeNull();
+        result.Value.Id.ShouldBe(product.Id.Value);
+        result.Value.Name.ShouldBe("Keyboard");
+        result.Value.Price.ShouldBe(129.90m);
+        result.Value.Currency.ShouldBe("CHF");
+        result.Value.Status.ShouldBe(ProductStatus.Active);
     }
 
     [Fact]
     public async Task ExecuteAsync_WithValidCommand_PersistsChangedPrice()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -76,10 +61,8 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         result.IsSuccess.ShouldBeTrue();
 
         Product persistedProduct = await dbContext.Products
@@ -90,13 +73,10 @@ public sealed class ChangeProductPriceUseCaseTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithValidCommand_DispatchesProductPriceChangedDomainEvent()
+    public async Task ExecuteAsync_WithValidCommand_RecordsPriceChangedDomainEvent()
     {
-        // Arrange
-        RecordingDomainEventDispatcher domainEventDispatcher = new();
-
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
-        await using ApplicationDbContext dbContext = database.CreateDbContext(domainEventDispatcher);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
 
         Product product = await PersistProductAsync(dbContext);
 
@@ -109,28 +89,50 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        domainEventDispatcher.ClearDispatchedEvents();
-
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         result.IsSuccess.ShouldBeTrue();
 
-        ProductPriceChangedDomainEvent domainEvent = domainEventDispatcher.DispatchedEvents
-                                                                          .Single()
-                                                                          .ShouldBeOfType<ProductPriceChangedDomainEvent>();
+        Product persistedProduct = await dbContext.Products.SingleAsync();
+
+        ProductPriceChangedDomainEvent domainEvent = persistedProduct.DomainEvents
+                                                                      .ShouldHaveSingleItem()
+                                                                      .ShouldBeOfType<ProductPriceChangedDomainEvent>();
 
         domainEvent.ProductId.ShouldBe(product.Id);
         domainEvent.OldPrice.ShouldBe(Money.Create(99.90m, Iso4217CurrencyCodes.Chf));
         domainEvent.NewPrice.ShouldBe(Money.Create(129.90m, Iso4217CurrencyCodes.Chf));
-        domainEvent.OccurredAt.ShouldBe(ChangedAt);
+        domainEvent.ChangedAt.ShouldBe(ChangedAt);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithSamePrice_DoesNotRecordDomainEvent()
+    {
+        await using TestDatabase database = await TestDatabase.CreateAsync(_server);
+        await using ApplicationDbContext dbContext = database.CreateDbContext();
+
+        Product product = await PersistProductAsync(dbContext);
+
+        ChangeProductPriceUseCase useCase = new(
+            dbContext,
+            new FixedClock(ChangedAt));
+
+        ChangeProductPriceCommand command = new(
+            product.Id.Value,
+            99.90m,
+            "CHF");
+
+        Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
+
+        result.IsSuccess.ShouldBeTrue();
+
+        Product persistedProduct = await dbContext.Products.SingleAsync();
+        persistedProduct.DomainEvents.ShouldBeEmpty();
     }
 
     [Fact]
     public async Task ExecuteAsync_WithMissingProductId_ReturnsValidationFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -143,17 +145,14 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.ProductIdRequired);
     }
 
     [Fact]
     public async Task ExecuteAsync_WithUnknownProductId_ReturnsNotFoundFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -166,20 +165,17 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         result.IsFailure.ShouldBeTrue();
         result.Error.Type.ShouldBe(ErrorType.NotFound);
-        result.Error.Code.ShouldBe(DomainErrorCodes.NotFound);
+        result.Error.Code.Value.ShouldBe(ErrorCodes.NotFound.Value);
         result.Error.Message.ShouldBe("Product was not found.");
     }
 
     [Fact]
     public async Task ExecuteAsync_WithNegativePrice_ReturnsValidationFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -194,10 +190,8 @@ public sealed class ChangeProductPriceUseCaseTests
             -0.01m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountNegative);
 
         Product persistedProduct = await dbContext.Products
@@ -210,7 +204,6 @@ public sealed class ChangeProductPriceUseCaseTests
     [Fact]
     public async Task ExecuteAsync_WithInvalidCurrency_ReturnsValidationFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -225,10 +218,8 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CH");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.CurrencyInvalidFormat);
 
         Product persistedProduct = await dbContext.Products
@@ -241,7 +232,6 @@ public sealed class ChangeProductPriceUseCaseTests
     [Fact]
     public async Task ExecuteAsync_WithTooManyDecimalPlaces_ReturnsValidationFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -256,10 +246,8 @@ public sealed class ChangeProductPriceUseCaseTests
             129.999m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         AssertError(result, ErrorType.Validation, DomainErrorCodes.AmountTooManyDecimalPlaces);
 
         Product persistedProduct = await dbContext.Products
@@ -272,7 +260,6 @@ public sealed class ChangeProductPriceUseCaseTests
     [Fact]
     public async Task ExecuteAsync_WhenProductIsDiscontinued_ReturnsConflictFailure()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -290,17 +277,14 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         AssertError(result, ErrorType.Conflict, DomainErrorCodes.DiscontinuedProductCannotBeChanged);
     }
 
     [Fact]
     public async Task ExecuteAsync_WhenProductIsDiscontinued_DoesNotChangePrice()
     {
-        // Arrange
         await using TestDatabase database = await TestDatabase.CreateAsync(_server);
         await using ApplicationDbContext dbContext = database.CreateDbContext();
 
@@ -318,10 +302,8 @@ public sealed class ChangeProductPriceUseCaseTests
             129.90m,
             "CHF");
 
-        // Act
         Result<ProductDto> result = await useCase.ExecuteAsync(command, CancellationToken.None);
 
-        // Assert
         result.IsFailure.ShouldBeTrue();
 
         Product persistedProduct = await dbContext.Products
@@ -362,7 +344,7 @@ public sealed class ChangeProductPriceUseCaseTests
 
         error.ShouldNotBe(Error.None);
         error.Type.ShouldBe(expectedType);
-        error.Code.ShouldBe(expectedCode);
+        error.Code.Value.ShouldBe(expectedCode.Value);
 
         return error;
     }
