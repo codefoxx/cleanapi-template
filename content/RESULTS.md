@@ -48,7 +48,7 @@ It contains:
 
 ```text
 ErrorType
-DomainErrorCode
+ErrorCode
 Message
 Target?
 Details?
@@ -56,7 +56,9 @@ Details?
 
 `ErrorType` decides the HTTP status at the API boundary.
 
-`DomainErrorCode` is a stable machine-readable code. It is useful for tests, clients, logs, and diagnostics, but it should not decide the HTTP status by itself.
+`ErrorCode` is an application-owned stable machine-readable code. It is useful for tests, clients, logs, and diagnostics, but it should not decide the HTTP status by itself.
+
+`DomainErrorCode` belongs to the Domain layer. When a `DomainError` is translated to an application `Error`, the code value may be preserved, but the application error exposes it as `ErrorCode`.
 
 `Target` identifies the request field or logical input that caused a validation failure.
 
@@ -131,6 +133,8 @@ DomainError
   -> Result<T>.Failure(...)
   -> HTTP boundary mapping
 ```
+
+The mapping decides the application `ErrorType` and converts the domain-owned `DomainErrorCode` to an application-owned `ErrorCode` while preserving the code value.
 
 Domain operation failures use `DomainResult` / `DomainResult<T>` when an aggregate or value object needs to report an expected business-rule failure without throwing.
 
@@ -257,22 +261,3 @@ public readonly record struct ProductId : IEntityId<ProductId>
 The shared `EntityId` helper centralizes ID creation and validation.
 
 IDs use UUID v7 for new values.
-
----
-
-## Related documents
-
-- [README](README.md)
-- [ARCHITECTURE](ARCHITECTURE.md)
-- [APPLICATION](APPLICATION.md)
-- [API](API.md)
-- [RESULTS](RESULTS.md)
-- [PERSISTENCE](PERSISTENCE.md)
-- [OBSERVABILITY](OBSERVABILITY.md)
-- [DATABASE](DATABASE.md)
-- [ASPIRE](ASPIRE.md)
-- [AUTHENTICATION](AUTHENTICATION.md)
-- [OPENAPI](OPENAPI.md)
-- [MIGRATIONS](MIGRATIONS.md)
-- [TESTING](TESTING.md)
-- [FEATURES](FEATURES.md)
