@@ -17,6 +17,11 @@ public sealed record ProductFilter(
     Option<ProductStatus> Status,
     Option<ProductCurrency> Currency)
 {
+    public static ProductFilter Empty { get; } = new(
+        Option.None<string>(),
+        Option.None<ProductStatus>(),
+        Option.None<ProductCurrency>());
+
     public static Result<ProductFilter> Create(
         string? search,
         string? status,
