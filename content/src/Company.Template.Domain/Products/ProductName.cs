@@ -14,9 +14,6 @@ namespace Company.Template.Domain.Products;
 /// </remarks>
 public sealed record ProductName
 {
-    /// <summary>
-    ///     The maximum allowed product name length.
-    /// </summary>
     public const int MaxLength = 200;
 
     private ProductName(string value)
@@ -24,19 +21,8 @@ public sealed record ProductName
         Value = value;
     }
 
-    /// <summary>
-    ///     Gets the normalized product name.
-    /// </summary>
     public string Value { get; }
 
-    /// <summary>
-    ///     Creates a product name from a value that is expected to be valid.
-    /// </summary>
-    /// <param name="value">The product name.</param>
-    /// <returns>A valid <see cref="ProductName" /> instance.</returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when <paramref name="value" /> is missing, whitespace, or longer than <see cref="MaxLength" />.
-    /// </exception>
     /// <remarks>
     ///     This method is intentionally strict. For expected validation failures from raw input,
     ///     prefer <see cref="TryCreate" /> so the caller can translate the returned
@@ -49,22 +35,6 @@ public sealed record ProductName
             : throw new ArgumentException(error.Message, nameof(value));
     }
 
-    /// <summary>
-    ///     Attempts to create a valid product name without throwing for expected validation failures.
-    /// </summary>
-    /// <param name="value">The raw product name input.</param>
-    /// <param name="productName">
-    ///     The created product name when the method returns <see langword="true" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <param name="error">
-    ///     The domain error when the method returns <see langword="false" />;
-    ///     otherwise <see langword="null" />.
-    /// </param>
-    /// <returns>
-    ///     <see langword="true" /> when a valid product name could be created;
-    ///     otherwise <see langword="false" />.
-    /// </returns>
     public static bool TryCreate(
         string? value,
         [NotNullWhen(true)] out ProductName? productName,
