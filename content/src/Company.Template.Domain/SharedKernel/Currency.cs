@@ -24,15 +24,7 @@ public sealed record Currency
         Symbol = symbol;
     }
 
-    /// <remarks>
-    ///     This is used for neutral money values such as <see cref="Money.Zero()" />.
-    ///     Non-zero money values require a real currency.
-    /// </remarks>
-    public static Currency Empty { get; } = new(string.Empty, string.Empty);
-
     public string Code { get; }
-
-    public bool IsEmpty => string.IsNullOrEmpty(Code);
 
     public string Symbol { get; }
 
