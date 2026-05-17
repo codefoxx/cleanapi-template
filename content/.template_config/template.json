@@ -51,25 +51,6 @@
             "valueTransform": "lowerCaseForm",
             "replaces": "__API_RESOURCE_NAME__"
         },
-        "apiTestAssemblyNameRaw": {
-            "type": "generated",
-            "generator": "regex",
-            "parameters": {
-                "source": "name",
-                "steps": [
-                    {
-                        "regex": "^(.*)$",
-                        "replacement": "$1.Api.Tests"
-                    }
-                ]
-            }
-        },
-        "apiTestAssemblyName": {
-            "type": "derived",
-            "datatype": "text",
-            "valueSource": "apiTestAssemblyNameRaw",
-            "replaces": "__API_TEST_ASSEMBLY_NAME__"
-        },
         "authAudienceRaw": {
             "type": "generated",
             "generator": "regex",
