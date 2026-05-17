@@ -1,7 +1,6 @@
 using Company.Template.Application.Common;
 using Company.Template.Application.Common.Validation;
 using Company.Template.Application.Products.ChangeProductPrice;
-using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Endpoints.Products;
 
@@ -26,7 +25,7 @@ internal static class ChangeProductPriceRequestExtensions
     {
         return price < 0
             ? Error.Validation(
-                DomainErrorCodes.AmountNegative,
+                ErrorCodes.AmountNegative,
                 "Price cannot be negative.")
             : null;
     }
@@ -35,7 +34,7 @@ internal static class ChangeProductPriceRequestExtensions
     {
         return string.IsNullOrWhiteSpace(currency)
             ? Error.Validation(
-                DomainErrorCodes.CurrencyRequired,
+                ErrorCodes.CurrencyRequired,
                 "Currency is required.")
             : null;
     }
