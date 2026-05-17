@@ -172,7 +172,7 @@ public sealed class ChangeProductPriceUseCaseTests
         // Assert
         result.IsFailure.ShouldBeTrue();
         result.Error.Type.ShouldBe(ErrorType.NotFound);
-        result.Error.Code.ShouldBe("not_found");
+        result.Error.Code.ShouldBe(DomainErrorCodes.NotFound);
         result.Error.Message.ShouldBe("Product was not found.");
     }
 
@@ -362,7 +362,7 @@ public sealed class ChangeProductPriceUseCaseTests
 
         error.ShouldNotBe(Error.None);
         error.Type.ShouldBe(expectedType);
-        error.Code.ShouldBe(expectedCode.Value);
+        error.Code.ShouldBe(expectedCode);
 
         return error;
     }

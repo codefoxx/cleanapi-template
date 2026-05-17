@@ -66,16 +66,16 @@ tests/
 |----------------------------------------|----------------------------------------------------------------|
 | [ARCHITECTURE.md](ARCHITECTURE.md)     | Layering rules, dependency direction, project responsibilities |
 | [APPLICATION.md](APPLICATION.md)       | Use cases, decorators, application behavior                    |
-| [API.md](API.md)                       | Minimal APIs, endpoint modules, HTTP result mapping            |
-| [RESULTS.md](RESULTS.md)               | `Result<T>`, `Error`, `Option<T>`, expected failures           |
+| [API.md](API.md)                       | Minimal APIs, endpoint modules, request validation, HTTP result mapping |
+| [RESULTS.md](RESULTS.md)               | `Result<T>`, `Error`, `ValidationResult<T>`, `Option<T>`       |
 | [PERSISTENCE.md](PERSISTENCE.md)       | Persistence ports, EF Core adapters, command/query boundaries  |
 | [OBSERVABILITY.md](OBSERVABILITY.md)   | OpenTelemetry, logs, traces, metrics                           |
 | [DATABASE.md](DATABASE.md)             | Provider selection, generated provider configuration           |
 | [ASPIRE.md](ASPIRE.md)                 | Local orchestration, startup order, pgAdmin                    |
 | [AUTHENTICATION.md](AUTHENTICATION.md) | Optional Keycloak authentication and local realm setup         |
-| [OPENAPI.md](OPENAPI.md)               | OpenAPI document and OAuth metadata                            |
+| [OPENAPI.md](OPENAPI.md)               | OpenAPI document, response metadata, OAuth metadata            |
 | [MIGRATIONS.md](MIGRATIONS.md)         | EF Core migrations and production migration bundles            |
-| [TESTING.md](TESTING.md)               | Unit, integration, Testcontainers, smoke tests                 |
+| [TESTING.md](TESTING.md)               | Unit, integration, Testcontainers, API problem tests, smoke tests |
 | [FEATURES.md](FEATURES.md)             | How to add a new feature to the template                       |
 
 ## Core design principles
@@ -84,6 +84,7 @@ tests/
 - Follow Clean Architecture with Ports-and-Adapters style boundaries.
 - Put business behavior in the domain model or application use cases.
 - Represent expected application failures with `Result` / `Result<T>`.
+- Use the lightweight validation builder for API request validation that must collect all field errors.
 - Use exceptions for unexpected failures or violated programming contracts.
 - Keep the Domain layer persistence-free and infrastructure-free.
 - Use thin EF Core-friendly persistence ports for commands and named query ports for reads.

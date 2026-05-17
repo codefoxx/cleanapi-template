@@ -9,14 +9,18 @@ public static class DomainErrorExtensions
         {
             [DomainErrorCodes.AmountNegative] = ErrorType.Validation,
             [DomainErrorCodes.AmountTooManyDecimalPlaces] = ErrorType.Validation,
+            [DomainErrorCodes.Conflict] = ErrorType.Conflict,
             [DomainErrorCodes.CurrencyInvalidFormat] = ErrorType.Validation,
             [DomainErrorCodes.CurrencyRequired] = ErrorType.Validation,
             [DomainErrorCodes.CurrencySymbolRequired] = ErrorType.Validation,
             [DomainErrorCodes.CurrencyUnsupported] = ErrorType.Validation,
             [DomainErrorCodes.DiscontinuedProductCannotBeChanged] = ErrorType.Conflict,
+            [DomainErrorCodes.NotFound] = ErrorType.Validation,
             [DomainErrorCodes.ProductIdRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameRequired] = ErrorType.Validation,
             [DomainErrorCodes.ProductNameTooLong] = ErrorType.Validation,
+            [DomainErrorCodes.ValidationError] = ErrorType.Validation,
+
         };
 
     public static Error ToApplicationError(this DomainError error)
@@ -27,6 +31,6 @@ public static class DomainErrorExtensions
             ? mappedType
             : ErrorType.Unknown;
 
-        return Error.Create(type, error.Code.Value, error.Message);
+        return Error.Create(type, error.Code, error.Message);
     }
 }

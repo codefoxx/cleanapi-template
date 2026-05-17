@@ -22,6 +22,19 @@ internal static class EndpointResultExtensions
             ToProblem);
     }
 
+    public static async Task<IResult> ToHttpResultAsync<T>(
+        this Task<Result<T>> resultTask,
+        Func<T, IResult> onSuccess)
+        where T : notnull
+    {
+        ArgumentNullException.ThrowIfNull(resultTask);
+        ArgumentNullException.ThrowIfNull(onSuccess);
+
+        Result<T> result = await resultTask;
+
+        return result.ToHttpResult(onSuccess);
+    }
+
     public static IResult ToHttpResult(this Result result)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -29,6 +42,15 @@ internal static class EndpointResultExtensions
         return result.Match(
             Results.NoContent,
             ToProblem);
+    }
+
+    public static async Task<IResult> ToHttpResultAsync(this Task<Result> resultTask)
+    {
+        ArgumentNullException.ThrowIfNull(resultTask);
+
+        Result result = await resultTask;
+
+        return result.ToHttpResult();
     }
 
     public static IResult ToHttpResult<TSource, TResponse>(
@@ -41,6 +63,18 @@ internal static class EndpointResultExtensions
         return result.Match(
             pagedResult => Results.Ok(ToPagedResponse(pagedResult, mapItem)),
             ToProblem);
+    }
+
+    public static async Task<IResult> ToHttpResultAsync<TSource, TResponse>(
+        this Task<Result<PagedResult<TSource>>> resultTask,
+        Func<TSource, TResponse> mapItem)
+    {
+        ArgumentNullException.ThrowIfNull(resultTask);
+        ArgumentNullException.ThrowIfNull(mapItem);
+
+        Result<PagedResult<TSource>> result = await resultTask;
+
+        return result.ToHttpResult(mapItem);
     }
 
     public static IResult ToProblemResult<T>(this Result<T> result)
@@ -72,11 +106,7 @@ internal static class EndpointResultExtensions
     {
         return error.Type switch
         {
-            ErrorType.Validation => Results.ValidationProblem(
-                title: "Validation failed.",
-                statusCode: StatusCodes.Status422UnprocessableEntity,
-                errors: new Dictionary<string, string[]> { ["request"] = [error.Message] },
-                extensions: CreateProblemExtensions(error)),
+            ErrorType.Validation => ToValidationProblem(error),
 
             ErrorType.NotFound => Results.Problem(
                 title: "Resource not found.",
@@ -98,11 +128,47 @@ internal static class EndpointResultExtensions
         };
     }
 
+    private static IResult ToValidationProblem(Error error)
+    {
+        Dictionary<string, string[]> errors = CreateValidationErrors(error);
+
+        return Results.ValidationProblem(
+            title: "Validation failed.",
+            detail: error.Message,
+            statusCode: StatusCodes.Status422UnprocessableEntity,
+            errors: errors,
+            extensions: CreateProblemExtensions(error));
+    }
+
+    private static Dictionary<string, string[]> CreateValidationErrors(Error error)
+    {
+        if (error.Details is { Count: > 0 })
+        {
+            return error.Details
+                        .GroupBy(GetTarget)
+                        .ToDictionary(
+                             group => group.Key,
+                             group => group.Select(detail => detail.Message).ToArray());
+        }
+
+        return new Dictionary<string, string[]>
+        {
+            [GetTarget(error)] = [error.Message]
+        };
+    }
+
+    private static string GetTarget(Error error)
+    {
+        return string.IsNullOrWhiteSpace(error.Target)
+            ? "request"
+            : error.Target;
+    }
+
     private static Dictionary<string, object?> CreateProblemExtensions(Error error)
     {
         return new Dictionary<string, object?>
         {
-            ["code"] = error.Code
+            ["code"] = error.Code.Value
         };
     }
 }

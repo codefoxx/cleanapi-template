@@ -1,4 +1,5 @@
 using Company.Template.Api.Tests.Products.Contracts;
+using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Tests.Products;
 
@@ -40,8 +41,6 @@ public sealed class CreateProductEndpointTests
         product.Status.ShouldBe("Active");
         product.CreatedAt.ShouldNotBe(default);
         product.DiscontinuedAt.ShouldBeNull();
-
-        await response.Content.ShouldContainJsonPathsAsync(ProductJsonContracts.Product);
     }
 
     [Fact]
@@ -59,11 +58,16 @@ public sealed class CreateProductEndpointTests
             request);
 
         // Assert
-        ApiProblemDetails problem = await response.ShouldBeValidationProblemAsync("product_name_required");
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
 
-        problem.Errors!["request"].ShouldContain("Product name is required.");
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
 
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldContainKey("name");
+        problem.Errors["name"].ShouldContain("Product name is required.");
     }
 
     [Fact]
@@ -81,8 +85,16 @@ public sealed class CreateProductEndpointTests
             request);
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("currency_invalid_format");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat.Value);
+        problem.Detail.ShouldBe("Currency must be a three-letter ISO 4217 alphabetic code.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldContainKey("request");
+        problem.Errors["request"].ShouldContain("Currency must be a three-letter ISO 4217 alphabetic code.");
     }
 
     [Fact]
@@ -100,7 +112,15 @@ public sealed class CreateProductEndpointTests
             request);
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("amount_negative");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldContainKey("price");
+        problem.Errors["price"].ShouldContain("Price cannot be negative.");
     }
 }

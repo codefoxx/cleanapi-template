@@ -14,7 +14,7 @@ public sealed class ErrorTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.None);
-        error.Code.ShouldBe("none");
+        error.Code.ShouldBe(DomainErrorCode.None);
         error.Message.ShouldBe("No error.");
         error.IsNone.ShouldBeTrue();
     }
@@ -27,7 +27,7 @@ public sealed class ErrorTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Validation);
-        error.Code.ShouldBe("validation_error");
+        error.Code.ShouldBe(DomainErrorCodes.ValidationError);
         error.Message.ShouldBe("Invalid input.");
         error.IsNone.ShouldBeFalse();
     }
@@ -36,11 +36,11 @@ public sealed class ErrorTests
     public void Validation_WithCodeAndMessage_ReturnsValidationError()
     {
         // Act
-        Error error = Error.Validation("product_name_required", "Product name is required.");
+        Error error = Error.Validation(DomainErrorCodes.ProductNameRequired, "Product name is required.");
 
         // Assert
         error.Type.ShouldBe(ErrorType.Validation);
-        error.Code.ShouldBe("product_name_required");
+        error.Code.ShouldBe(DomainErrorCodes.ProductNameRequired);
         error.Message.ShouldBe("Product name is required.");
     }
 
@@ -52,7 +52,7 @@ public sealed class ErrorTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.NotFound);
-        error.Code.ShouldBe("not_found");
+        error.Code.ShouldBe(DomainErrorCodes.NotFound);
         error.Message.ShouldBe("Product was not found.");
     }
 
@@ -64,7 +64,7 @@ public sealed class ErrorTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Conflict);
-        error.Code.ShouldBe("conflict");
+        error.Code.ShouldBe(DomainErrorCodes.Conflict);
         error.Message.ShouldBe("Product already exists.");
     }
 
@@ -75,7 +75,7 @@ public sealed class ErrorTests
     public void Validation_WithMissingCode_ThrowsArgumentException(string code)
     {
         // Act
-        Action action = () => Error.Validation(code, "Invalid input.");
+        Action action = () => Error.Validation(DomainErrorCode.Create(code), "Invalid input.");
 
         // Assert
         action.ShouldThrow<ArgumentException>();
@@ -88,7 +88,7 @@ public sealed class ErrorTests
     public void Validation_WithMissingMessage_ThrowsArgumentException(string message)
     {
         // Act
-        Action action = () => Error.Validation("validation_error", message);
+        Action action = () => Error.Validation(DomainErrorCodes.ValidationError, message);
 
         // Assert
         action.ShouldThrow<ArgumentException>();

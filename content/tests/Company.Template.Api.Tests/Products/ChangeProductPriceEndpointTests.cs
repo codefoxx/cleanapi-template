@@ -1,4 +1,5 @@
 using Company.Template.Api.Tests.Products.Contracts;
+using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Tests.Products;
 
@@ -54,8 +55,13 @@ public sealed class ChangeProductPriceEndpointTests
             ChangeProductPriceRequest.Valid());
 
         // Assert
-        await response.ShouldBeNotFoundProblemAsync("not_found");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.Problem);
+        ApiProblemDetails problem = await response.ReadNotFoundProblemAsync();
+
+        problem.Title.ShouldBe("Resource not found.");
+        problem.Status.ShouldBe((int)HttpStatusCode.NotFound);
+        problem.Code.ShouldBe(DomainErrorCodes.NotFound.Value);
+        problem.Detail.ShouldBe("Product was not found.");
+        problem.Errors.ShouldBeNull();
     }
 
     [Fact]
@@ -75,8 +81,16 @@ public sealed class ChangeProductPriceEndpointTests
             request);
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("currency_invalid_format");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.CurrencyInvalidFormat.Value);
+        problem.Detail.ShouldBe("Currency must be a three-letter ISO 4217 alphabetic code.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldContainKey("request");
+        problem.Errors["request"].ShouldContain("Currency must be a three-letter ISO 4217 alphabetic code.");
     }
 
     [Fact]
@@ -96,8 +110,16 @@ public sealed class ChangeProductPriceEndpointTests
             request);
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("amount_negative");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldContainKey("price");
+        problem.Errors["price"].ShouldContain("Price cannot be negative.");
     }
 
     [Fact]
@@ -114,7 +136,12 @@ public sealed class ChangeProductPriceEndpointTests
             ChangeProductPriceRequest.Valid());
 
         // Assert
-        await response.ShouldBeConflictProblemAsync("discontinued_product_cannot_be_changed");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.Problem);
+        ApiProblemDetails problem = await response.ReadConflictProblemAsync();
+
+        problem.Title.ShouldBe("Conflict.");
+        problem.Status.ShouldBe((int)HttpStatusCode.Conflict);
+        problem.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged.Value);
+        problem.Detail.ShouldBe("Discontinued product cannot be changed");
+        problem.Errors.ShouldBeNull();
     }
 }

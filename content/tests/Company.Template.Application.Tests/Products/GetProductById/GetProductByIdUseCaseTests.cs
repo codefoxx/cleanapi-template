@@ -110,7 +110,7 @@ public sealed class GetProductByIdUseCaseTests
         // Assert
         result.IsFailure.ShouldBeTrue();
         result.Error.Type.ShouldBe(ErrorType.Validation);
-        result.Error.Code.ShouldBe(DomainErrorCodes.ProductIdRequired.Value);
+        result.Error.Code.ShouldBe(DomainErrorCodes.ProductIdRequired);
     }
 
     private static Product CreateProduct()

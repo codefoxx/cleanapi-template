@@ -27,17 +27,17 @@ public sealed class OpenApiMetadataTests : IClassFixture<ApiLightweightTestFacto
         document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products", 400);
         document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products", 422);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{id}", 200);
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{id}", 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{productId}", 200);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{productId}", 404);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{id}/price", 200);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{id}/price", 400);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{id}/price", 422);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{id}/price", 404);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{id}/price", 409);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 200);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 400);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 422);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 409);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{id}/discontinue", 204);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{id}/discontinue", 404);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{id}/discontinue", 409);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 204);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 409);
     }
 }

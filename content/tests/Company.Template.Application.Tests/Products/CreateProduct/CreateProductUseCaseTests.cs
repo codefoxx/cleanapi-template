@@ -252,7 +252,7 @@ public sealed class CreateProductUseCaseTests
 
         error.ShouldNotBe(Error.None);
         error.Type.ShouldBe(expectedType);
-        error.Code.ShouldBe(expectedCode.Value);
+        error.Code.ShouldBe(expectedCode);
 
         return error;
     }

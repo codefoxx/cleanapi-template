@@ -48,14 +48,14 @@ internal sealed class ProductEndpoints : IEndpointModule
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-           .MapGet("/{id:guid}", GetProductByIdAsync)
+           .MapGet("/{productId:guid}", GetProductByIdAsync)
            .WithName("GetProductById")
            .Produces<ProductResponse>()
            .ProducesProblem(StatusCodes.Status404NotFound)
            .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
 
         group
-           .MapPut("/{id:guid}/price", ChangeProductPriceAsync)
+           .MapPut("/{productId:guid}/price", ChangeProductPriceAsync)
            .WithName("ChangeProductPrice")
            .Produces<ProductResponse>()
            .ProducesValidationProblem()
@@ -65,7 +65,7 @@ internal sealed class ProductEndpoints : IEndpointModule
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
 
         group
-           .MapPost("/{id:guid}/discontinue", DiscontinueProductAsync)
+           .MapPost("/{productId:guid}/discontinue", DiscontinueProductAsync)
            .WithName("DiscontinueProduct")
            .Produces(StatusCodes.Status204NoContent)
            .ProducesProblem(StatusCodes.Status404NotFound)
@@ -73,89 +73,57 @@ internal sealed class ProductEndpoints : IEndpointModule
            .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
     }
 
-    private static async Task<IResult> CreateProductAsync(
+    private static Task<IResult> CreateProductAsync(
         CreateProductRequest request,
         IUseCase<CreateProductCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        Result<ProductDto> result = await useCase.ExecuteAsync(
-            new CreateProductCommand(request.Name, request.Price, request.Currency),
-            cancellationToken);
-
-        return result.ToHttpResult(product =>
-            Results.Created($"/api/products/{product.Id}", ProductEndpointMapper.ToResponse(product)));
+        return request
+              .ToCommand()
+              .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
+              .ToHttpResultAsync(product =>
+                   Results.Created($"/api/products/{product.Id}", ProductEndpointMapper.ToResponse(product)));
     }
 
     private static async Task<IResult> GetProductByIdAsync(
-        Guid id,
+        Guid productId,
         IUseCase<GetProductByIdQuery, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        Result<ProductDto> result = await useCase.ExecuteAsync(new GetProductByIdQuery(id), cancellationToken);
+        Result<ProductDto> result = await useCase.ExecuteAsync(new GetProductByIdQuery(productId), cancellationToken);
 
         return result.ToHttpResult(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
     }
 
-    private static async Task<IResult> GetProductsAsync(
+    private static Task<IResult> GetProductsAsync(
         [AsParameters] GetProductsRequest request,
         IUseCase<GetProductsQuery, PagedResult<ProductDto>> useCase,
         CancellationToken cancellationToken)
     {
-        Result<PageRequest> page = PageRequest.Create(request.PageNumber, request.PageSize);
-
-        if (!page.IsSuccess)
-        {
-            return page.ToProblemResult();
-        }
-
-        Result<ProductFilter> filter = ProductFilter.Create(
-            request.Search,
-            request.Status,
-            request.Currency);
-
-        if (!filter.IsSuccess)
-        {
-            return filter.ToProblemResult();
-        }
-
-        Result<ProductSort> sort = ProductSort.Create(
-            request.SortBy,
-            request.SortDirection);
-
-        if (!sort.IsSuccess)
-        {
-            return sort.ToProblemResult();
-        }
-
-        GetProductsQuery query = new(
-            page.Value!,
-            filter.Value!,
-            sort.Value!);
-
-        Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, cancellationToken);
-
-        return result.ToHttpResult(ProductEndpointMapper.ToResponse);
+        return request
+              .ToQuery()
+              .BindAsync(query => useCase.ExecuteAsync(query, cancellationToken))
+              .ToHttpResultAsync(ProductEndpointMapper.ToResponse);
     }
 
-    private static async Task<IResult> ChangeProductPriceAsync(
-        Guid id,
+    private static Task<IResult> ChangeProductPriceAsync(
+        Guid productId,
         ChangeProductPriceRequest request,
         IUseCase<ChangeProductPriceCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        Result<ProductDto> result = await useCase.ExecuteAsync(
-            new ChangeProductPriceCommand(id, request.Price, request.Currency),
-            cancellationToken);
-
-        return result.ToHttpResult(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
+        return request
+              .ToCommand(productId)
+              .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
+              .ToHttpResultAsync(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
     }
 
     private static async Task<IResult> DiscontinueProductAsync(
-        Guid id,
+        Guid productId,
         IUseCase<DiscontinueProductCommand> useCase,
         CancellationToken cancellationToken)
     {
-        Result result = await useCase.ExecuteAsync(new DiscontinueProductCommand(id), cancellationToken);
+        Result result = await useCase.ExecuteAsync(new DiscontinueProductCommand(productId), cancellationToken);
 
         return result.ToHttpResult();
     }

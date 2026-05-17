@@ -55,6 +55,38 @@ For application use cases, expected failures should be asserted as `Result<T>.Fa
 
 Do not assert expected validation behavior by catching exceptions from use cases.
 
+For `TryCreate` / `TryFrom` tests, prefer asserting stable error codes over human-readable messages. Messages may change without changing the behavior being protected.
+
+## API problem tests
+
+API tests should make the expected HTTP contract visible in the test method.
+
+The shared test support should deserialize problem responses and optionally assert the HTTP status code, but it should not hide important assertions such as title, code, detail, or field errors.
+
+Good:
+
+```csharp
+ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+problem.Title.ShouldBe("Validation failed.");
+problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+problem.Errors.ShouldNotBeNull();
+problem.Errors.ShouldContainKey("name");
+problem.Errors["name"].ShouldContain("Product name is required.");
+```
+
+Avoid hiding the important contract in broad helper methods such as:
+
+```csharp
+await response.ShouldBeValidationProblemAsync("product_name_required");
+```
+
+The API error contract changed from generic `errors.request` validation messages to field-level validation where possible. Tests should assert the actual field target, for example `name`, `price`, or `currency`.
+
+Read a response body only once in a test. If a helper deserializes `ApiProblemDetails`, continue asserting on the returned object instead of reading `response.Content` again.
 
 ## Database-backed tests
 
@@ -83,6 +115,19 @@ API tests distinguish between lightweight and database-backed hosts:
 - `ApiDatabaseTestFactory` is used through `ApiTestContext` for endpoint behavior tests that write or query data.
 
 This keeps metadata-style tests cheap while preserving full persistence coverage where it matters.
+
+## OpenAPI tests
+
+OpenAPI metadata tests should verify the documented responses for each endpoint.
+
+When route handler parameters use descriptive names such as `productId`, those names may appear in the OpenAPI path:
+
+```text
+/api/products/{productId}
+/api/products/{productId}/price
+```
+
+Keep the OpenAPI assertions aligned with the generated document instead of assuming every route parameter is called `id`.
 
 ## Smoke tests
 

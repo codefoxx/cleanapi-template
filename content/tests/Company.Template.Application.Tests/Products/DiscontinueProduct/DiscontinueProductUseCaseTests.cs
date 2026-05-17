@@ -199,7 +199,7 @@ public sealed class DiscontinueProductUseCaseTests
         // Assert
         Error error = AssertError(result, ErrorType.NotFound);
 
-        error.Code.ShouldBe("not_found");
+        error.Code.ShouldBe(DomainErrorCodes.NotFound);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public sealed class DiscontinueProductUseCaseTests
     {
         Error error = AssertError(result, expectedType);
 
-        error.Code.ShouldBe(expectedCode.Value);
+        error.Code.ShouldBe(expectedCode);
 
         return error;
     }
