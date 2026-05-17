@@ -16,9 +16,6 @@ namespace Company.Template.Domain.SharedKernel;
 /// </remarks>
 public sealed record Currency
 {
-    /// <summary>
-    ///     The expected length of a normalized currency code.
-    /// </summary>
     public const int CodeLength = 3;
 
     private Currency(string code, string symbol)
@@ -27,39 +24,18 @@ public sealed record Currency
         Symbol = symbol;
     }
 
-    /// <summary>
-    ///     Represents the absence of a currency.
-    /// </summary>
     /// <remarks>
     ///     This is used for neutral money values such as <see cref="Money.Zero()" />.
     ///     Non-zero money values require a real currency.
     /// </remarks>
     public static Currency Empty { get; } = new(string.Empty, string.Empty);
 
-    /// <summary>
-    ///     Gets the normalized currency code.
-    /// </summary>
     public string Code { get; }
 
-    /// <summary>
-    ///     Gets a value indicating whether this instance represents no currency.
-    /// </summary>
     public bool IsEmpty => string.IsNullOrEmpty(Code);
 
-    /// <summary>
-    ///     Gets the display symbol used for this currency.
-    /// </summary>
     public string Symbol { get; }
 
-    /// <summary>
-    ///     Creates a currency from a code that is expected to be valid.
-    /// </summary>
-    /// <param name="code">The currency code.</param>
-    /// <returns>A valid <see cref="Currency" /> instance.</returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when <paramref name="code" /> is missing, whitespace, not a valid
-    ///     three-letter ISO 4217 alphabetic code, or not supported by this application.
-    /// </exception>
     /// <remarks>
     ///     The currency symbol is set to the normalized code. For expected validation failures from
     ///     raw input, prefer <see cref="TryCreate(string?, out Currency?, out DomainError?)" />.
@@ -71,17 +47,6 @@ public sealed record Currency
             : throw new ArgumentException(error.Message, nameof(code));
     }
 
-    /// <summary>
-    ///     Creates a currency from a code and display symbol that are expected to be valid.
-    /// </summary>
-    /// <param name="code">The currency code.</param>
-    /// <param name="symbol">The display symbol.</param>
-    /// <returns>A valid <see cref="Currency" /> instance.</returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown when <paramref name="code" /> or <paramref name="symbol" /> is missing or whitespace,
-    ///     when <paramref name="code" /> is not a valid three-letter ISO 4217 alphabetic code,
-    ///     or when the code is not supported by this application.
-    /// </exception>
     /// <remarks>
     ///     For expected validation failures from raw input, prefer
     ///     <see cref="TryCreate(string?, string?, out Currency?, out DomainError?)" />.
@@ -93,9 +58,6 @@ public sealed record Currency
             : throw new ArgumentException(error.Message, nameof(code));
     }
 
-    /// <summary>
-    ///     Attempts to create a valid currency without throwing for expected validation failures.
-    /// </summary>
     public static bool TryCreate(
         string? code,
         [NotNullWhen(true)] out Currency? currency,
@@ -109,9 +71,6 @@ public sealed record Currency
         return result.IsSuccess;
     }
 
-    /// <summary>
-    ///     Attempts to create a valid currency with a display symbol without throwing for expected validation failures.
-    /// </summary>
     public static bool TryCreate(
         string? code,
         string? symbol,
