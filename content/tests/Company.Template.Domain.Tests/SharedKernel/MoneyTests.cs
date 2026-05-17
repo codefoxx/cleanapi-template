@@ -24,23 +24,7 @@ public sealed class MoneyTests
     }
 
     [Fact]
-    public void Create_WithZeroAmountAndEmptyCurrency_ReturnsZeroMoney()
-    {
-        // Arrange
-        const decimal amount = 0m;
-        Currency currency = Currency.Empty;
-
-        // Act
-        Money money = Money.Create(amount, currency);
-
-        // Assert
-        money.Amount.ShouldBe(0m);
-        money.Currency.ShouldBe(Currency.Empty);
-        money.IsZero.ShouldBeTrue();
-    }
-
-    [Fact]
-    public void Create_WithZeroAmountAndCurrency_ReturnsMoneyWithCurrency()
+    public void Create_WithZeroAmountAndCurrency_ReturnsZeroMoneyWithCurrency()
     {
         // Arrange
         const decimal amount = 0m;
@@ -52,7 +36,7 @@ public sealed class MoneyTests
         // Assert
         money.Amount.ShouldBe(0m);
         money.Currency.ShouldBe(currency);
-        money.IsZero.ShouldBeFalse();
+        money.IsZero.ShouldBeTrue();
     }
 
     [Fact]
@@ -64,19 +48,6 @@ public sealed class MoneyTests
         // Act
         ArgumentOutOfRangeException exception =
             Should.Throw<ArgumentOutOfRangeException>(() => Money.Create(amount, Chf));
-
-        // Assert
-        exception.ParamName.ShouldBe("amount");
-    }
-
-    [Fact]
-    public void Create_WithPositiveAmountAndEmptyCurrency_ThrowsArgumentException()
-    {
-        // Arrange
-        const decimal amount = 1m;
-
-        // Act
-        ArgumentException exception = Should.Throw<ArgumentException>(() => Money.Create(amount, Currency.Empty));
 
         // Assert
         exception.ParamName.ShouldBe("amount");
@@ -175,18 +146,6 @@ public sealed class MoneyTests
     }
 
     [Fact]
-    public void Zero_WithoutCurrency_ReturnsZeroWithEmptyCurrency()
-    {
-        // Act
-        Money money = Money.Zero();
-
-        // Assert
-        money.Amount.ShouldBe(0m);
-        money.Currency.ShouldBe(Currency.Empty);
-        money.IsZero.ShouldBeTrue();
-    }
-
-    [Fact]
     public void Zero_WithCurrency_ReturnsZeroWithCurrency()
     {
         // Arrange
@@ -198,7 +157,7 @@ public sealed class MoneyTests
         // Assert
         money.Amount.ShouldBe(0m);
         money.Currency.ShouldBe(currency);
-        money.IsZero.ShouldBeFalse();
+        money.IsZero.ShouldBeTrue();
     }
 
     [Fact]
@@ -440,20 +399,6 @@ public sealed class MoneyTests
     }
 
     [Fact]
-    public void CompareTo_WithEmptyZeroAndDifferentCurrency_ComparesAmountWithoutCurrencyCheck()
-    {
-        // Arrange
-        Money zero = Money.Zero();
-        Money other = Money.Create(1m, Eur);
-
-        // Act
-        int result = zero.CompareTo(other);
-
-        // Assert
-        result.ShouldBeLessThan(0);
-    }
-
-    [Fact]
     public void PlusOperator_WithSameCurrency_ReturnsSum()
     {
         // Arrange
@@ -551,19 +496,6 @@ public sealed class MoneyTests
     }
 
     [Fact]
-    public void ToString_WithEmptyCurrency_ReturnsAmountOnly()
-    {
-        // Arrange
-        Money money = Money.Zero();
-
-        // Act
-        string value = money.ToString();
-
-        // Assert
-        value.ShouldBe("0.00");
-    }
-
-    [Fact]
     public void TryCreate_WithValidAmountAndCurrency_ReturnsTrueAndMoney()
     {
         // Act
@@ -616,29 +548,12 @@ public sealed class MoneyTests
     }
 
     [Fact]
-    public void TryCreate_WithPositiveAmountAndEmptyCurrency_ReturnsCurrencyRequired()
-    {
-        // Act
-        bool result = Money.TryCreate(
-            1m,
-            Currency.Empty,
-            out Money? money,
-            out DomainError? error);
-
-        // Assert
-        result.ShouldBeFalse();
-        money.ShouldBeNull();
-        error.ShouldNotBeNull();
-        error.Code.ShouldBe(DomainErrorCodes.CurrencyRequired);
-    }
-
-    [Fact]
-    public void TryCreate_WithZeroAmountAndEmptyCurrency_ReturnsTrueAndZeroMoney()
+    public void TryCreate_WithZeroAmountAndCurrency_ReturnsTrueAndZeroMoney()
     {
         // Act
         bool result = Money.TryCreate(
             0m,
-            Currency.Empty,
+            Chf,
             out Money? money,
             out DomainError? error);
 
@@ -646,7 +561,7 @@ public sealed class MoneyTests
         result.ShouldBeTrue();
         money.ShouldNotBeNull();
         money.Amount.ShouldBe(0m);
-        money.Currency.ShouldBe(Currency.Empty);
+        money.Currency.ShouldBe(Chf);
         money.IsZero.ShouldBeTrue();
         error.ShouldBeNull();
     }
