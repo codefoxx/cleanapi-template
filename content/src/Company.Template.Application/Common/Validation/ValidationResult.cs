@@ -1,5 +1,3 @@
-using Company.Template.Domain.Common;
-
 namespace Company.Template.Application.Common.Validation;
 
 public sealed class ValidationResult<T>
@@ -49,7 +47,7 @@ public sealed class ValidationResult<T>
         return IsValid
             ? Result<T>.Success(Value)
             : Result<T>.Failure(Error.Validation(
-                DomainErrorCodes.ValidationError,
+                ErrorCodes.ValidationError,
                 "One or more validation errors occurred.",
                 Errors));
     }
