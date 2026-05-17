@@ -1,3 +1,5 @@
+using Company.Template.Api.Routing;
+
 namespace Company.Template.Api.Tests.Api;
 
 public sealed class OpenApiMetadataTests : IClassFixture<ApiLightweightTestFactory>
@@ -19,25 +21,33 @@ public sealed class OpenApiMetadataTests : IClassFixture<ApiLightweightTestFacto
         using JsonDocument document = await httpClient.GetOpenApiDocumentAsync();
 
         // Assert
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products", 200);
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products", 400);
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products", 422);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, ProductPaths.Collection, 200);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, ProductPaths.Collection, 400);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, ProductPaths.Collection, 422);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products", 201);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products", 400);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products", 422);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Collection, 201);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Collection, 400);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Collection, 422);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{productId}", 200);
-        document.ShouldAdvertiseResponse(HttpMethod.Get, "/api/products/{productId}", 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, ProductPaths.ById, 200);
+        document.ShouldAdvertiseResponse(HttpMethod.Get, ProductPaths.ById, 404);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 200);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 400);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 422);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 404);
-        document.ShouldAdvertiseResponse(HttpMethod.Put, "/api/products/{productId}/price", 409);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, ProductPaths.Price, 200);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, ProductPaths.Price, 400);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, ProductPaths.Price, 422);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, ProductPaths.Price, 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Put, ProductPaths.Price, 409);
 
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 204);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 404);
-        document.ShouldAdvertiseResponse(HttpMethod.Post, "/api/products/{productId}/discontinue", 409);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Discontinue, 204);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Discontinue, 404);
+        document.ShouldAdvertiseResponse(HttpMethod.Post, ProductPaths.Discontinue, 409);
+    }
+
+    private static class ProductPaths
+    {
+        public const string Collection = ApiRoutes.Products.Group;
+        public const string ById = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.ById}";
+        public const string Price = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.Price}";
+        public const string Discontinue = $"{ApiRoutes.Products.Group}{ApiRoutes.Products.Discontinue}";
     }
 }
