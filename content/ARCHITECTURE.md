@@ -9,7 +9,7 @@
 | `Company.Template.Domain` | Business model, invariants, value objects, domain events, domain errors |
 | `Company.Template.Application` | Use cases, application ports, result handling, command/query contracts |
 | `Company.Template.Infrastructure` | EF Core DbContext, persistence adapters, provider-specific setup |
-| `Company.Template.Api` | HTTP adapter, endpoint modules, authentication, OpenAPI |
+| `Company.Template.Api` | HTTP adapter, endpoint modules, request validation, authentication, OpenAPI |
 | `Company.Template.MigrationService` | One-shot EF Core migration runner |
 | `Company.Template.ServiceDefaults` | Shared hosting, telemetry, and resilience defaults |
 | `Company.Template.AppHost` | Local orchestration with .NET Aspire |
@@ -64,7 +64,8 @@ Infrastructure and API provide adapters for those ports.
 flowchart LR
     Client[HTTP Client] --> Api[API Adapter<br/>Minimal API endpoints]
 
-    Api --> UseCases[Application Use Cases<br/>Inbound Ports]
+    Api --> Validation[Request Validation<br/>ToCommand / ToQuery]
+    Validation --> UseCases[Application Use Cases<br/>Inbound Ports]
 
     UseCases --> Domain[Domain Model<br/>Aggregates, Value Objects,<br/>Domain Events, Domain Errors]
 
@@ -85,6 +86,24 @@ flowchart LR
 The ports are intentionally pragmatic. Application use cases do not depend on `DbContext`, `DbSet<T>`, or `IQueryable<T>`.
 
 Infrastructure is free to use EF Core effectively behind those ports, including tracking, LINQ, projections, migrations, and provider-specific mapping.
+
+## API boundary
+
+The API layer is the HTTP adapter.
+
+It owns:
+
+- route definitions
+- request and response contracts
+- HTTP/request validation
+- request-to-command/query mapping
+- result-to-HTTP mapping
+- authentication and authorization metadata
+- OpenAPI metadata
+
+API request validation uses a small dependency-free validation builder. It collects all independent field errors and converts them into a failed `Result<T>` before the use case is executed.
+
+Application commands and queries remain independent from API request DTOs.
 
 ## Application boundary
 

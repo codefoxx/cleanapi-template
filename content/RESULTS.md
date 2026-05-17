@@ -1,6 +1,6 @@
 # RESULTS
 
-> Explicit modeling of expected outcomes and optional values.
+> Explicit modeling of expected outcomes, validation failures, and optional values.
 
 ## Expected vs unexpected failures
 
@@ -33,6 +33,85 @@ real Error
 
 `Error.None` is a Null Object for successful results. It is not a valid failure error.
 
+`Result<T>` should protect its own invariants:
+
+- `Success(...)` requires a non-null value
+- `Failure(...)` requires a real error
+- accessing `Value` on a failure is invalid
+- accessing failure information on a success should return `Error.None`
+
+## Error model
+
+`Error` represents an expected application failure.
+
+It contains:
+
+```text
+ErrorType
+DomainErrorCode
+Message
+Target?
+Details?
+```
+
+`ErrorType` decides the HTTP status at the API boundary.
+
+`DomainErrorCode` is a stable machine-readable code. It is useful for tests, clients, logs, and diagnostics, but it should not decide the HTTP status by itself.
+
+`Target` identifies the request field or logical input that caused a validation failure.
+
+`Details` is used for aggregated validation failures. The top-level error usually has code `validation_error`; the details contain the individual field errors.
+
+## Functional composition
+
+`Result<T>` supports functional composition for expected application flows:
+
+```csharp
+Result<ProductDto> result = await request
+    .ToCommand()
+    .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken));
+```
+
+Use:
+
+| Method | Purpose |
+| --- | --- |
+| `Map` | Transform a successful value while keeping failures unchanged. |
+| `Bind` | Continue with another result-producing operation. |
+| `BindAsync` | Continue with an asynchronous result-producing operation. |
+| `Match` | Leave the result world and handle both success and failure explicitly. |
+
+`Bind` and `BindAsync` are fail-fast. They do not collect multiple validation errors.
+
+## Request validation results
+
+Web/API request validation often needs to report all invalid fields at once.
+
+For that, the template uses a small dependency-free validation builder:
+
+```csharp
+return Validation
+    .For(request)
+    .RuleFor(x => x.Name, ValidateName)
+    .RuleFor(x => x.Price, ValidatePrice)
+    .RuleFor(x => x.Currency, ValidateCurrency)
+    .Map(CreateCommand)
+    .ToResult();
+```
+
+This produces a `ValidationResult<T>` internally.
+
+`ValidationResult<T>` is not a general application result. It is a short-lived helper for request validation:
+
+```text
+ValidationResult<T>
+  -> collects all field errors
+  -> maps only when all rules passed
+  -> converts to Result<T>
+```
+
+The converted `Result<T>` contains one top-level validation error with `Details` for each field error.
+
 ## Domain failure policy
 
 Domain creation APIs follow this convention:
@@ -52,6 +131,8 @@ DomainError
   -> Result<T>.Failure(...)
   -> HTTP boundary mapping
 ```
+
+Domain operation failures use `DomainResult` / `DomainResult<T>` when an aggregate or value object needs to report an expected business-rule failure without throwing.
 
 ## Optional values
 
@@ -92,6 +173,8 @@ return maybeProduct.Match(
     some: Result<ProductDto>.Success,
     none: () => Result<ProductDto>.Failure(Error.NotFound("Product was not found.")));
 ```
+
+Do not use `Option<T>` for validation failures. Validation failures need error codes, messages, targets, and sometimes details. Use `Result<T>` or `ValidationResult<T>` instead.
 
 ## Option and EF Core queries
 

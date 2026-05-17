@@ -18,6 +18,8 @@ public interface IUseCase<in TRequest>
 }
 ```
 
+Commands and queries are application input models. They should not depend on API request contracts.
+
 ## Endpoint dependency style
 
 Endpoints depend on use-case interfaces instead of concrete classes.
@@ -32,18 +34,20 @@ This allows cross-cutting decorators for:
 Example:
 
 ```csharp
-private static async Task<IResult> DiscontinueProductAsync(
-    Guid id,
-    IUseCase<DiscontinueProductCommand> useCase,
+private static Task<IResult> CreateProductAsync(
+    CreateProductRequest request,
+    IUseCase<CreateProductCommand, ProductDto> useCase,
     CancellationToken cancellationToken)
 {
-    Result result = await useCase.ExecuteAsync(
-        new DiscontinueProductCommand(id),
-        cancellationToken);
-
-    return result.ToHttpResult();
+    return request
+        .ToCommand()
+        .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
+        .ToHttpResultAsync(product =>
+            Results.Created($"/api/products/{product.Id}", ProductEndpointMapper.ToResponse(product)));
 }
 ```
+
+The API extension method owns request-to-command mapping. The Application layer owns the command and the use case.
 
 ## Command and query persistence ports
 
@@ -102,17 +106,21 @@ Use cases return `Result` / `Result<T>` for expected outcomes:
 
 Unexpected failures should still throw and are handled by the API boundary.
 
+Application `Result<T>` is fail-fast. It represents one application outcome. Request validation that needs to collect multiple field errors uses `ValidationResult<T>` internally and is converted to a failed `Result<T>` before leaving the API mapping step.
+
 ## Use case style
 
 Use cases should:
 
-- validate raw request values before calling strict domain APIs
-- call `TryCreate` / `TryFrom` for expected validation paths
+- receive validated commands or queries from the API boundary where possible
+- call `TryCreate` / `TryFrom` for expected domain validation paths
 - return `Result<T>.Failure(...)` for expected failures
 - avoid catching domain exceptions as the normal validation mechanism
 - delegate business behavior to the domain model
 - keep command persistence commits explicit through `IUnitOfWork`
 - keep query persistence behind named query ports
+
+Use cases remain the final application guard. Even if the API boundary performs request validation, use cases should still use safe domain APIs when creating value objects or strongly typed IDs from raw command values.
 
 ---
 

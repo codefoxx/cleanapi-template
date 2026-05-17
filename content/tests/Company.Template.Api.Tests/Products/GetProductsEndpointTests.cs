@@ -1,4 +1,5 @@
 using Company.Template.Api.Tests.Products.Contracts;
+using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Tests.Products;
 
@@ -116,8 +117,15 @@ public sealed class GetProductsEndpointTests
             ProductEndpoints.CollectionWithQuery("status=unknown"));
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("validation_error");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldNotBeEmpty();
     }
 
     [Fact]
@@ -131,8 +139,15 @@ public sealed class GetProductsEndpointTests
             ProductEndpoints.CollectionWithQuery("sortBy=unknown"));
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("validation_error");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldNotBeEmpty();
     }
 
     [Fact]
@@ -146,8 +161,15 @@ public sealed class GetProductsEndpointTests
             ProductEndpoints.CollectionWithQuery("pageSize=0"));
 
         // Assert
-        await response.ShouldBeValidationProblemAsync("validation_error");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.ValidationProblem);
+        ApiProblemDetails problem = await response.ReadValidationProblemAsync();
+
+        problem.Title.ShouldBe("Validation failed.");
+        problem.Status.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
+        problem.Code.ShouldBe(DomainErrorCodes.ValidationError.Value);
+        problem.Detail.ShouldBe("One or more validation errors occurred.");
+
+        problem.Errors.ShouldNotBeNull();
+        problem.Errors.ShouldNotBeEmpty();
     }
 
     private static async Task SeedProductsAsync(HttpClient httpClient)

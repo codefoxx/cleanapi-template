@@ -56,6 +56,9 @@ public static partial class DomainErrorCodes
     public static readonly DomainErrorCode AmountTooManyDecimalPlaces =
         DomainErrorCode.Create("amount_too_many_decimal_places");
 
+    public static readonly DomainErrorCode Conflict =
+        DomainErrorCode.Create("conflict");
+
     public static readonly DomainErrorCode CurrencyInvalidFormat =
         DomainErrorCode.Create("currency_invalid_format");
 
@@ -66,5 +69,11 @@ public static partial class DomainErrorCodes
         DomainErrorCode.Create("currency_symbol_required");
 
     public static readonly DomainErrorCode CurrencyUnsupported =
-        DomainErrorCode.Create("currency-unsupported");
+        DomainErrorCode.Create("currency_unsupported");
+
+    public static readonly DomainErrorCode NotFound =
+        DomainErrorCode.Create("not_found");
+
+    public static readonly DomainErrorCode ValidationError =
+        DomainErrorCode.Create("validation_error");
 }

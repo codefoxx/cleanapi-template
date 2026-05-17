@@ -1,4 +1,5 @@
 using Company.Template.Api.Tests.Products.Contracts;
+using Company.Template.Domain.Common;
 
 namespace Company.Template.Api.Tests.Products;
 
@@ -39,8 +40,13 @@ public sealed class DiscontinueProductEndpointTests
             ProductEndpoints.Discontinue(Guid.NewGuid()));
 
         // Assert
-        await response.ShouldBeNotFoundProblemAsync("not_found");
-        await response.Content.ShouldContainJsonPathsAsync(ProblemJsonContracts.Problem);
+        ApiProblemDetails problem = await response.ReadNotFoundProblemAsync();
+
+        problem.Title.ShouldBe("Resource not found.");
+        problem.Status.ShouldBe((int)HttpStatusCode.NotFound);
+        problem.Code.ShouldBe(DomainErrorCodes.NotFound.Value);
+        problem.Detail.ShouldBe("Product was not found.");
+        problem.Errors.ShouldBeNull();
     }
 
     [Fact]

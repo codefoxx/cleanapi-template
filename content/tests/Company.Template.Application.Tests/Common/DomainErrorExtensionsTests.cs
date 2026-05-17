@@ -18,7 +18,7 @@ public sealed class DomainErrorExtensionsTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Validation);
-        error.Code.ShouldBe(DomainErrorCodes.ProductNameRequired.Value);
+        error.Code.ShouldBe(DomainErrorCodes.ProductNameRequired);
         error.Message.ShouldBe("Product name is required.");
     }
 
@@ -35,7 +35,7 @@ public sealed class DomainErrorExtensionsTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Validation);
-        error.Code.ShouldBe(DomainErrorCodes.CurrencySymbolRequired.Value);
+        error.Code.ShouldBe(DomainErrorCodes.CurrencySymbolRequired);
         error.Message.ShouldBe("Currency symbol is required.");
     }
 
@@ -52,7 +52,7 @@ public sealed class DomainErrorExtensionsTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Unknown);
-        error.Code.ShouldBe("some_unmapped_domain_error");
+        error.Code.Value.ShouldBe("some_unmapped_domain_error");
         error.Message.ShouldBe("Something domain-specific failed.");
     }
 
@@ -79,7 +79,7 @@ public sealed class DomainErrorExtensionsTests
 
         // Assert
         error.Type.ShouldBe(ErrorType.Conflict);
-        error.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged.Value);
+        error.Code.ShouldBe(DomainErrorCodes.DiscontinuedProductCannotBeChanged);
         error.Message.ShouldBe("Discontinued products cannot be changed.");
     }
 }

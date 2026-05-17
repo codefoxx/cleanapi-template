@@ -84,13 +84,13 @@ internal static class UseCaseTelemetry
         activity?.SetTag("elapsed_ms", elapsed.TotalMilliseconds);
         activity?.SetTag("error.type", error.Type.ToString());
         activity?.SetTag("error.code", error.Code);
-        activity?.SetStatus(ActivityStatusCode.Error, error.Code);
+        activity?.SetStatus(ActivityStatusCode.Error, error.Code.Value);
 
         UseCaseTelemetryLog.UseCaseFailed(
             logger,
             useCase,
             error.Type,
-            error.Code,
+            error.Code.Value,
             elapsed.TotalMilliseconds);
 
         return result;

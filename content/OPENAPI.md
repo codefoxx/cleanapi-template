@@ -14,6 +14,48 @@ When authentication is disabled, the OpenAPI document contains no authentication
 
 When authentication is enabled, the OpenAPI document includes OAuth2 client-credentials metadata for secured endpoints.
 
+## Endpoint metadata
+
+Endpoint modules should advertise expected responses explicitly.
+
+The sample Product endpoints document:
+
+- success responses such as `200`, `201`, and `204`
+- `400` for ASP.NET Core request binding or malformed request failures
+- `422` for application/request validation failures
+- `404` for missing resources
+- `409` for lifecycle or state conflicts
+
+Route parameter names in OpenAPI come from the Minimal API handler parameter names. Prefer descriptive names such as `productId` when that makes the API document clearer:
+
+```text
+/api/products/{productId}
+/api/products/{productId}/price
+/api/products/{productId}/discontinue
+```
+
+Keep OpenAPI tests aligned with the generated document.
+
+## Validation metadata
+
+Validation responses use `application/problem+json` and `HttpValidationProblemDetails`.
+
+Request validation that is handled by the API validation builder returns `422 Unprocessable Entity` with field-level errors:
+
+```json
+{
+    "title": "Validation failed.",
+    "status": 422,
+    "detail": "One or more validation errors occurred.",
+    "code": "validation_error",
+    "errors": {
+        "name": ["Product name is required."]
+    }
+}
+```
+
+`400 Bad Request` remains documented because the ASP.NET Core pipeline can still reject malformed JSON, invalid binding, or other syntactic request problems before application validation runs.
+
 ## Authentication metadata
 
 The generated OpenAPI document contains:

@@ -8,5 +8,5 @@ public static class ProblemJsonContracts
         "$.code");
 
     public static readonly RequiredJsonPaths ValidationProblem = Problem.And(
-        "$.errors.request");
+        "$.errors");
 }
