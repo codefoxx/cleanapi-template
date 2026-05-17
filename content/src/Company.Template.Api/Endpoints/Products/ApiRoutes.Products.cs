@@ -12,6 +12,11 @@ internal static partial class ApiRoutes
         public const string Price = "/{productId:guid}/price";
         public const string Discontinue = "/{productId:guid}/discontinue";
 
+        public static string Location(Guid productId)
+        {
+            return $"{Group}/{productId}";
+        }
+
         public static class Names
         {
             public const string GetProducts = "GetProducts";
