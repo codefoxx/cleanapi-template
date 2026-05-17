@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Company.Template.Api.Tests")]
+[assembly: InternalsVisibleTo("__API_TEST_ASSEMBLY_NAME__")]
