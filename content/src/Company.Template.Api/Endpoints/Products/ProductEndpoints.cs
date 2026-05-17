@@ -28,7 +28,7 @@ internal sealed class ProductEndpoints : IEndpointModule
                                                          .Value;
 
         RouteGroupBuilder group = app
-                                 .MapGroup(ApiRoutes.Products.Group)
+                                 .MapGroup(ApiRoutes.Products.Base)
                                  .WithTags("Products");
 
         group

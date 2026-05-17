@@ -16,13 +16,13 @@ public static class Iso4217CurrencyCodes
         "USD"
     };
 
+    public static Currency Chf { get; } = Currency.Create("CHF", "CHF");
+    public static Currency Eur { get; } = Currency.Create("EUR", "€");
+    public static Currency Usd { get; } = Currency.Create("USD", "$");
+
     public static bool Contains(string? code)
     {
         return !string.IsNullOrWhiteSpace(code)
          && ValidCodes.Contains(code.Trim());
     }
-
-    public static Currency Chf { get; } = Currency.Create("CHF", "CHF");
-    public static Currency Eur { get; } = Currency.Create("EUR", "€");
-    public static Currency Usd { get; } = Currency.Create("USD", "$");
 }

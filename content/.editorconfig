@@ -165,6 +165,13 @@ resharper_csharp_align_multiline_array_and_object_initializer = false
 resharper_csharp_wrap_linq_expressions = chop_if_long
 resharper_csharp_align_multiline_linq_query = false
 
+# Rider / ReSharper: named arguments
+#
+# Existing named arguments can carry meaning in functional calls such as
+# Match(some: ..., none: ...). Do not enforce named arguments everywhere, but
+# also do not flag existing named arguments as candidates for positional style.
+resharper_arguments_style_named_expression_highlighting = none
+
 # Tests
 #
 # Underscores make test names easier to read:

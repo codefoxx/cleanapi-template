@@ -62,21 +62,21 @@ tests/
 
 ## Documentation map
 
-| File                                   | Topic                                                          |
-|----------------------------------------|----------------------------------------------------------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md)     | Layering rules, dependency direction, project responsibilities |
-| [APPLICATION.md](APPLICATION.md)       | Use cases, decorators, application behavior                    |
+| File                                   | Topic                                                                   |
+|----------------------------------------|-------------------------------------------------------------------------|
+| [ARCHITECTURE.md](ARCHITECTURE.md)     | Layering rules, dependency direction, project responsibilities          |
+| [APPLICATION.md](APPLICATION.md)       | Use cases, decorators, application behavior                             |
 | [API.md](API.md)                       | Minimal APIs, endpoint modules, request validation, HTTP result mapping |
-| [RESULTS.md](RESULTS.md)               | `Result<T>`, `Error`, `ValidationResult<T>`, `Option<T>`       |
-| [PERSISTENCE.md](PERSISTENCE.md)       | Persistence ports, EF Core adapters, command/query boundaries  |
-| [OBSERVABILITY.md](OBSERVABILITY.md)   | OpenTelemetry, logs, traces, metrics                           |
-| [DATABASE.md](DATABASE.md)             | Provider selection, generated provider configuration           |
-| [ASPIRE.md](ASPIRE.md)                 | Local orchestration, startup order, pgAdmin                    |
-| [AUTHENTICATION.md](AUTHENTICATION.md) | Optional Keycloak authentication and local realm setup         |
-| [OPENAPI.md](OPENAPI.md)               | OpenAPI document, response metadata, OAuth metadata            |
-| [MIGRATIONS.md](MIGRATIONS.md)         | EF Core migrations and production migration bundles            |
-| [TESTING.md](TESTING.md)               | Unit, integration, Testcontainers, API problem tests, smoke tests |
-| [FEATURES.md](FEATURES.md)             | How to add a new feature to the template                       |
+| [RESULTS.md](RESULTS.md)               | `Result<T>`, `Error`, `ValidationResult<T>`, `Option<T>`                |
+| [PERSISTENCE.md](PERSISTENCE.md)       | Persistence ports, EF Core adapters, command/query boundaries           |
+| [OBSERVABILITY.md](OBSERVABILITY.md)   | OpenTelemetry, logs, traces, metrics                                    |
+| [DATABASE.md](DATABASE.md)             | Provider selection, generated provider configuration                    |
+| [ASPIRE.md](ASPIRE.md)                 | Local orchestration, startup order, pgAdmin                             |
+| [AUTHENTICATION.md](AUTHENTICATION.md) | Optional Keycloak authentication and local realm setup                  |
+| [OPENAPI.md](OPENAPI.md)               | OpenAPI document, response metadata, OAuth metadata                     |
+| [MIGRATIONS.md](MIGRATIONS.md)         | EF Core migrations and production migration bundles                     |
+| [TESTING.md](TESTING.md)               | Unit, integration, Testcontainers, API problem tests, smoke tests       |
+| [FEATURES.md](FEATURES.md)             | How to add a new feature to the template                                |
 
 ## Core design principles
 
