@@ -19,9 +19,9 @@ namespace Company.Template.Api.Endpoints.Products;
 ///     Endpoints translate transport contracts into application commands and queries, delegate workflow coordination to
 ///     use cases, and map explicit application results back to HTTP responses.
 /// </remarks>
-internal sealed class ProductEndpoints
+internal static class ProductEndpoints
 {
-    public void MapEndpoints(IEndpointRouteBuilder app)
+    public static void MapEndpoints(IEndpointRouteBuilder app)
     {
         AuthenticationOptions authenticationOptions = app.ServiceProvider
                                                          .GetRequiredService<IOptions<AuthenticationOptions>>()
@@ -78,24 +78,13 @@ internal sealed class ProductEndpoints
         IUseCase<CreateProductCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        return request.ToCommand()
-                      .Match(
-                           success: command => ExecuteCreateProductAsync(useCase, command, cancellationToken),
-                           failure: error => Task.FromResult(ProductResults.FromValidation(error)));
-    }
-
-    private static async Task<IResult> ExecuteCreateProductAsync(
-        IUseCase<CreateProductCommand, ProductDto> useCase,
-        CreateProductCommand command,
-        CancellationToken cancellationToken)
-    {
-        Result<ProductDto> result = await useCase.ExecuteAsync(command, cancellationToken);
-
-        return result.Match(
-            success: product => Results.Created(
-                ApiRoutes.Products.Location(product.Id),
-                ProductResponse.FromDto(product)),
-            failure: ProductResults.FromError);
+        return request
+              .ToCommand()
+              .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
+              .ToHttpResultAsync(product =>
+                   Results.Created(
+                       ApiRoutes.Products.Location(product.Id),
+                       ProductEndpointMapper.ToResponse(product)));
     }
 
     private static async Task<IResult> GetProductByIdAsync(
@@ -103,13 +92,9 @@ internal sealed class ProductEndpoints
         IUseCase<GetProductByIdQuery, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        GetProductByIdQuery query = new(productId);
+        Result<ProductDto> result = await useCase.ExecuteAsync(new GetProductByIdQuery(productId), cancellationToken);
 
-        Result<ProductDto> result = await useCase.ExecuteAsync(query, cancellationToken);
-
-        return result.Match(
-            success: product => Results.Ok(ProductResponse.FromDto(product)),
-            failure: ProductResults.FromError);
+        return result.ToHttpResult(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
     }
 
     private static Task<IResult> GetProductsAsync(
@@ -117,24 +102,10 @@ internal sealed class ProductEndpoints
         IUseCase<GetProductsQuery, PagedResult<ProductDto>> useCase,
         CancellationToken cancellationToken)
     {
-        return request.ToQuery()
-                      .Match(
-                           success: query => ExecuteGetProductsAsync(useCase, query, cancellationToken),
-                           failure: error => Task.FromResult(ProductResults.FromValidation(error)));
-    }
-
-    private static async Task<IResult> ExecuteGetProductsAsync(
-        IUseCase<GetProductsQuery, PagedResult<ProductDto>> useCase,
-        GetProductsQuery query,
-        CancellationToken cancellationToken)
-    {
-        Result<PagedResult<ProductDto>> result = await useCase.ExecuteAsync(query, cancellationToken);
-
-        return result.Match(
-            success: products => Results.Ok(PagedResponse<ProductResponse>.FromPagedResult(
-                products,
-                ProductResponse.FromDto)),
-            failure: ProductResults.FromError);
+        return request
+              .ToQuery()
+              .BindAsync(query => useCase.ExecuteAsync(query, cancellationToken))
+              .ToHttpResultAsync(ProductEndpointMapper.ToResponse);
     }
 
     private static Task<IResult> ChangeProductPriceAsync(
@@ -143,22 +114,10 @@ internal sealed class ProductEndpoints
         IUseCase<ChangeProductPriceCommand, ProductDto> useCase,
         CancellationToken cancellationToken)
     {
-        return request.ToCommand(productId)
-                      .Match(
-                           success: command => ExecuteChangeProductPriceAsync(useCase, command, cancellationToken),
-                           failure: error => Task.FromResult(ProductResults.FromValidation(error)));
-    }
-
-    private static async Task<IResult> ExecuteChangeProductPriceAsync(
-        IUseCase<ChangeProductPriceCommand, ProductDto> useCase,
-        ChangeProductPriceCommand command,
-        CancellationToken cancellationToken)
-    {
-        Result<ProductDto> result = await useCase.ExecuteAsync(command, cancellationToken);
-
-        return result.Match(
-            success: product => Results.Ok(ProductResponse.FromDto(product)),
-            failure: ProductResults.FromError);
+        return request
+              .ToCommand(productId)
+              .BindAsync(command => useCase.ExecuteAsync(command, cancellationToken))
+              .ToHttpResultAsync(product => Results.Ok(ProductEndpointMapper.ToResponse(product)));
     }
 
     private static async Task<IResult> DiscontinueProductAsync(
@@ -166,12 +125,8 @@ internal sealed class ProductEndpoints
         IUseCase<DiscontinueProductCommand> useCase,
         CancellationToken cancellationToken)
     {
-        DiscontinueProductCommand command = new(productId);
+        Result result = await useCase.ExecuteAsync(new DiscontinueProductCommand(productId), cancellationToken);
 
-        Result result = await useCase.ExecuteAsync(command, cancellationToken);
-
-        return result.Match(
-            success: Results.NoContent,
-            failure: ProductResults.FromError);
+        return result.ToHttpResult();
     }
 }
