@@ -1,15 +1,13 @@
-using System.Reflection;
 using Company.Template.Application.Telemetry;
 
 namespace Company.Template.Application;
 
 /// <summary>
-///     Registers application-layer use cases and their cross-cutting decorators.
+///     Registers application-layer cross-cutting services.
 /// </summary>
 /// <remarks>
-///     Use case discovery is assembly-based so new application workflows can be composed without endpoint code depending
-///     on
-///     concrete implementations. Telemetry is applied as a decorator, preserving the use case contract.
+///     Feature-specific use cases are registered by feature modules. Application-level decorators stay here so they can
+///     be applied consistently after selected features have registered their use cases.
 /// </remarks>
 public static class DependencyInjection
 {
@@ -17,22 +15,6 @@ public static class DependencyInjection
     {
         public IServiceCollection AddApplication()
         {
-            services.AddUseCasesFromAssembly(typeof(DependencyInjection).Assembly);
-
-            return services;
-        }
-
-        private IServiceCollection AddUseCasesFromAssembly(Assembly assembly)
-        {
-            services.Scan(scan => scan
-                                 .FromAssemblies(assembly)
-                                 .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<,>)))
-                                 .AsImplementedInterfaces()
-                                 .WithScopedLifetime()
-                                 .AddClasses(classes => classes.AssignableTo(typeof(IUseCase<>)))
-                                 .AsImplementedInterfaces()
-                                 .WithScopedLifetime());
-
             services.Decorate(typeof(IUseCase<,>), typeof(TelemetryUseCaseDecorator<,>));
             services.Decorate(typeof(IUseCase<>), typeof(TelemetryUseCaseDecorator<>));
 
