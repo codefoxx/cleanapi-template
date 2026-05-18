@@ -1,5 +1,7 @@
 using Company.Template.Api;
 using Company.Template.Application;
+using Company.Template.Application.Products;
+using Company.Template.Composition.Features;
 using Company.Template.Infrastructure;
 using Serilog;
 
@@ -15,9 +17,16 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 builder.AddServiceDefaults();
 
-builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services
+       .AddFeatureServicesFromAssemblies(
+            typeof(ApplicationAssemblyMarker).Assembly,
+            typeof(InfrastructureAssemblyMarker).Assembly)
+       .WithConfiguration(builder.Configuration)
+       .Add<ProductsFeature>();
+
+builder.Services.AddApplication();
 builder.Services.AddApiAdapter();
 
 WebApplication app = builder.Build();
@@ -25,5 +34,9 @@ WebApplication app = builder.Build();
 app.UseSerilogRequestLogging();
 app.MapDefaultEndpoints();
 app.UseApiAdapter();
+
+app
+   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<ProductsFeature>();
 
 app.Run();
