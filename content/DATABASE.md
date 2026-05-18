@@ -24,7 +24,7 @@ The selected provider is written to configuration:
         "ConnectionStringName": "DefaultConnection"
     },
     "ConnectionStrings": {
-        "DefaultConnection": "Set by Aspire AppHost. Replace this when running the API directly."
+        "DefaultConnection": "Set by Aspire AppHost. Replace this when running the composition entry point directly."
     }
 }
 ```
