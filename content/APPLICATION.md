@@ -77,9 +77,26 @@ Commands and queries are intentionally treated differently:
 
 ## Registration
 
-Use cases are registered automatically via Scrutor.
+Feature-specific use cases are registered by application feature modules.
 
-The template decorates them with telemetry behavior. Generic execution telemetry belongs in:
+For example, the Products feature registers its use cases in:
+
+```text
+src/Company.Template.Application/Products/ProductsApplicationModule.cs
+```
+
+The composition entry point activates selected feature modules explicitly:
+
+```csharp
+builder.Services
+       .AddFeatureServicesFromAssemblies(
+            typeof(ApplicationAssemblyMarker).Assembly,
+            typeof(InfrastructureAssemblyMarker).Assembly)
+       .WithConfiguration(builder.Configuration)
+       .Add<ProductsFeature>();
+```
+
+The template decorates registered use cases with telemetry behavior. Generic execution telemetry belongs in:
 
 ```text
 src/Company.Template.Application/Telemetry/
