@@ -8,12 +8,11 @@ using Company.Template.Infrastructure.Time;
 namespace Company.Template.Infrastructure;
 
 /// <summary>
-///     Wires infrastructure implementations to application-layer abstractions.
+///     Wires shared infrastructure implementations to application-layer abstractions.
 /// </summary>
 /// <remarks>
-///     The registration keeps composition concerns in infrastructure: database setup,
-///     persistence implementation, domain-event dispatching, and the clock implementation
-///     are provided here while application use cases depend on abstractions.
+///     Feature-specific adapters are registered by feature modules. Shared infrastructure services stay here because they
+///     support the application as a whole rather than a single feature.
 /// </remarks>
 public static class DependencyInjection
 {
@@ -28,12 +27,6 @@ public static class DependencyInjection
 
             services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
             services.AddSingleton<IClock, SystemClock>();
-
-            services.Scan(scan => scan
-                                 .FromAssemblyOf<InfrastructureAssemblyMarker>()
-                                 .AddClasses(classes => classes.AssignableTo<IQuery>())
-                                 .AsImplementedInterfaces()
-                                 .WithScopedLifetime());
 
             return services;
         }
