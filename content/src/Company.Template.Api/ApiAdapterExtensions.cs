@@ -1,5 +1,4 @@
 using Company.Template.Api.CurrentUser;
-using Company.Template.Api.Endpoints;
 using Company.Template.Api.Middleware;
 using Company.Template.Api.OpenApi;
 using Company.Template.Api.Options;
@@ -13,7 +12,7 @@ namespace Company.Template.Api;
 /// </summary>
 /// <remarks>
 ///     The composition project owns application startup, while this adapter owns HTTP-specific middleware,
-///     authentication metadata, OpenAPI setup, and endpoint mapping.
+///     authentication metadata, and OpenAPI setup. Feature modules activate their own endpoint and pipeline changes.
 /// </remarks>
 public static class ApiAdapterExtensions
 {
@@ -62,8 +61,6 @@ public static class ApiAdapterExtensions
                     Service = "Company.Template.Api",
                     Status = "Running"
                 }));
-
-            app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
 
             return app;
         }
