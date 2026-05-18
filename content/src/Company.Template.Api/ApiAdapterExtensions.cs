@@ -1,5 +1,4 @@
 using Company.Template.Api.CurrentUser;
-using Company.Template.Api.OpenApi;
 using Company.Template.Api.Options;
 using Company.Template.Api.Security;
 using Company.Template.Application.Abstractions.Security;
@@ -10,8 +9,8 @@ namespace Company.Template.Api;
 ///     Exposes the API project as an HTTP adapter that can be composed by the executable entry point.
 /// </summary>
 /// <remarks>
-///     The composition project owns application startup, while this adapter owns HTTP-specific security and OpenAPI
-///     setup. Cross-cutting concerns and feature-specific pipeline changes are activated through feature modules.
+///     The composition project owns application startup, while this adapter owns HTTP-specific security setup.
+///     Cross-cutting concerns, OpenAPI, and feature-specific pipeline changes are activated through feature modules.
 /// </remarks>
 public static class ApiAdapterExtensions
 {
@@ -23,7 +22,6 @@ public static class ApiAdapterExtensions
 
             services.AddTemplateAuthentication();
             services.AddTemplateAuthorization();
-            services.AddTemplateOpenApi();
 
             return services;
         }
@@ -33,11 +31,6 @@ public static class ApiAdapterExtensions
     {
         public WebApplication UseApiAdapter()
         {
-            if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
-            {
-                app.MapOpenApi();
-            }
-
             AuthenticationOptions authenticationOptions = app.Services
                                                          .GetRequiredService<IOptions<AuthenticationOptions>>()
                                                          .Value;
