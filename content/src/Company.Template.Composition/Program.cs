@@ -1,7 +1,6 @@
 using Company.Template.Api;
 using Company.Template.Application;
-using Company.Template.Application.Products;
-using Company.Template.Composition.Abstractions.Features;
+using Company.Template.Composition.Framework;
 using Company.Template.Composition.Features;
 using Company.Template.Infrastructure;
 using Serilog;

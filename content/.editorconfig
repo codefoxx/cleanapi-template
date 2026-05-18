@@ -13,6 +13,16 @@ indent_size = 4
 [**/Persistence/Migrations/*.cs]
 dotnet_diagnostic.IDE0161.severity = none
 
+# Composition abstraction namespaces intentionally omit the Abstractions
+# project segment so consumers import the conceptual API.
+[src/Company.Template.Composition.Abstractions/Framework/*.cs]
+dotnet_diagnostic.IDE0130.severity = none
+resharper_check_namespace_highlighting = none
+
+[src/Company.Template.Composition.Abstractions/Features/*.cs]
+dotnet_diagnostic.IDE0130.severity = none
+resharper_check_namespace_highlighting = none
+
 [*.{cs,csx}]
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false

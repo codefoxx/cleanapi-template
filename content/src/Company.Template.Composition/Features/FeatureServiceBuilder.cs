@@ -1,7 +1,8 @@
 using System.Reflection;
-using Company.Template.Composition.Abstractions.Features;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Company.Template.Composition.Features;
+namespace Company.Template.Composition.Framework;
 
 /// <summary>
 ///     Provides a fluent registration API for activating feature service modules from configured assemblies.

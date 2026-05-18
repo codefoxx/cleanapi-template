@@ -1,4 +1,4 @@
-using Company.Template.Composition.Abstractions.Features;
+using Company.Template.Composition.Framework;
 
 namespace Company.Template.Infrastructure;
 

@@ -1,4 +1,4 @@
-namespace Company.Template.Composition.Abstractions.Features;
+namespace Company.Template.Composition.Framework;
 
 /// <summary>
 ///     Defines WebApplication pipeline changes that belong to a specific feature.
