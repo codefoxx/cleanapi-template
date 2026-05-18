@@ -1,3 +1,4 @@
+using Company.Template.Composition.Abstractions.Features;
 using Company.Template.Infrastructure;
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,12 @@ HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddInfrastructure(builder.Configuration);
+FeatureServiceContext persistenceContext = new(
+    builder.Services,
+    [typeof(InfrastructureAssemblyMarker).Assembly],
+    builder.Configuration);
+
+new InfrastructurePersistenceModule().Register(persistenceContext);
 
 using IHost host = builder.Build();
 
