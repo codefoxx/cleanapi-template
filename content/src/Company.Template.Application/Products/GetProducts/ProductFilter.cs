@@ -17,6 +17,9 @@ public sealed record ProductFilter(
     Option<ProductStatus> Status,
     Option<ProductCurrency> Currency)
 {
+    /// <summary>
+    ///     Represents a valid query filter that applies no optional filters.
+    /// </summary>
     public static ProductFilter Empty { get; } = new(
         Option.None<string>(),
         Option.None<ProductStatus>(),
