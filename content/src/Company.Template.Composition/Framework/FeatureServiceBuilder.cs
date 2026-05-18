@@ -1,6 +1,4 @@
 using System.Reflection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Company.Template.Composition.Framework;
 
