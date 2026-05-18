@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions.DomainEvents;
+using Company.Template.Composition;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace Company.Template.Api.Tests.TestSupport;
 ///     such as root endpoint checks and OpenAPI tests. Database-backed endpoint tests should
 ///     use <see cref="ApiDatabaseTestFactory" /> through <see cref="ApiTestContext" />.
 /// </remarks>
-public sealed class ApiLightweightTestFactory : WebApplicationFactory<ApiAssemblyMarker>
+public sealed class ApiLightweightTestFactory : WebApplicationFactory<CompositionAssemblyMarker>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
