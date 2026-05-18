@@ -31,16 +31,46 @@ Business rules live in the domain model:
 ## Adding a new feature
 
 1. Put business invariants and behavior in `Domain`.
-2. Add commands, queries, and use cases in `Application`.
-3. Implement `IUseCase<TRequest, TResult>` or `IUseCase<TRequest>`.
-4. For command use cases, expose aggregate access through `IRepository<TAggregate, TKey>` via `IUnitOfWork`.
-5. For query use cases, define named query ports in `Application`, for example `IProductQueries`.
-6. Implement persistence adapters in `Infrastructure`.
-7. Add EF Core mapping in `Infrastructure`.
-8. Add API request/response DTOs and endpoint modules under `Api/Endpoints/{Feature}`.
-9. Add API request-to-command/query extension methods when request validation or mapping is needed.
-10. Add tests at the appropriate layer.
-11. Add feature-specific logs only for meaningful business decisions.
+2. Add an explicit feature marker implementing `IFeature`, for example `ProductsFeature`.
+3. Add commands, queries, and use cases in `Application`.
+4. Implement `IUseCase<TRequest, TResult>` or `IUseCase<TRequest>`.
+5. Register application use cases in an `IFeatureServiceModule<TFeature>` implementation.
+6. For command use cases, expose aggregate access through `IRepository<TAggregate, TKey>` via `IUnitOfWork`.
+7. For query use cases, define named query ports in `Application`, for example `IProductQueries`.
+8. Implement persistence adapters in `Infrastructure`.
+9. Register infrastructure adapters in an `IFeatureServiceModule<TFeature>` implementation.
+10. Add EF Core mapping in `Infrastructure`.
+11. Add API request/response DTOs and endpoint classes under `Api/Endpoints/{Feature}`.
+12. Add an `IFeatureWebAppModule<TFeature>` implementation that activates the feature's HTTP adapter pipeline.
+13. Add API request-to-command/query extension methods when request validation or mapping is needed.
+14. Activate the feature in the composition entry point with `.Add<TFeature>()` and `.Use<TFeature>()`.
+15. Add tests at the appropriate layer.
+16. Add feature-specific logs only for meaningful business decisions.
+
+## Feature composition
+
+Features are activated explicitly by the composition entry point.
+
+Service-side modules register application and infrastructure services:
+
+```csharp
+builder.Services
+       .AddFeatureServicesFromAssemblies(
+            typeof(ApplicationAssemblyMarker).Assembly,
+            typeof(InfrastructureAssemblyMarker).Assembly)
+       .WithConfiguration(builder.Configuration)
+       .Add<ProductsFeature>();
+```
+
+WebApplication-side modules activate HTTP adapter pipeline changes:
+
+```csharp
+app
+   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<ProductsFeature>();
+```
+
+A feature can have modules in multiple assemblies. The feature marker links them together without relying on naming conventions.
 
 ## Feature rules
 
