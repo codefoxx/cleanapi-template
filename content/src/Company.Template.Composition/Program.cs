@@ -36,14 +36,12 @@ WebApplication app = builder.Build();
 app.UseSerilogRequestLogging();
 app.MapDefaultEndpoints();
 
-app
-   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
-   .Use<CrossCuttingConcerns>();
+FeatureWebAppBuilder webAppFeatures = app
+                                     .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+                                     .Use<CrossCuttingConcerns>();
 
 app.UseApiAdapter();
 
-app
-   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
-   .Use<ProductsFeature>();
+webAppFeatures.Use<ProductsFeature>();
 
 app.Run();
