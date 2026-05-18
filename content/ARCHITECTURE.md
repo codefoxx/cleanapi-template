@@ -10,6 +10,7 @@
 | `Company.Template.Application` | Use cases, application ports, result handling, command/query contracts |
 | `Company.Template.Infrastructure` | EF Core DbContext, persistence adapters, provider-specific setup |
 | `Company.Template.Api` | HTTP adapter, endpoint modules, request validation, authentication, OpenAPI |
+| `Company.Template.Composition` | Executable entry point and composition root for the HTTP API process |
 | `Company.Template.MigrationService` | One-shot EF Core migration runner |
 | `Company.Template.ServiceDefaults` | Shared hosting, telemetry, and resilience defaults |
 | `Company.Template.AppHost` | Local orchestration with .NET Aspire |
@@ -19,7 +20,8 @@
 - `Domain` references no other project.
 - `Application` references `Domain` and defines application-level ports.
 - `Infrastructure` references `Application` and `Domain` and implements outbound ports.
-- `Api` references `Application`, `Infrastructure`, and `ServiceDefaults` and acts as an HTTP adapter.
+- `Api` references `Application` and acts as the HTTP adapter.
+- `Composition` references `Api`, `Application`, `Infrastructure`, and `ServiceDefaults` and owns startup composition.
 - `MigrationService` references `Infrastructure` and `ServiceDefaults`.
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
@@ -49,6 +51,8 @@ The Domain layer may expose domain concepts such as:
 
 The template follows Clean Architecture with Ports-and-Adapters style boundaries.
 
+`Company.Template.Composition` is the executable composition root. It wires the API adapter, application layer, infrastructure adapters, and shared service defaults together.
+
 The Domain layer contains business rules and has no dependency on technical infrastructure.
 
 The Application layer defines the ports it needs:
@@ -62,7 +66,8 @@ Infrastructure and API provide adapters for those ports.
 
 ```mermaid
 flowchart LR
-    Client[HTTP Client] --> Api[API Adapter<br/>Minimal API endpoints]
+    Client[HTTP Client] --> Composition[Composition Root<br/>Executable API process]
+    Composition --> Api[API Adapter<br/>Minimal API endpoints]
 
     Api --> Validation[Request Validation<br/>ToCommand / ToQuery]
     Validation --> UseCases[Application Use Cases<br/>Inbound Ports]
@@ -144,14 +149,14 @@ The goal is clarity and dependency direction, not abstraction for its own sake.
 
 The MigrationService is an executable one-shot process.
 
-It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the API starts.
+It applies EF Core migrations and exits. It is used by Aspire so the database schema is updated before the composition entry point starts.
 
 The local startup order is:
 
 ```text
 database
   -> migration service
-  -> api
+  -> composition API process
 ```
 
 ---
