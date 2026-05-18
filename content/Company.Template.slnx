@@ -9,6 +9,7 @@
     <Folder Name="/src/">
         <Project Path="src/Company.Template.Api/Company.Template.Api.csproj"/>
         <Project Path="src/Company.Template.AppHost/Company.Template.AppHost.csproj"/>
+        <Project Path="src/Company.Template.Composition/Company.Template.Composition.csproj"/>
         <Project Path="src/Company.Template.Application/Company.Template.Application.csproj"/>
         <Project Path="src/Company.Template.Domain/Company.Template.Domain.csproj"/>
         <Project Path="src/Company.Template.Infrastructure/Company.Template.Infrastructure.csproj"/>
