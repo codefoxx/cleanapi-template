@@ -1,9 +1,7 @@
 using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Application.Abstractions.Persistence;
-using Company.Template.Application.Abstractions.Time;
 using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;
-using Company.Template.Infrastructure.Time;
 
 namespace Company.Template.Infrastructure;
 
@@ -26,7 +24,6 @@ public static class DependencyInjection
                 provider.GetRequiredService<ApplicationDbContext>());
 
             services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
-            services.AddSingleton<IClock, SystemClock>();
 
             return services;
         }
