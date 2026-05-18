@@ -14,8 +14,6 @@ public sealed class ProductsWebAppModule : IFeatureWebAppModule<ProductsFeature>
 {
     public void Use(FeatureWebAppContext context)
     {
-        ProductEndpoints endpoints = new();
-
-        endpoints.MapEndpoints(context.App);
+        ProductEndpoints.MapEndpoints(context.App);
     }
 }
