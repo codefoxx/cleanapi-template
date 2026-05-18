@@ -26,6 +26,7 @@ builder.Services
        .WithConfiguration(builder.Configuration)
        .Add<PersistenceFeature>()
        .Add<ProductsFeature>()
+       .Add<OpenApiFeature>()
        .Add<CrossCuttingConcerns>()
        .Add<DomainEventsFeature>();
 
@@ -38,7 +39,8 @@ app.MapDefaultEndpoints();
 
 FeatureWebAppBuilder webAppFeatures = app
                                      .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
-                                     .Use<CrossCuttingConcerns>();
+                                     .Use<CrossCuttingConcerns>()
+                                     .Use<OpenApiFeature>();
 
 app.UseApiAdapter();
 
