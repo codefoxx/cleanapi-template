@@ -3,7 +3,8 @@ using Company.Template.Application.Products.CreateProduct;
 using Company.Template.Application.Products.DiscontinueProduct;
 using Company.Template.Application.Products.GetProductById;
 using Company.Template.Application.Products.GetProducts;
-using Company.Template.Composition.Abstractions.Features;
+using Company.Template.Composition.Features;
+using Company.Template.Composition.Framework;
 
 namespace Company.Template.Application.Products;
 

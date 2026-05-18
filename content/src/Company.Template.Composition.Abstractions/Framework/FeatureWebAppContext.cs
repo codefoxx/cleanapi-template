@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 
-namespace Company.Template.Composition.Abstractions.Features;
+namespace Company.Template.Composition.Framework;
 
 /// <summary>
 ///     Provides feature web app modules with the composition state needed to extend the ASP.NET Core pipeline.

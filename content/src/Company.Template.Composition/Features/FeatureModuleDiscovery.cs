@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Company.Template.Composition.Features;
+namespace Company.Template.Composition.Framework;
 
 internal static class FeatureModuleDiscovery
 {

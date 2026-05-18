@@ -1,4 +1,6 @@
-namespace Company.Template.Composition.Abstractions.Features;
+using Company.Template.Composition.Framework;
+
+namespace Company.Template.Composition.Features;
 
 /// <summary>
 ///     Identifies the persistence adapter used by application workflows.

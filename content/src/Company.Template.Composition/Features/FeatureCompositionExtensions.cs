@@ -1,6 +1,8 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Company.Template.Composition.Features;
+namespace Company.Template.Composition.Framework;
 
 /// <summary>
 ///     Provides fluent entry points for feature-oriented service and WebApplication composition.

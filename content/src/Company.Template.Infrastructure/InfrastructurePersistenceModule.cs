@@ -1,5 +1,6 @@
 using Company.Template.Application.Abstractions.Persistence;
-using Company.Template.Composition.Abstractions.Features;
+using Company.Template.Composition.Features;
+using Company.Template.Composition.Framework;
 using Company.Template.Infrastructure.Options;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.Infrastructure.Persistence.Providers;

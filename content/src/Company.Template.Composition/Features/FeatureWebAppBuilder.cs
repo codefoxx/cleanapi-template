@@ -1,7 +1,7 @@
 using System.Reflection;
-using Company.Template.Composition.Abstractions.Features;
+using Microsoft.AspNetCore.Builder;
 
-namespace Company.Template.Composition.Features;
+namespace Company.Template.Composition.Framework;
 
 /// <summary>
 ///     Provides a fluent API for activating feature WebApplication modules from configured assemblies.
