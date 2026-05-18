@@ -1,6 +1,4 @@
-using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Application.Abstractions.Persistence;
-using Company.Template.Infrastructure.DomainEvents;
 using Company.Template.Infrastructure.Persistence;
 
 namespace Company.Template.Infrastructure;
@@ -22,8 +20,6 @@ public static class DependencyInjection
 
             services.AddScoped<IUnitOfWork>(provider =>
                 provider.GetRequiredService<ApplicationDbContext>());
-
-            services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
 
             return services;
         }
