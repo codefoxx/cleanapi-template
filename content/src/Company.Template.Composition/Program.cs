@@ -1,6 +1,7 @@
 using Company.Template.Api;
 using Company.Template.Application;
 using Company.Template.Application.Products;
+using Company.Template.Composition.Abstractions.Features;
 using Company.Template.Composition.Features;
 using Company.Template.Infrastructure;
 using Serilog;
@@ -21,18 +22,24 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services
        .AddFeatureServicesFromAssemblies(
+            typeof(ApiAssemblyMarker).Assembly,
             typeof(ApplicationAssemblyMarker).Assembly,
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
-       .Add<ProductsFeature>();
+       .Add<ProductsFeature>()
+       .Add<CrossCuttingConcerns>();
 
-builder.Services.AddApplication();
 builder.Services.AddApiAdapter();
 
 WebApplication app = builder.Build();
 
 app.UseSerilogRequestLogging();
 app.MapDefaultEndpoints();
+
+app
+   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<CrossCuttingConcerns>();
+
 app.UseApiAdapter();
 
 app
