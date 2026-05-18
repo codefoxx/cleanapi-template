@@ -24,7 +24,7 @@ Create the initial migration:
 ```bash
 dotnet ef migrations add InitialCreate \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -46,6 +46,7 @@ dotnet test
 ```text
 src/
   Company.Template.Api
+  Company.Template.Composition
   Company.Template.Application
   Company.Template.Domain
   Company.Template.Infrastructure
