@@ -27,7 +27,8 @@ builder.Services
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
        .Add<ProductsFeature>()
-       .Add<CrossCuttingConcerns>();
+       .Add<CrossCuttingConcerns>()
+       .Add<DomainEventsFeature>();
 
 builder.Services.AddApiAdapter();
 
