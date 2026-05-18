@@ -18,14 +18,13 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 builder.AddServiceDefaults();
 
-builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services
        .AddFeatureServicesFromAssemblies(
             typeof(ApiAssemblyMarker).Assembly,
             typeof(ApplicationAssemblyMarker).Assembly,
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
+       .Add<PersistenceFeature>()
        .Add<ProductsFeature>()
        .Add<CrossCuttingConcerns>()
        .Add<DomainEventsFeature>();
