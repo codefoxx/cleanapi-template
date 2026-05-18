@@ -1,4 +1,5 @@
 using Company.Template.Application.Abstractions.DomainEvents;
+using Company.Template.Composition;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.TestSupport.Application.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace Company.Template.Api.Tests.TestSupport;
 ///     The factory receives a lightweight logical <see cref="TestDatabase" />; the expensive database
 ///     server container is shared outside this factory.
 /// </remarks>
-public sealed class ApiDatabaseTestFactory : WebApplicationFactory<ApiAssemblyMarker>
+public sealed class ApiDatabaseTestFactory : WebApplicationFactory<CompositionAssemblyMarker>
 {
     private readonly TestDatabase _database;
 
