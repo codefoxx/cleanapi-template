@@ -12,14 +12,38 @@ Do not put business logic into endpoint handlers. Business rules belong in the d
 
 The API layer is allowed to own HTTP/request-specific validation and mapping code. This keeps transport concerns out of Application while still avoiding large endpoint handlers.
 
-## Endpoint modules
+## Feature web app modules
 
-Endpoints are grouped into endpoint modules.
+HTTP adapter behavior is activated through feature web app modules.
 
-Each module implements `IEndpointModule` and registers its own routes:
+A feature web app module implements `IFeatureWebAppModule<TFeature>` and extends the ASP.NET Core `WebApplication` pipeline for one explicitly selected feature:
 
 ```csharp
-internal sealed class ProductEndpoints : IEndpointModule
+public sealed class ProductsWebAppModule : IFeatureWebAppModule<ProductsFeature>
+{
+    public void Use(FeatureWebAppContext context)
+    {
+        ProductEndpoints endpoints = new();
+
+        endpoints.MapEndpoints(context.App);
+    }
+}
+```
+
+The composition entry point chooses which feature HTTP adapters are active:
+
+```csharp
+app
+   .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<ProductsFeature>();
+```
+
+Feature web app modules are intentionally broader than endpoint modules. They can map endpoints, register middleware, or apply other HTTP adapter pipeline configuration for a selected feature.
+
+The concrete endpoint classes can stay focused on route mapping:
+
+```csharp
+internal sealed class ProductEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
@@ -31,23 +55,6 @@ internal sealed class ProductEndpoints : IEndpointModule
     }
 }
 ```
-
-The API adapter maps endpoint modules from the API assembly when the composition entry point activates it:
-
-```csharp
-app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
-```
-
-This keeps the executable composition project small while still using standard ASP.NET Core Minimal APIs.
-
-If endpoints are split across multiple assemblies later, map each assembly explicitly:
-
-```csharp
-app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>()
-   .MapEndpointModulesFromAssembly<AdminApiAssemblyMarker>();
-```
-
-Endpoint modules are created by reflection and should have a parameterless constructor.
 
 Handler methods can still use normal Minimal API parameter injection for:
 
