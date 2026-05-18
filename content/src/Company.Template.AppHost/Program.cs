@@ -17,7 +17,7 @@ IResourceBuilder<ProjectResource> migrationService = builder
                                                     .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
 IResourceBuilder<ProjectResource> api = builder
-                                       .AddProject<Company_Template_Api>(AppHostNames.ApiResourceName)
+                                       .AddProject<Company_Template_Composition>(AppHostNames.ApiResourceName)
                                        .WithReference(database)
                                        .WaitFor(database)
                                        .WaitForCompletion(migrationService)
