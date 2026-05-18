@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj"/>
+        <ProjectReference Include="..\Company.Template.Composition\Company.Template.Composition.csproj"/>
         <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj"/>
     </ItemGroup>
 
