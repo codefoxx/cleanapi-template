@@ -32,13 +32,13 @@ internal sealed class ProductEndpoints : IEndpointModule
 }
 ```
 
-`Program.cs` scans endpoint modules from the API assembly:
+The API adapter maps endpoint modules from the API assembly when the composition entry point activates it:
 
 ```csharp
 app.MapEndpointModulesFromAssembly<ApiAssemblyMarker>();
 ```
 
-This keeps `Program.cs` small while still using standard ASP.NET Core Minimal APIs.
+This keeps the executable composition project small while still using standard ASP.NET Core Minimal APIs.
 
 If endpoints are split across multiple assemblies later, map each assembly explicitly:
 
