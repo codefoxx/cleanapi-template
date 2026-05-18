@@ -6,7 +6,7 @@
 
 The template uses EF Core migrations for relational schema management.
 
-The `MigrationService` project is used for local Aspire development. It applies pending migrations before the API starts.
+The `MigrationService` project is used for local Aspire development. It applies pending migrations before the composition entry point starts.
 
 ## Creating the initial migration
 
@@ -15,7 +15,7 @@ After generating a project, create the initial migration once:
 ```bash
 dotnet ef migrations add InitialCreate \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -49,7 +49,7 @@ After changing the EF Core model, add a new migration:
 ```bash
 dotnet ef migrations add DescribeYourChange \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -65,7 +65,7 @@ You can also apply migrations manually:
 ```bash
 dotnet ef database update \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext
 ```
 
@@ -73,14 +73,14 @@ When running with Aspire locally, manual migration execution is usually not need
 
 ## Migration bundles
 
-For release pipelines, prefer EF Core migration bundles over running migrations from the API at startup.
+For release pipelines, prefer EF Core migration bundles over running migrations from the API process at startup.
 
 Create a migration bundle:
 
 ```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext \
   --output artifacts/efbundle
 ```
@@ -90,7 +90,7 @@ For a Linux self-contained bundle:
 ```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --startup-project src/Company.Template.Composition \
   --context ApplicationDbContext \
   --self-contained \
   --runtime linux-x64 \
@@ -109,12 +109,12 @@ Run the bundle with a deployment connection string:
 build application
 build migration bundle
 apply migration bundle to database
-deploy or start api
+deploy or start composition API process
 ```
 
 The migration service is mainly intended for local Aspire development.
 
-A release pipeline should apply migrations explicitly before the API is deployed or started.
+A release pipeline should apply migrations explicitly before the API process is deployed or started.
 
 ---
 
