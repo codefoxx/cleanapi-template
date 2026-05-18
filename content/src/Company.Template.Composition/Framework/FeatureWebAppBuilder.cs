@@ -1,5 +1,4 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Builder;
 
 namespace Company.Template.Composition.Framework;
 
