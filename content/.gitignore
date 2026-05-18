@@ -16,3 +16,4 @@ Directory.Build.local.props
 # EF Core / design-time build artifacts
 BuildHost-*/
 **/BuildHost-*/
+/content/AGENTS.md
