@@ -1,6 +1,3 @@
-using Company.Template.Composition.Features;
-using Company.Template.Composition.Framework;
-
 namespace Company.Template.Application.Telemetry;
 
 /// <summary>

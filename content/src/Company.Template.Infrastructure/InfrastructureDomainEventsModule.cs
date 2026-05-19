@@ -1,6 +1,4 @@
 using Company.Template.Application.Abstractions.DomainEvents;
-using Company.Template.Composition.Features;
-using Company.Template.Composition.Framework;
 using Company.Template.Infrastructure.DomainEvents;
 
 namespace Company.Template.Infrastructure;

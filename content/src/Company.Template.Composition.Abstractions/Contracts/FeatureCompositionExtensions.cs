@@ -1,7 +1,8 @@
 using System.Reflection;
+using Company.Template.Composition.Abstractions.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Company.Template.Composition.Framework;
+namespace Company.Template.Composition.Abstractions.Contracts;
 
 /// <summary>
 ///     Provides fluent entry points for feature-oriented service composition.

@@ -1,4 +1,6 @@
-namespace Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contexts;
+
+namespace Company.Template.Composition.Abstractions.Contracts;
 
 /// <summary>
 ///     Defines service registrations that belong to a specific feature.

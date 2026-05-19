@@ -1,6 +1,4 @@
 using Company.Template.Application.Products;
-using Company.Template.Composition.Features;
-using Company.Template.Composition.Framework;
 using Company.Template.Infrastructure.Persistence.Queries;
 
 namespace Company.Template.Infrastructure.Products;

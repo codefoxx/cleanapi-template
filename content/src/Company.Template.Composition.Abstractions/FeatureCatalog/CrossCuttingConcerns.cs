@@ -1,6 +1,6 @@
-using Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contracts;
 
-namespace Company.Template.Composition.Features;
+namespace Company.Template.Composition.Abstractions.FeatureCatalog;
 
 /// <summary>
 ///     Identifies shared technical concerns that cut across application features.

@@ -1,6 +1,7 @@
-using Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contracts;
+using Company.Template.Composition.AspNetCore.Contexts;
 
-namespace Company.Template.Composition.AspNetCore;
+namespace Company.Template.Composition.AspNetCore.Contracts;
 
 /// <summary>
 ///     Defines WebApplication pipeline changes that belong to a specific feature.

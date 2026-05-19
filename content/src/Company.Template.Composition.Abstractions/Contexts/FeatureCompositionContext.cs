@@ -1,4 +1,6 @@
-namespace Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contracts;
+
+namespace Company.Template.Composition.Abstractions.Contexts;
 
 /// <summary>
 ///     Provides a scoped composition API for adding feature services before queued decorators are applied.
