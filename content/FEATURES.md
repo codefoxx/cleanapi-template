@@ -43,7 +43,7 @@ Business rules live in the domain model:
 11. Add API request/response DTOs and endpoint classes under `Api/Endpoints/{Feature}`.
 12. Add an `IFeatureWebAppModule<TFeature>` implementation that activates the feature's HTTP adapter pipeline.
 13. Add API request-to-command/query extension methods when request validation or mapping is needed.
-14. Activate the feature in the composition entry point with `.Add<TFeature>()` and `.Use<TFeature>()`.
+14. Activate the feature in the composition entry point through `.ComposeFeatures(...)` and `.Use<TFeature>()`.
 15. Add tests at the appropriate layer.
 16. Add feature-specific logs only for meaningful business decisions.
 
@@ -56,10 +56,14 @@ Service-side modules register application and infrastructure services:
 ```csharp
 builder.Services
        .AddFeatureServicesFromAssemblies(
+            typeof(ApiAssemblyMarker).Assembly,
             typeof(ApplicationAssemblyMarker).Assembly,
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
-       .Add<ProductsFeature>();
+       .ComposeFeatures(features => features
+           .AddTemplateDefaults()
+           .AddProductCatalog()
+           .DecorateUseCasesWithTelemetry());
 ```
 
 WebApplication-side modules activate HTTP adapter pipeline changes:
@@ -152,3 +156,4 @@ Use `RuleFor(...)` for field-level validation and `Rule(...)` for request-level 
 - [MIGRATIONS](MIGRATIONS.md)
 - [TESTING](TESTING.md)
 - [FEATURES](FEATURES.md)
+- [FEATURE_COMPOSITION](docs/FEATURE_COMPOSITION.md)

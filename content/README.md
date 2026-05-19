@@ -5,6 +5,18 @@
 This README is the entry point for the generated project. The detailed documentation is split into focused Markdown
 files so the project stays easy to read and maintain.
 
+## What makes this template different
+
+Startup composition is explicit and feature-oriented. Instead of growing a long list of unrelated `AddXyz()` calls,
+the generated API groups service registration through `.ComposeFeatures(...)` while keeping architectural boundaries
+visible.
+
+This is intentionally different from many templates, but it is not meant to become a framework. Feature markers are
+simple type tokens, feature modules stay in the layer that owns the services, and service registration, decorator
+application, and ASP.NET Core pipeline composition remain separate concepts.
+
+See [FEATURE_COMPOSITION.md](docs/FEATURE_COMPOSITION.md) for the details and trade-offs.
+
 ## Quick start
 
 Create a project:
@@ -80,6 +92,7 @@ tests/
 | [MIGRATIONS.md](MIGRATIONS.md)         | EF Core migrations and production migration bundles                     |
 | [TESTING.md](TESTING.md)               | Unit, integration, Testcontainers, API problem tests, smoke tests       |
 | [FEATURES.md](FEATURES.md)             | How to add a new feature to the template                                |
+| [FEATURE_COMPOSITION.md](docs/FEATURE_COMPOSITION.md) | Feature composition, markers, decorators, and web pipeline composition |
 
 ## Core design principles
 
