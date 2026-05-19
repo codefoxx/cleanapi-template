@@ -30,13 +30,13 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore Company.Template.slnx
+        run: dotnet restore Company.Template.slnx /p:EffectiveDbProvider=PostgreSql
 
       - name: Build
-        run: dotnet build Company.Template.slnx --configuration Release --no-restore
+        run: dotnet build Company.Template.slnx --configuration Release --no-restore /p:EffectiveDbProvider=PostgreSql
 
       - name: Test
-        run: dotnet test Company.Template.slnx --configuration Release --no-build
+        run: dotnet test Company.Template.slnx --configuration Release --no-build /p:EffectiveDbProvider=PostgreSql
 
   template-test-postgresql:
     name: Template test PostgreSQL
