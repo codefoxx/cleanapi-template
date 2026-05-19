@@ -1,4 +1,6 @@
-namespace Company.Template.Composition.Framework;
+using Company.Template.Composition.Framework;
+
+namespace Company.Template.Composition.AspNetCore;
 
 /// <summary>
 ///     Defines WebApplication pipeline changes that belong to a specific feature.

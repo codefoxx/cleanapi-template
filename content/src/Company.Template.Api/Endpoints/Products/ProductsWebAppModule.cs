@@ -1,5 +1,5 @@
+using Company.Template.Composition.AspNetCore;
 using Company.Template.Composition.Features;
-using Company.Template.Composition.Framework;
 
 namespace Company.Template.Api.Endpoints.Products;
 
