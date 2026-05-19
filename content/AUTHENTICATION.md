@@ -211,24 +211,27 @@ Otherwise, JWT validation fails with an invalid issuer error.
 
 If Insomnia only shows a Bearer Token field, request the token manually with `curl` and paste the access token into the Bearer Token value.
 
-## Keycloak API smoke test
+## API smoke test
 
-The template includes a k6 smoke test for the local Keycloak + API setup.
+The template includes a unified k6 smoke test for the sample API.
 
-The script verifies:
+In the default `AUTH_MODE=none` mode, the script verifies:
+
+- invalid application requests return expected errors
+- all sample Product endpoints work end-to-end
+
+When `AUTH_MODE=keycloak` is set, the same script also verifies:
 
 - Keycloak token retrieval through `client_credentials`
 - token issuer
 - token audience
 - `products.read` and `products.write` scopes
 - unauthenticated requests return `401`
-- invalid application requests return expected errors
-- all sample Product endpoints work end-to-end
 
 The script lives in:
 
 ```text
-scripts/smoke/keycloak-api-smoke.js
+scripts/smoke/api-smoke.js
 ```
 
 Install k6 first:
@@ -245,7 +248,15 @@ sudo apt update
 sudo apt install -y k6
 ```
 
-Start the AppHost with Keycloak enabled:
+Run the default smoke test without Keycloak:
+
+```bash
+k6 run scripts/smoke/api-smoke.js
+```
+
+`AUTH_MODE=none` is the default quick smoke path.
+
+To test the Keycloak-authenticated mode, start the AppHost with Keycloak enabled:
 
 ```json
 {
@@ -258,12 +269,13 @@ Start the AppHost with Keycloak enabled:
 Then run:
 
 ```bash
+AUTH_MODE=keycloak \
 KC_URL="http://localhost:8080" \
 API_URL="http://localhost:5080" \
 KC_REALM="acme-products" \
 KC_CLIENT_ID="acme-products-api" \
 KC_CLIENT_SECRET="local-dev-secret" \
-k6 run scripts/smoke/keycloak-api-smoke.js
+k6 run scripts/smoke/api-smoke.js
 ```
 
 Adjust `API_URL` if the API runs on a different local port.

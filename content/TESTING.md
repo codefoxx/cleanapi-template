@@ -133,9 +133,19 @@ Keep the OpenAPI assertions aligned with the generated document instead of assum
 
 ## Smoke tests
 
-Keycloak + API smoke tests are documented in [AUTHENTICATION.md](AUTHENTICATION.md).
+The default API smoke test runs without Keycloak:
 
-The smoke test validates the local authentication setup and sample Product endpoints end-to-end.
+```bash
+k6 run scripts/smoke/api-smoke.js
+```
+
+`AUTH_MODE=none` is the default quick smoke path. To validate the Keycloak-authenticated path, run:
+
+```bash
+AUTH_MODE=keycloak k6 run scripts/smoke/api-smoke.js
+```
+
+Smoke test details are documented in [AUTHENTICATION.md](AUTHENTICATION.md).
 
 ---
 
