@@ -1,4 +1,4 @@
-namespace Company.Template.Composition.Framework;
+namespace Company.Template.Composition.Abstractions.Contracts;
 
 /// <summary>
 ///     Marks a type as an explicit feature identifier for composition module registration.

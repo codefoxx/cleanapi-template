@@ -1,6 +1,3 @@
-using Company.Template.Composition.AspNetCore;
-using Company.Template.Composition.Features;
-
 namespace Company.Template.Api.Endpoints.Products;
 
 /// <summary>

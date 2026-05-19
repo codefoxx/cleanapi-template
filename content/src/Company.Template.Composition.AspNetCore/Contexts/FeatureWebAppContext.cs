@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 
-namespace Company.Template.Composition.AspNetCore;
+namespace Company.Template.Composition.AspNetCore.Contexts;
 
 /// <summary>
 ///     Provides feature web app modules with the composition state needed to extend the ASP.NET Core pipeline.

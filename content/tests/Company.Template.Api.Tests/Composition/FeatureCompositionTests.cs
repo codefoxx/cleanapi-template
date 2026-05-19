@@ -1,4 +1,5 @@
-using Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contexts;
+using Company.Template.Composition.Abstractions.Contracts;
 
 namespace Company.Template.Api.Tests.Composition;
 

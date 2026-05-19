@@ -1,4 +1,6 @@
-namespace Company.Template.Composition.Framework;
+using Company.Template.Composition.Abstractions.Contexts;
+
+namespace Company.Template.Composition.Abstractions.Contracts;
 
 /// <summary>
 ///     Defines service decorations that are applied after normal feature service registrations complete.

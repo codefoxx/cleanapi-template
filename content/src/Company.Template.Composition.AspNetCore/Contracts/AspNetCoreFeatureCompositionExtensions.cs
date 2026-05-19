@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 
-namespace Company.Template.Composition.AspNetCore;
+namespace Company.Template.Composition.AspNetCore.Contracts;
 
 /// <summary>
 ///     Provides fluent entry points for feature-oriented ASP.NET Core pipeline composition.

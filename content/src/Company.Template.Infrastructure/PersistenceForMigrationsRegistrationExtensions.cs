@@ -1,5 +1,3 @@
-using Company.Template.Composition.Framework;
-
 namespace Company.Template.Infrastructure;
 
 /// <summary>

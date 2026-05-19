@@ -1,8 +1,5 @@
 using Company.Template.Api;
 using Company.Template.Application;
-using Company.Template.Composition.AspNetCore;
-using Company.Template.Composition.Framework;
-using Company.Template.Composition.Features;
 using Company.Template.Infrastructure;
 using Serilog;
 

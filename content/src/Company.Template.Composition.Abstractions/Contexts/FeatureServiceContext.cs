@@ -2,7 +2,7 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Company.Template.Composition.Framework;
+namespace Company.Template.Composition.Abstractions.Contexts;
 
 /// <summary>
 ///     Provides feature service modules with the composition state needed to register their services.

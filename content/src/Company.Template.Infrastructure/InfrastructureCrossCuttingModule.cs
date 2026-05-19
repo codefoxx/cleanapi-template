@@ -1,6 +1,4 @@
 using Company.Template.Application.Abstractions.Time;
-using Company.Template.Composition.Features;
-using Company.Template.Composition.Framework;
 using Company.Template.Infrastructure.Time;
 
 namespace Company.Template.Infrastructure;

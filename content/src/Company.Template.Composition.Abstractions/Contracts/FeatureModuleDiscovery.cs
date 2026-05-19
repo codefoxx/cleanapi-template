@@ -1,7 +1,8 @@
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using Company.Template.Composition.Abstractions.Contexts;
 
-namespace Company.Template.Composition.Framework;
+namespace Company.Template.Composition.Abstractions.Contracts;
 
 public static class FeatureModuleDiscovery
 {
