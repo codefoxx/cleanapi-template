@@ -12,6 +12,7 @@ namespace Company.Template.Composition.Framework;
 public sealed class FeatureServiceBuilder
 {
     private readonly IReadOnlyList<Assembly> _assemblies;
+    private readonly List<Type> _decoratorFeatures = [];
     private readonly IServiceCollection _services;
     private IConfiguration? _configuration;
 
@@ -49,5 +50,54 @@ public sealed class FeatureServiceBuilder
         }
 
         return this;
+    }
+
+    internal void QueueDecorator<TDecoratorFeature>()
+        where TDecoratorFeature : IFeature
+    {
+        Type decoratorFeature = typeof(TDecoratorFeature);
+
+        if (_decoratorFeatures.Contains(decoratorFeature))
+        {
+            throw new InvalidOperationException(
+                $"Decorator feature '{decoratorFeature.FullName}' was queued more than once in this composition scope. " +
+                "Queue each decorator feature once, or consolidate the composition extension that applies it.");
+        }
+
+        _decoratorFeatures.Add(decoratorFeature);
+    }
+
+    internal void ApplyQueuedDecorators()
+    {
+        if (_decoratorFeatures.Count == 0)
+        {
+            return;
+        }
+
+        FeatureServiceContext context = new(
+            _services,
+            _assemblies,
+            _configuration);
+
+        foreach (Type decoratorFeature in _decoratorFeatures)
+        {
+            IReadOnlyList<FeatureServiceDecoratorModule> modules =
+                FeatureModuleDiscovery.CreateServiceDecoratorModules(_assemblies, decoratorFeature);
+
+            if (modules.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    $"No service decorator modules were found for decorator feature '{decoratorFeature.FullName}'. " +
+                    "Ensure a module implements IFeatureServiceDecoratorModule<TDecoratedFeature, TDecoratorFeature> " +
+                    "for this decorator feature and that its assembly is included in AddFeatureServicesFromAssemblies(...).");
+            }
+
+            foreach (FeatureServiceDecoratorModule module in modules)
+            {
+                module.Decorate(context);
+            }
+        }
+
+        _decoratorFeatures.Clear();
     }
 }
