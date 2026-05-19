@@ -3,17 +3,17 @@ using Company.Template.Composition.Framework;
 namespace Company.Template.Infrastructure;
 
 /// <summary>
-///     Registers the persistence feature for executable projects that do not use the main composition root.
+///     Registers the persistence services needed by migration helper processes.
 /// </summary>
 /// <remarks>
-///     This keeps helper processes from constructing feature service contexts directly while preserving explicit
-///     persistence feature activation.
+///     Migrations construct the application DbContext directly, so the migration process also needs the minimal
+///     domain-event infrastructure required by the DbContext constructor.
 /// </remarks>
-public static class PersistenceFeatureRegistrationExtensions
+public static class PersistenceForMigrationsRegistrationExtensions
 {
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddMigrationPersistence(IConfiguration configuration)
+        public IServiceCollection AddPersistenceForMigrations(IConfiguration configuration)
         {
             FeatureServiceContext context = new(
                 services,
