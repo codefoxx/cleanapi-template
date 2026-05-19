@@ -3,7 +3,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Company.Template.Composition.Framework;
 
-internal static class FeatureModuleDiscovery
+public static class FeatureModuleDiscovery
 {
     public static IReadOnlyList<TModule> CreateModules<TModule>(IReadOnlyList<Assembly> assemblies)
     {
@@ -19,7 +19,7 @@ internal static class FeatureModuleDiscovery
               .ToArray();
     }
 
-    public static IReadOnlyList<FeatureServiceDecoratorModule> CreateServiceDecoratorModules(
+    internal static IReadOnlyList<FeatureServiceDecoratorModule> CreateServiceDecoratorModules(
         IReadOnlyList<Assembly> assemblies,
         Type decoratorFeature)
     {

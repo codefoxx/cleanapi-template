@@ -47,6 +47,8 @@ dotnet test
 src/
   Company.Template.Api
   Company.Template.Composition
+  Company.Template.Composition.AspNetCore
+  Company.Template.Composition.Abstractions
   Company.Template.Application
   Company.Template.Domain
   Company.Template.Infrastructure

@@ -11,6 +11,8 @@
 | `Company.Template.Infrastructure` | EF Core DbContext, persistence adapters, provider-specific setup |
 | `Company.Template.Api` | HTTP adapter, endpoint modules, request validation, authentication, OpenAPI |
 | `Company.Template.Composition` | Executable entry point and composition root for the HTTP API process |
+| `Company.Template.Composition.Abstractions` | Pure service-composition feature contracts and markers |
+| `Company.Template.Composition.AspNetCore` | ASP.NET Core pipeline feature-composition contracts |
 | `Company.Template.MigrationService` | One-shot EF Core migration runner |
 | `Company.Template.ServiceDefaults` | Shared hosting, telemetry, and resilience defaults |
 | `Company.Template.AppHost` | Local orchestration with .NET Aspire |
@@ -21,7 +23,9 @@
 - `Application` references `Domain` and defines application-level ports.
 - `Infrastructure` references `Application` and `Domain` and implements outbound ports.
 - `Api` references `Application` and acts as the HTTP adapter.
+- `Api` references the ASP.NET Core composition contracts for WebApplication feature modules.
 - `Composition` references `Api`, `Application`, `Infrastructure`, and `ServiceDefaults` and owns startup composition.
+- `Application` and `Infrastructure` may reference pure service-composition abstractions but must not reference ASP.NET Core composition contracts.
 - `MigrationService` references `Infrastructure` and `ServiceDefaults`.
 - `AppHost` is used for local orchestration with .NET Aspire.
 - Tests reference only the projects they need.
