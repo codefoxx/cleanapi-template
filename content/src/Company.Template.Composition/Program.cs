@@ -26,20 +26,15 @@ builder.Services
            .AddProductCatalog()
            .DecorateUseCasesWithTelemetry());
 
-builder.Services.AddApiAdapter();
-
 WebApplication app = builder.Build();
 
 app.UseSerilogRequestLogging();
 app.MapDefaultEndpoints();
 
-FeatureWebAppBuilder webAppFeatures = app
-                                     .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
-                                     .Use<CrossCuttingConcerns>()
-                                     .Use<OpenApiFeature>();
-
-app.UseApiAdapter();
-
-webAppFeatures.Use<ProductsFeature>();
+app.UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<CrossCuttingConcerns>()
+   .Use<OpenApiFeature>()
+   .Use<ApiAdapterFeature>()
+   .Use<ProductsFeature>();
 
 app.Run();

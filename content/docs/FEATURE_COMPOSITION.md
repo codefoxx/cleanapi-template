@@ -69,8 +69,8 @@ startup policy:
     .DecorateUseCasesWithTelemetry());
 ```
 
-`AddTemplateDefaults()` activates technical defaults such as persistence, OpenAPI service registrations, domain
-events, and generic cross-cutting services.
+`AddTemplateDefaults()` activates technical defaults such as the API adapter boundary, persistence, OpenAPI service
+registrations, domain events, and generic cross-cutting services.
 
 `AddProductCatalog()` activates the sample Products feature.
 
@@ -105,14 +105,11 @@ Service composition uses `Company.Template.Composition.Abstractions` and runs th
 ASP.NET Core pipeline composition uses `Company.Template.Composition.AspNetCore` and runs through `WebApplication`:
 
 ```csharp
-FeatureWebAppBuilder webAppFeatures = app
-                                     .UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
-                                     .Use<CrossCuttingConcerns>()
-                                     .Use<OpenApiFeature>();
-
-app.UseApiAdapter();
-
-webAppFeatures.Use<ProductsFeature>();
+app.UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker).Assembly)
+   .Use<CrossCuttingConcerns>()
+   .Use<OpenApiFeature>()
+   .Use<ApiAdapterFeature>()
+   .Use<ProductsFeature>();
 ```
 
 `.Use<TFeature>()` discovers `IFeatureWebAppModule<TFeature>` modules. Web modules can map endpoints, apply middleware,
