@@ -13,13 +13,14 @@ public static class PersistenceFeatureRegistrationExtensions
 {
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddPersistenceFeature(IConfiguration configuration)
+        public IServiceCollection AddMigrationPersistence(IConfiguration configuration)
         {
             FeatureServiceContext context = new(
                 services,
                 [typeof(InfrastructureAssemblyMarker).Assembly],
                 configuration);
 
+            new InfrastructureDomainEventsModule().Register(context);
             new InfrastructurePersistenceModule().Register(context);
 
             return services;

@@ -5,7 +5,7 @@ HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddPersistenceFeature(builder.Configuration);
+builder.Services.AddMigrationPersistence(builder.Configuration);
 
 using IHost host = builder.Build();
 
