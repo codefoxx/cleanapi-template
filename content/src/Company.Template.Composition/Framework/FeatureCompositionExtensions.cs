@@ -42,4 +42,21 @@ public static class FeatureCompositionExtensions
             return new FeatureWebAppBuilder(app, assemblies);
         }
     }
+
+    extension(FeatureServiceBuilder builder)
+    {
+        public FeatureServiceBuilder ComposeFeatures(Action<FeatureCompositionContext> compose)
+        {
+            ArgumentNullException.ThrowIfNull(builder);
+            ArgumentNullException.ThrowIfNull(compose);
+
+            FeatureCompositionContext context = new(builder);
+
+            compose(context);
+
+            builder.ApplyQueuedDecorators();
+
+            return builder;
+        }
+    }
 }
