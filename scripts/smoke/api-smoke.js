@@ -46,6 +46,7 @@ export default function () {
     const product = createProduct(auth);
 
     getProduct(auth, product.id, product);
+    getProducts(auth, product);
     getUnknownProduct(auth);
 
     const changedProduct = changeProductPrice(auth, product.id);
@@ -84,6 +85,12 @@ function getRoot() {
 }
 
 function requireAuthentication() {
+    const listResponse = http.get(`${apiUrl}/api/products`);
+
+    check(listResponse, {
+        "GET products without token returns 401": r => r.status === 401,
+    });
+
     const readResponse = http.get(`${apiUrl}/api/products/${unknownProductId}`);
 
     check(readResponse, {
@@ -187,8 +194,7 @@ function createInvalidProduct(auth) {
     );
 
     check(response, {
-        "POST invalid product returns validation error": r =>
-            r.status === 400 || r.status === 422,
+        "POST invalid product returns 422": r => r.status === 422,
     });
 }
 
@@ -247,6 +253,33 @@ function getProduct(auth, productId, expected) {
     }
 }
 
+function getProducts(auth, expected) {
+    const response = http.get(
+        `${apiUrl}/api/products?search=${encodeURIComponent(expected.name)}`,
+        headers(auth)
+    );
+
+    check(response, {
+        "GET products returns 200": r => r.status === 200,
+    });
+
+    if (response.status !== 200) {
+        fail(`Get products failed: ${response.status} ${response.body}`);
+    }
+
+    const body = response.json();
+
+    check(body, {
+        "GET products returns items": b => Array.isArray(b.items),
+        "GET products includes created product": b =>
+            Array.isArray(b.items) && b.items.some(product => product.id === expected.id),
+        "GET products returns page metadata": b =>
+            b.page && b.page.number === 1 && b.page.size === 20,
+        "GET products returns total metadata": b =>
+            b.total && Number.isInteger(b.total.items) && Number.isInteger(b.total.pages),
+    });
+}
+
 function getUnknownProduct(auth) {
     const response = http.get(
         `${apiUrl}/api/products/${unknownProductId}`,
@@ -301,8 +334,7 @@ function changeProductPriceWithInvalidPrice(auth, productId) {
     );
 
     check(response, {
-        "PUT invalid product price returns validation error": r =>
-            r.status === 400 || r.status === 422,
+        "PUT invalid product price returns 422": r => r.status === 422,
     });
 }
 
@@ -314,11 +346,10 @@ function discontinueProduct(auth, productId) {
     );
 
     check(response, {
-        "POST discontinue product returns success": r =>
-            r.status === 200 || r.status === 204,
+        "POST discontinue product returns 204": r => r.status === 204,
     });
 
-    if (response.status !== 200 && response.status !== 204) {
+    if (response.status !== 204) {
         fail(`Discontinue product failed: ${response.status} ${response.body}`);
     }
 }
