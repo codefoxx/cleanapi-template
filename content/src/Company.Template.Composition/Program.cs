@@ -23,11 +23,10 @@ builder.Services
             typeof(ApplicationAssemblyMarker).Assembly,
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
-       .Add<PersistenceFeature>()
-       .Add<ProductsFeature>()
-       .Add<OpenApiFeature>()
-       .Add<CrossCuttingConcerns>()
-       .Add<DomainEventsFeature>();
+       .ComposeFeatures(features => features
+           .AddTemplateDefaults()
+           .AddProductCatalog()
+           .DecorateUseCasesWithTelemetry());
 
 builder.Services.AddApiAdapter();
 
