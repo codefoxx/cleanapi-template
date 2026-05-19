@@ -251,10 +251,11 @@ sudo apt install -y k6
 Run the default smoke test without Keycloak:
 
 ```bash
+# Without Keycloak / default mode
 k6 run scripts/smoke/api-smoke.js
 ```
 
-`AUTH_MODE=none` is the default quick smoke path.
+`AUTH_MODE=none` is the default quick smoke path and does not require Keycloak.
 
 To test the Keycloak-authenticated mode, start the AppHost with Keycloak enabled:
 
@@ -269,6 +270,7 @@ To test the Keycloak-authenticated mode, start the AppHost with Keycloak enabled
 Then run:
 
 ```bash
+# With Keycloak
 AUTH_MODE=keycloak \
 KC_URL="http://localhost:8080" \
 API_URL="http://localhost:5080" \

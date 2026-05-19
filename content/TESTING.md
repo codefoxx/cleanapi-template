@@ -136,12 +136,15 @@ Keep the OpenAPI assertions aligned with the generated document instead of assum
 The default API smoke test runs without Keycloak:
 
 ```bash
+# Without Keycloak / default mode
 k6 run scripts/smoke/api-smoke.js
 ```
 
-`AUTH_MODE=none` is the default quick smoke path. To validate the Keycloak-authenticated path, run:
+`AUTH_MODE=none` is the default quick smoke path and does not require Keycloak. To validate the Keycloak-authenticated
+path, run:
 
 ```bash
+# With Keycloak
 AUTH_MODE=keycloak k6 run scripts/smoke/api-smoke.js
 ```
 
