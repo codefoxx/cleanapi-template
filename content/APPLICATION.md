@@ -90,10 +90,14 @@ The composition entry point activates selected feature modules explicitly:
 ```csharp
 builder.Services
        .AddFeatureServicesFromAssemblies(
+            typeof(ApiAssemblyMarker).Assembly,
             typeof(ApplicationAssemblyMarker).Assembly,
             typeof(InfrastructureAssemblyMarker).Assembly)
        .WithConfiguration(builder.Configuration)
-       .Add<ProductsFeature>();
+       .ComposeFeatures(features => features
+           .AddTemplateDefaults()
+           .AddProductCatalog()
+           .DecorateUseCasesWithTelemetry());
 ```
 
 The template decorates registered use cases with telemetry behavior. Generic execution telemetry belongs in:
@@ -167,3 +171,4 @@ Use cases should describe workflow coordination, domain delegation, and persiste
 - [MIGRATIONS](MIGRATIONS.md)
 - [TESTING](TESTING.md)
 - [FEATURES](FEATURES.md)
+- [FEATURE_COMPOSITION](docs/FEATURE_COMPOSITION.md)
