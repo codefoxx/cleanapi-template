@@ -23,6 +23,24 @@ public sealed class FeatureCompositionTests
     }
 
     [Fact]
+    public void ComposeFeatures_IgnoresDecoratorModulesForDifferentDecoratorFeature()
+    {
+        ServiceCollection services = [];
+
+        services
+           .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests).Assembly)
+           .ComposeFeatures(features => features
+               .Add<TestServiceFeature>()
+               .Decorate<TestDecoratorFeature>());
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<ITestService>()
+                .Execute()
+                .ShouldBe("decorated inner");
+    }
+
+    [Fact]
     public void ComposeFeatures_ThrowsWhenDecoratorFeatureIsQueuedTwice()
     {
         ServiceCollection services = [];
@@ -59,6 +77,8 @@ public sealed class FeatureCompositionTests
 
     public sealed class TestDecoratorFeature : IFeature;
 
+    public sealed class OtherDecoratorFeature : IFeature;
+
     public sealed class MissingDecoratorFeature : IFeature;
 
     public interface ITestService
@@ -89,6 +109,21 @@ public sealed class FeatureCompositionTests
         }
     }
 
+    public sealed class OtherTestServiceDecorator : ITestService
+    {
+        private readonly ITestService _inner;
+
+        public OtherTestServiceDecorator(ITestService inner)
+        {
+            _inner = inner;
+        }
+
+        public string Execute()
+        {
+            return $"other {_inner.Execute()}";
+        }
+    }
+
     public sealed class TestServiceModule : IFeatureServiceModule<TestServiceFeature>
     {
         public void Register(FeatureServiceContext context)
@@ -103,6 +138,15 @@ public sealed class FeatureCompositionTests
         public void Decorate(FeatureServiceContext context)
         {
             context.Services.Decorate<ITestService, TestServiceDecorator>();
+        }
+    }
+
+    public sealed class OtherDecoratorModule :
+        IFeatureServiceDecoratorModule<TestServiceFeature, OtherDecoratorFeature>
+    {
+        public void Decorate(FeatureServiceContext context)
+        {
+            context.Services.Decorate<ITestService, OtherTestServiceDecorator>();
         }
     }
 }
