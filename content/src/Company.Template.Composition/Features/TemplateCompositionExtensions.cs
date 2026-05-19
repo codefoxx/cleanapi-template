@@ -12,6 +12,7 @@ public static class TemplateCompositionExtensions
             ArgumentNullException.ThrowIfNull(context);
 
             return context
+                  .Add<ApiAdapterFeature>()
                   .Add<PersistenceFeature>()
                   .Add<OpenApiFeature>()
                   .Add<DomainEventsFeature>()
