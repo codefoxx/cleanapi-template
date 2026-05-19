@@ -57,6 +57,9 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Restore template package
+        run: dotnet restore template-package/Codefox.CleanApi.Template.csproj
+
       - name: Pack template
         run: |
           dotnet msbuild template-package/Codefox.CleanApi.Template.csproj \
