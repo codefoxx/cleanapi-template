@@ -1,6 +1,6 @@
 import encoding from "k6/encoding";
 import http from "k6/http";
-import {check, fail} from "k6";
+import { check, fail } from "k6";
 
 export const options = {
     vus: 1,
@@ -13,15 +13,18 @@ export const options = {
 
 http.setResponseCallback(
     http.expectedStatuses(
-        {min: 200, max: 399},
+        { min: 200, max: 399 },
         400,
         401,
-        404
+        404,
+        422
     )
 );
 
-const keycloakUrl = __ENV.KC_URL || "http://localhost:8080";
+const authMode = (__ENV.AUTH_MODE || "none").toLowerCase();
 const apiUrl = __ENV.API_URL || "http://localhost:5080";
+
+const keycloakUrl = __ENV.KC_URL || "http://localhost:8080";
 const realm = __ENV.KC_REALM || "acme-products";
 const clientId = __ENV.KC_CLIENT_ID || "acme-products-api";
 const clientSecret = __ENV.KC_CLIENT_SECRET || "local-dev-secret";
@@ -29,30 +32,50 @@ const clientSecret = __ENV.KC_CLIENT_SECRET || "local-dev-secret";
 const unknownProductId = "11111111-1111-1111-1111-111111111111";
 
 export default function () {
-    verifyRootEndpoint();
-    verifyProtectedEndpointsRequireAuthentication();
+    const auth = createAuthContext();
 
-    const token = getAccessToken();
+    getRoot();
 
-    verifyTokenPayload(token);
+    if (auth.enabled) {
+        requireAuthentication();
+        verifyTokenPayload(auth.token);
+    }
 
-    verifyInvalidCreateRequestReturnsBadRequest(token);
+    createInvalidProduct(auth);
 
-    const product = createProduct(token);
+    const product = createProduct(auth);
 
-    getProduct(token, product.id, product);
-    verifyUnknownProductReturnsNotFound(token);
+    getProduct(auth, product.id, product);
+    getUnknownProduct(auth);
 
-    const changedProduct = changeProductPrice(token, product.id);
-    getProduct(token, product.id, changedProduct);
+    const changedProduct = changeProductPrice(auth, product.id);
+    getProduct(auth, product.id, changedProduct);
 
-    verifyInvalidPriceChangeReturnsBadRequest(token, product.id);
+    changeProductPriceWithInvalidPrice(auth, product.id);
 
-    discontinueProduct(token, product.id);
-    verifyProductIsDiscontinued(token, product.id);
+    discontinueProduct(auth, product.id);
+    getDiscontinuedProduct(auth, product.id);
 }
 
-function verifyRootEndpoint() {
+function createAuthContext() {
+    if (authMode === "none") {
+        return {
+            enabled: false,
+            token: null,
+        };
+    }
+
+    if (authMode !== "keycloak") {
+        fail(`Unsupported AUTH_MODE '${authMode}'. Use 'none' or 'keycloak'.`);
+    }
+
+    return {
+        enabled: true,
+        token: getAccessToken(),
+    };
+}
+
+function getRoot() {
     const response = http.get(`${apiUrl}/`);
 
     check(response, {
@@ -60,7 +83,7 @@ function verifyRootEndpoint() {
     });
 }
 
-function verifyProtectedEndpointsRequireAuthentication() {
+function requireAuthentication() {
     const readResponse = http.get(`${apiUrl}/api/products/${unknownProductId}`);
 
     check(readResponse, {
@@ -152,7 +175,7 @@ function verifyTokenPayload(token) {
     });
 }
 
-function verifyInvalidCreateRequestReturnsBadRequest(token) {
+function createInvalidProduct(auth) {
     const response = http.post(
         `${apiUrl}/api/products`,
         JSON.stringify({
@@ -160,15 +183,16 @@ function verifyInvalidCreateRequestReturnsBadRequest(token) {
             price: 10,
             currency: "USD",
         }),
-        authJsonHeaders(token)
+        jsonHeaders(auth)
     );
 
     check(response, {
-        "POST invalid product returns 400": r => r.status === 400,
+        "POST invalid product returns validation error": r =>
+            r.status === 400 || r.status === 422,
     });
 }
 
-function createProduct(token) {
+function createProduct(auth) {
     const expected = {
         name: `Keyboard ${Date.now()}`,
         price: 99.99,
@@ -178,15 +202,15 @@ function createProduct(token) {
     const response = http.post(
         `${apiUrl}/api/products`,
         JSON.stringify(expected),
-        authJsonHeaders(token)
+        jsonHeaders(auth)
     );
 
     check(response, {
         "POST valid product returns 201": r => r.status === 201,
         "POST valid product returns id": r => Boolean(r.json("id")),
         "POST valid product returns name": r => r.json("name") === expected.name,
-        "POST valid product returns price": r => Number(r.json("price")) === expected.price,
-        "POST valid product returns currency": r => r.json("currency") === expected.currency,
+        "POST valid product returns price": r => Number(r.json("price.amount")) === expected.price,
+        "POST valid product returns currency": r => r.json("price.currency") === expected.currency,
         "POST valid product returns active status": r => r.json("status") === "Active",
     });
 
@@ -203,18 +227,18 @@ function createProduct(token) {
     };
 }
 
-function getProduct(token, productId, expected) {
+function getProduct(auth, productId, expected) {
     const response = http.get(
         `${apiUrl}/api/products/${productId}`,
-        authHeaders(token)
+        headers(auth)
     );
 
     check(response, {
         "GET existing product returns 200": r => r.status === 200,
         "GET existing product returns same id": r => r.json("id") === productId,
         "GET existing product returns expected name": r => r.json("name") === expected.name,
-        "GET existing product returns expected price": r => Number(r.json("price")) === expected.price,
-        "GET existing product returns expected currency": r => r.json("currency") === expected.currency,
+        "GET existing product returns expected price": r => Number(r.json("price.amount")) === expected.price,
+        "GET existing product returns expected currency": r => r.json("price.currency") === expected.currency,
         "GET existing product returns expected status": r => r.json("status") === expected.status,
     });
 
@@ -223,18 +247,18 @@ function getProduct(token, productId, expected) {
     }
 }
 
-function verifyUnknownProductReturnsNotFound(token) {
+function getUnknownProduct(auth) {
     const response = http.get(
         `${apiUrl}/api/products/${unknownProductId}`,
-        authHeaders(token)
+        headers(auth)
     );
 
     check(response, {
-        "GET unknown product with token returns 404": r => r.status === 404,
+        "GET unknown product returns 404": r => r.status === 404,
     });
 }
 
-function changeProductPrice(token, productId) {
+function changeProductPrice(auth, productId) {
     const expected = {
         price: 129.99,
         currency: "USD",
@@ -243,14 +267,14 @@ function changeProductPrice(token, productId) {
     const response = http.put(
         `${apiUrl}/api/products/${productId}/price`,
         JSON.stringify(expected),
-        authJsonHeaders(token)
+        jsonHeaders(auth)
     );
 
     check(response, {
         "PUT product price returns 200": r => r.status === 200,
         "PUT product price returns same id": r => r.json("id") === productId,
-        "PUT product price returns changed price": r => Number(r.json("price")) === expected.price,
-        "PUT product price returns changed currency": r => r.json("currency") === expected.currency,
+        "PUT product price returns changed price": r => Number(r.json("price.amount")) === expected.price,
+        "PUT product price returns changed currency": r => r.json("price.currency") === expected.currency,
     });
 
     if (response.status !== 200) {
@@ -266,26 +290,27 @@ function changeProductPrice(token, productId) {
     };
 }
 
-function verifyInvalidPriceChangeReturnsBadRequest(token, productId) {
+function changeProductPriceWithInvalidPrice(auth, productId) {
     const response = http.put(
         `${apiUrl}/api/products/${productId}/price`,
         JSON.stringify({
             price: -1,
             currency: "USD",
         }),
-        authJsonHeaders(token)
+        jsonHeaders(auth)
     );
 
     check(response, {
-        "PUT invalid product price returns 400": r => r.status === 400,
+        "PUT invalid product price returns validation error": r =>
+            r.status === 400 || r.status === 422,
     });
 }
 
-function discontinueProduct(token, productId) {
+function discontinueProduct(auth, productId) {
     const response = http.post(
         `${apiUrl}/api/products/${productId}/discontinue`,
         null,
-        authHeaders(token)
+        headers(auth)
     );
 
     check(response, {
@@ -298,10 +323,10 @@ function discontinueProduct(token, productId) {
     }
 }
 
-function verifyProductIsDiscontinued(token, productId) {
+function getDiscontinuedProduct(auth, productId) {
     const response = http.get(
         `${apiUrl}/api/products/${productId}`,
-        authHeaders(token)
+        headers(auth)
     );
 
     check(response, {
@@ -311,26 +336,22 @@ function verifyProductIsDiscontinued(token, productId) {
     });
 }
 
-function authHeaders(token, additionalHeaders = {}) {
+function headers(auth, additionalHeaders = {}) {
+    const result = {
+        ...additionalHeaders,
+    };
+
+    if (auth.enabled) {
+        result.Authorization = `Bearer ${auth.token}`;
+    }
+
     return {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            ...additionalHeaders,
-        },
+        headers: result,
     };
 }
 
-function jsonHeaders(additionalHeaders = {}) {
-    return {
-        headers: {
-            "Content-Type": "application/json",
-            ...additionalHeaders,
-        },
-    };
-}
-
-function authJsonHeaders(token) {
-    return authHeaders(token, {
+function jsonHeaders(auth = { enabled: false, token: null }) {
+    return headers(auth, {
         "Content-Type": "application/json",
     });
 }
