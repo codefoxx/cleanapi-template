@@ -271,7 +271,7 @@
                 "*.DotSettings.user",
                 "Directory.Build.local.props",
                 "src/Company.Template.AppHost/appsettings.json",
-                "src/Company.Template.AppHost/appsettings.NoAuth.json",
+                "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs",
                 "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs",
                 "src/Company.Template.Composition/appsettings.json",
@@ -289,11 +289,11 @@
             "target": "./",
             "condition": "(auth == \"None\")",
             "include": [
-                "src/Company.Template.AppHost/appsettings.NoAuth.json",
+                "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.Composition/appsettings.None.json"
             ],
             "rename": {
-                "src/Company.Template.AppHost/appsettings.NoAuth.json": "src/Company.Template.AppHost/appsettings.json",
+                "src/Company.Template.AppHost/appsettings.None.json": "src/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.Composition/appsettings.None.json": "src/Company.Template.Composition/appsettings.json"
             }
         },
