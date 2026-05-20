@@ -24,6 +24,16 @@
     </PropertyGroup>
     <!--#endif -->
 
+    <!--#if (auth == "TemplateAuthoringOnly") -->
+    <PropertyGroup>
+        <!--
+          Raw template development can override EffectiveAuthProvider through Directory.Build.local.props.
+          Generated projects materialize only the selected authentication mode and do not need this authoring property.
+        -->
+        <EffectiveAuthProvider Condition="'$(EffectiveAuthProvider)' == ''">Keycloak</EffectiveAuthProvider>
+    </PropertyGroup>
+    <!--#endif -->
+
     <PropertyGroup>
         <IsSourceProject Condition="$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('\', '/').Contains('/src/'))">true</IsSourceProject>
     </PropertyGroup>
