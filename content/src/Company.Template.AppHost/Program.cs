@@ -21,7 +21,6 @@ IResourceBuilder<ProjectResource> api = builder
                                        .WaitFor(database)
                                        .WaitForCompletion(migrationService)
                                        .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
-
 //#if (auth == "Keycloak")
 KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
 
