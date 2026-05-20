@@ -7,7 +7,6 @@ internal static class OpenApiRegistrationExtensions
         //#if (auth == "None")
         services.AddOpenApi();
         //#endif
-
         //#if (auth == "Keycloak")
         services.AddOpenApi(options =>
         {
