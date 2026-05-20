@@ -1,50 +1,34 @@
 # Company.Template
 
-> Production-oriented Clean Architecture Web API generated from the `cleanapi` template.
+Production-oriented Clean Architecture Web API template.
 
-This README is the entry point for the generated project. The detailed documentation is split into focused Markdown
-files so the project stays easy to read and maintain.
+This template is intentionally small enough to understand, but complete enough to show how a real API can be structured.
 
-## What makes this template different
+It combines:
 
-Startup composition is explicit and feature-oriented. Instead of growing a long list of unrelated `AddXyz()` calls,
-the generated API groups service registration through `.ComposeFeatures(...)` while keeping architectural boundaries
-visible.
+- Clean Architecture boundaries
+- Ports and Adapters style dependencies
+- Minimal API endpoints
+- explicit `Result<T>` based failure handling
+- EF Core persistence
+- provider-specific database materialization
+- optional Keycloak JWT bearer authentication
+- .NET Aspire local orchestration
+- Testcontainers-based integration tests
+- OpenTelemetry-ready service defaults
 
-This is intentionally different from many templates, but it is not meant to become a framework. Feature markers are
-simple type tokens, feature modules stay in the layer that owns the services, and service registration, decorator
-application, and ASP.NET Core pipeline composition remain separate concepts.
+## Getting started
 
-See [FEATURE_COMPOSITION.md](docs/FEATURE_COMPOSITION.md) for the details and trade-offs.
-
-## Quick start
-
-Create a project:
+Create a new project:
 
 ```bash
-dotnet new cleanapi -n Company.Template --db PostgreSql
+dotnet new cleanapi -n MyCompany.Products --db PostgreSql
 ```
 
-Restore packages:
+Run it through Aspire:
 
 ```bash
-dotnet restore
-```
-
-Create the initial migration:
-
-```bash
-dotnet ef migrations add InitialCreate \
-  --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
-  --context ApplicationDbContext \
-  --output-dir Persistence/Migrations
-```
-
-Run the local Aspire AppHost:
-
-```bash
-dotnet run --project src/Company.Template.AppHost
+dotnet run --project src/MyCompany.Products.AppHost
 ```
 
 Run tests:
@@ -53,7 +37,7 @@ Run tests:
 dotnet test
 ```
 
-## Project structure
+## Project layout
 
 ```text
 src/
@@ -86,7 +70,7 @@ tests/
 | [PERSISTENCE.md](PERSISTENCE.md)       | Persistence ports, EF Core adapters, command/query boundaries           |
 | [OBSERVABILITY.md](OBSERVABILITY.md)   | OpenTelemetry, logs, traces, metrics                                    |
 | [DATABASE.md](DATABASE.md)             | Provider selection, generated provider configuration                    |
-| [ASPIRE.md](ASPIRE.md)                 | Local orchestration, startup order, pgAdmin                             |
+| [ASPIRE.md](ASPIRE.md)                 | Local orchestration and startup order                                   |
 | [AUTHENTICATION.md](AUTHENTICATION.md) | Optional Keycloak authentication and local realm setup                  |
 | [OPENAPI.md](OPENAPI.md)               | OpenAPI document, response metadata, OAuth metadata                     |
 | [MIGRATIONS.md](MIGRATIONS.md)         | EF Core migrations and production migration bundles                     |
@@ -103,16 +87,5 @@ tests/
 - Use the lightweight validation builder for API request validation that must collect all field errors.
 - Use exceptions for unexpected failures or violated programming contracts.
 - Keep the Domain layer persistence-free and infrastructure-free.
-- Use thin EF Core-friendly persistence ports for commands and named query ports for reads.
-- Use relational integration tests instead of EF Core InMemory.
-- Treat observability as a production concern, not an afterthought.
 
-## Central package management
-
-Package versions are centralized in:
-
-```text
-Directory.Packages.props
-```
-
-Project files reference packages without versions.
+For the design rationale, start with [ARCHITECTURE.md](ARCHITECTURE.md).
