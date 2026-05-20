@@ -11,6 +11,13 @@ public static class FeatureCompositionExtensions
 {
     extension(IServiceCollection services)
     {
+        public FeatureServiceBuilder AddFeatureServicesFromAssemblies(Assembly assembly)
+        {
+            ArgumentNullException.ThrowIfNull(assembly);
+
+            return services.AddFeatureServicesFromAssemblies([assembly]);
+        }
+
         public FeatureServiceBuilder AddFeatureServicesFromAssemblies(params Assembly[] assemblies)
         {
             ArgumentNullException.ThrowIfNull(services);
