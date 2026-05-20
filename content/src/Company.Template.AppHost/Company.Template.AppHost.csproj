@@ -16,12 +16,8 @@
 
     <!--#if (auth == "TemplateAuthoringOnly") -->
     <ItemGroup>
-        <Compile Remove="AppHostNames.None.cs" Condition="'$(EffectiveAuthProvider)' != 'None'"/>
-        <Compile Remove="Program.None.cs" Condition="'$(EffectiveAuthProvider)' != 'None'"/>
-        <Compile Remove="AppHostNames.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
         <Compile Remove="Containers\KeycloakContainerExtensions.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
         <Compile Remove="Containers\KeycloakContainerOptions.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
-        <Compile Remove="Program.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
     </ItemGroup>
     <!--#endif -->
 
