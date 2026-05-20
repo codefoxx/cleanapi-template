@@ -247,6 +247,8 @@
                 "*.DotSettings.user",
                 "Directory.Build.local.props",
                 "infra/keycloak/**/*",
+                "src/Company.Template.Api/GlobalUsings.cs",
+                "src/Company.Template.Api/GlobalUsings.None.cs",
                 "src/Company.Template.AppHost/AppHostNames.cs",
                 "src/Company.Template.AppHost/AppHostNames.None.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
@@ -272,12 +274,14 @@
             "target": "./",
             "condition": "(auth == \"None\")",
             "include": [
+                "src/Company.Template.Api/GlobalUsings.None.cs",
                 "src/Company.Template.AppHost/AppHostNames.None.cs",
                 "src/Company.Template.AppHost/Program.None.cs",
                 "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.Composition/appsettings.None.json"
             ],
             "rename": {
+                "src/Company.Template.Api/GlobalUsings.None.cs": "src/Company.Template.Api/GlobalUsings.cs",
                 "src/Company.Template.AppHost/AppHostNames.None.cs": "src/Company.Template.AppHost/AppHostNames.cs",
                 "src/Company.Template.AppHost/Program.None.cs": "src/Company.Template.AppHost/Program.cs",
                 "src/Company.Template.AppHost/appsettings.None.json": "src/Company.Template.AppHost/appsettings.json",
@@ -290,6 +294,7 @@
             "condition": "(auth == \"Keycloak\")",
             "include": [
                 "infra/keycloak/realms/__KEYCLOAK_REALM__-realm.json",
+                "src/Company.Template.Api/GlobalUsings.cs",
                 "src/Company.Template.AppHost/AppHostNames.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
