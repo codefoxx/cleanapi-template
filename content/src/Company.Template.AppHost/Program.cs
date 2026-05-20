@@ -15,16 +15,18 @@ IResourceBuilder<ProjectResource> migrationService = builder
                                                     .WaitFor(database)
                                                     .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
-IResourceBuilder<ProjectResource> api = builder
-                                       .AddProject<Company_Template_Composition>(AppHostNames.ApiResourceName)
-                                       .WithReference(database)
-                                       .WaitFor(database)
-                                       .WaitForCompletion(migrationService)
-                                       .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 //#if (auth == "Keycloak")
 KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
 
-api.WithTemplateKeycloakAuthentication(keycloak);
 //#endif
+builder
+   .AddProject<Company_Template_Composition>(AppHostNames.ApiResourceName)
+   .WithReference(database)
+   //#if (auth == "Keycloak")
+   .WithTemplateKeycloakAuthentication(keycloak)
+   //#endif
+   .WaitFor(database)
+   .WaitForCompletion(migrationService)
+   .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
 builder.Build().Run();
