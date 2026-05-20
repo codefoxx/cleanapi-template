@@ -9,8 +9,8 @@
 
     <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup>
-        <Compile Remove="Providers\PostgreSqlAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
-        <Compile Remove="Providers\SqlServerAspireDatabase.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
+        <Compile Remove="Providers\AspireDatabase.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
+        <Compile Remove="Providers\AspireDatabase.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
     </ItemGroup>
     <!--#endif -->
 
