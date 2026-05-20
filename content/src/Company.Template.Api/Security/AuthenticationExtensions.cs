@@ -14,12 +14,9 @@ internal static class AuthenticationExtensions
 {
     public static RouteHandlerBuilder RequireTemplatePolicy(
         this RouteHandlerBuilder builder,
-        string policy,
-        bool authenticationEnabled)
+        string policy)
     {
-        return authenticationEnabled
-            ? builder.RequireAuthorization(policy)
-            : builder;
+        return builder.RequireAuthorization(policy);
     }
 
     private static void RequireScopeOrRole(AuthorizationPolicyBuilder policy, string requiredValue)
