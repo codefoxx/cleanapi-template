@@ -13,7 +13,7 @@
     "shortName": "cleanapi",
     "sourceName": "Company.Template",
     "preferNameDirectory": true,
-    "description": "Production-oriented Clean Architecture Web API template with EF Core, Aspire, Keycloak JWT bearer wiring, Testcontainers and sample DDD code.",
+    "description": "Production-oriented Clean Architecture Web API template with EF Core, Aspire, optional Keycloak JWT bearer wiring, Testcontainers and sample DDD code.",
     "tags": {
         "language": "C#",
         "type": "project"
@@ -50,6 +50,22 @@
             "valueSource": "apiResourceNameRaw",
             "valueTransform": "lowerCaseForm",
             "replaces": "__API_RESOURCE_NAME__"
+        },
+        "auth": {
+            "type": "parameter",
+            "datatype": "choice",
+            "description": "Authentication mode used by the generated application.",
+            "defaultValue": "Keycloak",
+            "choices": [
+                {
+                    "choice": "None",
+                    "description": "Generate the project without authentication artifacts."
+                },
+                {
+                    "choice": "Keycloak",
+                    "description": "Generate the project with enforced JWT bearer authentication backed by the sample Keycloak realm."
+                }
+            ]
         },
         "authAudienceRaw": {
             "type": "generated",
