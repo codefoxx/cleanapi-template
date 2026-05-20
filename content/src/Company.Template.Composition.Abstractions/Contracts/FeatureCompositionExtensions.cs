@@ -2,6 +2,8 @@ using System.Reflection;
 using Company.Template.Composition.Abstractions.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable ConvertToExtensionBlock - prevents CS8620 errors
+
 namespace Company.Template.Composition.Abstractions.Contracts;
 
 /// <summary>
@@ -9,29 +11,31 @@ namespace Company.Template.Composition.Abstractions.Contracts;
 /// </summary>
 public static class FeatureCompositionExtensions
 {
-    extension(IServiceCollection services)
+    public static FeatureServiceBuilder AddFeatureServicesFromAssemblies(this IServiceCollection services,
+        Type assemblyMarker)
     {
-        public FeatureServiceBuilder AddFeatureServicesFromAssemblies(Assembly assembly)
-        {
-            ArgumentNullException.ThrowIfNull(assembly);
+        ArgumentNullException.ThrowIfNull(assemblyMarker);
 
-            return services.AddFeatureServicesFromAssemblies([assembly]);
+        return services.AddFeatureServicesFromAssemblies([assemblyMarker]);
+    }
+
+    public static FeatureServiceBuilder AddFeatureServicesFromAssemblies(this IServiceCollection services,
+        params Type[] assemblyMarkers)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(assemblyMarkers);
+
+        if (assemblyMarkers.Length == 0)
+        {
+            throw new ArgumentException(
+                "At least one assembly is required.",
+                nameof(assemblyMarkers));
         }
 
-        public FeatureServiceBuilder AddFeatureServicesFromAssemblies(params Assembly[] assemblies)
-        {
-            ArgumentNullException.ThrowIfNull(services);
-            ArgumentNullException.ThrowIfNull(assemblies);
+        Assembly[] assemblies = assemblyMarkers.Select(marker => marker.Assembly)
+            .ToArray();
 
-            if (assemblies.Length == 0)
-            {
-                throw new ArgumentException(
-                    "At least one assembly is required.",
-                    nameof(assemblies));
-            }
-
-            return new FeatureServiceBuilder(services, assemblies);
-        }
+        return new FeatureServiceBuilder(services, assemblies);
     }
 
     extension(FeatureServiceBuilder builder)
