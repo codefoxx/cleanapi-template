@@ -224,30 +224,6 @@
             "valueSource": "migrationServiceResourceNameRaw",
             "valueTransform": "lowerCaseForm",
             "replaces": "__MIGRATION_SERVICE_RESOURCE_NAME__"
-        },
-        "pgAdminResourceNameRaw": {
-            "type": "generated",
-            "generator": "regex",
-            "parameters": {
-                "source": "name",
-                "steps": [
-                    {
-                        "regex": "\\.",
-                        "replacement": "-"
-                    },
-                    {
-                        "regex": "^(.*)$",
-                        "replacement": "$1-pgadmin"
-                    }
-                ]
-            }
-        },
-        "pgAdminResourceName": {
-            "type": "derived",
-            "datatype": "text",
-            "valueSource": "pgAdminResourceNameRaw",
-            "valueTransform": "lowerCaseForm",
-            "replaces": "__PGADMIN_RESOURCE_NAME__"
         }
     },
     "forms": {
