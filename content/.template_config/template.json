@@ -253,26 +253,50 @@
                 ".template_config/**/*",
                 ".idea/**/*",
                 "*.DotSettings.user",
-                "Directory.Build.local.props"
-            ],
-            "modifiers": [
-                {
-                    "condition": "(db != \"PostgreSql\")",
-                    "exclude": [
-                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
-                        "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
-                        "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs"
-                    ]
-                },
-                {
-                    "condition": "(db != \"SqlServer\")",
-                    "exclude": [
-                        "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
-                        "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
-                        "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
-                    ]
-                }
+                "Directory.Build.local.props",
+                "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs",
+                "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
             ]
+        },
+        {
+            "source": "./",
+            "target": "./",
+            "condition": "(db == \"PostgreSql\")",
+            "include": [
+                "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs"
+            ],
+            "rename": {
+                "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs": "src/Company.Template.AppHost/Providers/AspireDatabase.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs": "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseProvider.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseServer.cs"
+            }
+        },
+        {
+            "source": "./",
+            "target": "./",
+            "condition": "(db == \"SqlServer\")",
+            "include": [
+                "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
+            ],
+            "rename": {
+                "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs": "src/Company.Template.AppHost/Providers/AspireDatabase.cs",
+                "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs": "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseProvider.cs",
+                "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseServer.cs"
+            }
         }
     ]
 }
