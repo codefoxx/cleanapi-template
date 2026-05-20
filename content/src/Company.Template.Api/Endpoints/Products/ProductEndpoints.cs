@@ -1,6 +1,7 @@
-using Company.Template.Api.Options;
-using Company.Template.Api.Routing;
+//#if (auth == "Keycloak")
 using Company.Template.Api.Security;
+//#endif
+using Company.Template.Api.Routing;
 using Company.Template.Application.Abstractions;
 using Company.Template.Application.Common;
 using Company.Template.Application.Products;
@@ -23,54 +24,60 @@ internal static class ProductEndpoints
 {
     public static void MapEndpoints(IEndpointRouteBuilder app)
     {
-        AuthenticationOptions authenticationOptions = app.ServiceProvider
-                                                         .GetRequiredService<IOptions<AuthenticationOptions>>()
-                                                         .Value;
-
         RouteGroupBuilder group = app
                                  .MapGroup(ApiRoutes.Products.Base)
                                  .WithTags("Products");
 
-        group
-           .MapGet(ApiRoutes.Products.Collection, GetProductsAsync)
-           .WithName(ApiRoutes.Products.Names.GetProducts)
-           .Produces<PagedResponse<ProductResponse>>()
-           .ProducesValidationProblem()
-           .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
-           .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
+        RouteHandlerBuilder getProducts = group
+                                         .MapGet(ApiRoutes.Products.Collection, GetProductsAsync)
+                                         .WithName(ApiRoutes.Products.Names.GetProducts)
+                                         .Produces<PagedResponse<ProductResponse>>()
+                                         .ProducesValidationProblem()
+                                         .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+        //#if (auth == "Keycloak")
+        getProducts.RequireTemplatePolicy(TemplatePolicies.ProductsRead);
+        //#endif
 
-        group
-           .MapPost(ApiRoutes.Products.Collection, CreateProductAsync)
-           .WithName(ApiRoutes.Products.Names.CreateProduct)
-           .Produces<ProductResponse>(StatusCodes.Status201Created)
-           .ProducesValidationProblem()
-           .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
-           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+        RouteHandlerBuilder createProduct = group
+                                           .MapPost(ApiRoutes.Products.Collection, CreateProductAsync)
+                                           .WithName(ApiRoutes.Products.Names.CreateProduct)
+                                           .Produces<ProductResponse>(StatusCodes.Status201Created)
+                                           .ProducesValidationProblem()
+                                           .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+        //#if (auth == "Keycloak")
+        createProduct.RequireTemplatePolicy(TemplatePolicies.ProductsWrite);
+        //#endif
 
-        group
-           .MapGet(ApiRoutes.Products.ById, GetProductByIdAsync)
-           .WithName(ApiRoutes.Products.Names.GetProductById)
-           .Produces<ProductResponse>()
-           .ProducesProblem(StatusCodes.Status404NotFound)
-           .RequireTemplatePolicy(TemplatePolicies.ProductsRead, authenticationOptions.Enabled);
+        RouteHandlerBuilder getProductById = group
+                                            .MapGet(ApiRoutes.Products.ById, GetProductByIdAsync)
+                                            .WithName(ApiRoutes.Products.Names.GetProductById)
+                                            .Produces<ProductResponse>()
+                                            .ProducesProblem(StatusCodes.Status404NotFound);
+        //#if (auth == "Keycloak")
+        getProductById.RequireTemplatePolicy(TemplatePolicies.ProductsRead);
+        //#endif
 
-        group
-           .MapPut(ApiRoutes.Products.Price, ChangeProductPriceAsync)
-           .WithName(ApiRoutes.Products.Names.ChangeProductPrice)
-           .Produces<ProductResponse>()
-           .ProducesValidationProblem()
-           .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
-           .ProducesProblem(StatusCodes.Status404NotFound)
-           .ProducesProblem(StatusCodes.Status409Conflict)
-           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+        RouteHandlerBuilder changeProductPrice = group
+                                                .MapPut(ApiRoutes.Products.Price, ChangeProductPriceAsync)
+                                                .WithName(ApiRoutes.Products.Names.ChangeProductPrice)
+                                                .Produces<ProductResponse>()
+                                                .ProducesValidationProblem()
+                                                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+                                                .ProducesProblem(StatusCodes.Status404NotFound)
+                                                .ProducesProblem(StatusCodes.Status409Conflict);
+        //#if (auth == "Keycloak")
+        changeProductPrice.RequireTemplatePolicy(TemplatePolicies.ProductsWrite);
+        //#endif
 
-        group
-           .MapPost(ApiRoutes.Products.Discontinue, DiscontinueProductAsync)
-           .WithName(ApiRoutes.Products.Names.DiscontinueProduct)
-           .Produces(StatusCodes.Status204NoContent)
-           .ProducesProblem(StatusCodes.Status404NotFound)
-           .ProducesProblem(StatusCodes.Status409Conflict)
-           .RequireTemplatePolicy(TemplatePolicies.ProductsWrite, authenticationOptions.Enabled);
+        RouteHandlerBuilder discontinueProduct = group
+                                                .MapPost(ApiRoutes.Products.Discontinue, DiscontinueProductAsync)
+                                                .WithName(ApiRoutes.Products.Names.DiscontinueProduct)
+                                                .Produces(StatusCodes.Status204NoContent)
+                                                .ProducesProblem(StatusCodes.Status404NotFound)
+                                                .ProducesProblem(StatusCodes.Status409Conflict);
+        //#if (auth == "Keycloak")
+        discontinueProduct.RequireTemplatePolicy(TemplatePolicies.ProductsWrite);
+        //#endif
     }
 
     private static Task<IResult> CreateProductAsync(
