@@ -24,44 +24,17 @@ The migration service applies pending EF Core migrations and exits.
 
 The API waits until the migration service has completed successfully.
 
-## Local development tools
+## AppHost configuration
 
-Local development tools can be enabled in:
+The AppHost is the local orchestration entry point for generated projects.
 
-```text
-src/Company.Template.AppHost/appsettings.json
-```
+Database resources are selected through the template's database provider option and materialized into provider-specific AppHost code.
 
-Example:
-
-```json
-{
-    "AppHost": {
-        "StartPgAdmin": false,
-        "StartKeycloak": false
-    }
-}
-```
-
-## Optional pgAdmin
-
-pgAdmin is disabled by default.
-
-Enable it in the AppHost configuration:
-
-```json
-{
-    "AppHost": {
-        "StartPgAdmin": true
-    }
-}
-```
-
-pgAdmin is intended as a local development tool only. It is not part of the application architecture.
+Authentication-related orchestration is selected through the template's authentication option.
 
 ## Keycloak orchestration
 
-Keycloak can also be started by the AppHost when authentication is enabled for local development.
+When the project is generated with Keycloak authentication, AppHost starts the sample Keycloak setup used by the local API.
 
 See [AUTHENTICATION.md](AUTHENTICATION.md) for the full Keycloak setup.
 
