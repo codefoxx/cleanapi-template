@@ -1,7 +1,7 @@
 namespace Company.Template.AppHost.Containers;
 
 /// <summary>
-///     Adds the optional local Keycloak resource used by the Aspire AppHost.
+///     Adds the local Keycloak resource used by the Aspire AppHost.
 /// </summary>
 /// <remarks>
 ///     These helpers keep identity-provider wiring at the local orchestration boundary: the API receives authentication
@@ -21,7 +21,6 @@ public static class KeycloakContainerExtensions
         IResourceBuilder<KeycloakResource> keycloak = builder
                                                      .AddKeycloak(options.ResourceName, options.Port)
                                                      .WithRealmImport(options.RealmImportPath);
-        ;
 
         if (options.UseDataVolume)
         {
@@ -38,7 +37,6 @@ public static class KeycloakContainerExtensions
         return api
               .WithReference(keycloak.Resource)
               .WaitFor(keycloak.Resource)
-              .WithEnvironment("Authentication__Enabled", "true")
               .WithEnvironment("Authentication__Authority", keycloak.Options.Authority)
               .WithEnvironment("Authentication__Audience", keycloak.Options.Audience);
     }
