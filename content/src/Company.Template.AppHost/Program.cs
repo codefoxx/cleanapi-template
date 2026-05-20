@@ -5,8 +5,6 @@ using Projects;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-bool startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak");
-
 IResourceBuilder<IResourceWithConnectionString> database = AspireDatabase.Create(builder);
 
 IResourceBuilder<ProjectResource> migrationService = builder
@@ -22,11 +20,8 @@ IResourceBuilder<ProjectResource> api = builder
                                        .WaitForCompletion(migrationService)
                                        .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
-if (startKeycloak)
-{
-    KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
+KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
 
-    api.WithTemplateKeycloakAuthentication(keycloak);
-}
+api.WithTemplateKeycloakAuthentication(keycloak);
 
 builder.Build().Run();
