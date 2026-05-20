@@ -22,7 +22,14 @@ public static class AspNetCoreFeatureCompositionExtensions
                 nameof(assemblyMarkers));
         }
 
-        Assembly[] assemblies = assemblyMarkers.Select(marker => marker.Assembly).ToArray();
+        Assembly[] assemblies = assemblyMarkers
+            .Select(marker =>
+            {
+                ArgumentNullException.ThrowIfNull(marker);
+
+                return marker.Assembly;
+            })
+            .ToArray();
 
         return new FeatureWebAppBuilder(app, assemblies);
     }
