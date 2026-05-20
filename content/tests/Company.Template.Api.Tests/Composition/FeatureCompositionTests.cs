@@ -11,16 +11,16 @@ public sealed class FeatureCompositionTests
         ServiceCollection services = [];
 
         services
-           .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests).Assembly)
-           .ComposeFeatures(features => features
-               .Decorate<TestDecoratorFeature>()
-               .Add<TestServiceFeature>());
+            .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests))
+            .ComposeFeatures(features => features
+                .Decorate<TestDecoratorFeature>()
+                .Add<TestServiceFeature>());
 
         using ServiceProvider provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<ITestService>()
-                .Execute()
-                .ShouldBe("decorated inner");
+            .Execute()
+            .ShouldBe("decorated inner");
     }
 
     [Fact]
@@ -29,16 +29,16 @@ public sealed class FeatureCompositionTests
         ServiceCollection services = [];
 
         services
-           .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests).Assembly)
-           .ComposeFeatures(features => features
-               .Add<TestServiceFeature>()
-               .Decorate<TestDecoratorFeature>());
+            .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests))
+            .ComposeFeatures(features => features
+                .Add<TestServiceFeature>()
+                .Decorate<TestDecoratorFeature>());
 
         using ServiceProvider provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<ITestService>()
-                .Execute()
-                .ShouldBe("decorated inner");
+            .Execute()
+            .ShouldBe("decorated inner");
     }
 
     [Fact]
@@ -49,10 +49,10 @@ public sealed class FeatureCompositionTests
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() =>
         {
             services
-               .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests).Assembly)
-               .ComposeFeatures(features => features
-                   .Decorate<TestDecoratorFeature>()
-                   .Decorate<TestDecoratorFeature>());
+                .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests))
+                .ComposeFeatures(features => features
+                    .Decorate<TestDecoratorFeature>()
+                    .Decorate<TestDecoratorFeature>());
         });
 
         exception.Message.ShouldContain("was queued more than once");
@@ -66,8 +66,8 @@ public sealed class FeatureCompositionTests
         InvalidOperationException exception = Should.Throw<InvalidOperationException>(() =>
         {
             services
-               .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests).Assembly)
-               .ComposeFeatures(features => features.Decorate<MissingDecoratorFeature>());
+                .AddFeatureServicesFromAssemblies(typeof(FeatureCompositionTests))
+                .ComposeFeatures(features => features.Decorate<MissingDecoratorFeature>());
         });
 
         exception.Message.ShouldContain("No service decorator modules were found");
