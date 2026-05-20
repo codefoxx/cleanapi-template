@@ -14,13 +14,15 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
+    <!--#if (db == "TemplateAuthoringOnly") -->
     <PropertyGroup>
         <!--
-          In raw template development, Directory.Build.local.props can provide EffectiveDbProvider.
-          In generated projects, __DB_PROVIDER__ is replaced by the selected template value.
+          Raw template development can provide EffectiveDbProvider through Directory.Build.local.props.
+          Generated projects materialize only the selected provider and do not need this authoring property.
         -->
         <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">__DB_PROVIDER__</EffectiveDbProvider>
     </PropertyGroup>
+    <!--#endif -->
 
     <PropertyGroup>
         <IsSourceProject Condition="$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('\', '/').Contains('/src/'))">true</IsSourceProject>
