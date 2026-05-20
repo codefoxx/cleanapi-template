@@ -1,6 +1,8 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 
+// ReSharper disable ConvertToExtensionBlock - prevents CS8620 errors
+
 namespace Company.Template.Composition.AspNetCore.Contracts;
 
 /// <summary>
@@ -8,21 +10,20 @@ namespace Company.Template.Composition.AspNetCore.Contracts;
 /// </summary>
 public static class AspNetCoreFeatureCompositionExtensions
 {
-    extension(WebApplication app)
+    public static FeatureWebAppBuilder UseFeaturesFromAssemblies(this WebApplication app, params Type[] assemblyMarkers)
     {
-        public FeatureWebAppBuilder UseFeaturesFromAssemblies(params Assembly[] assemblies)
+        ArgumentNullException.ThrowIfNull(app);
+        ArgumentNullException.ThrowIfNull(assemblyMarkers);
+
+        if (assemblyMarkers.Length == 0)
         {
-            ArgumentNullException.ThrowIfNull(app);
-            ArgumentNullException.ThrowIfNull(assemblies);
-
-            if (assemblies.Length == 0)
-            {
-                throw new ArgumentException(
-                    "At least one assembly is required.",
-                    nameof(assemblies));
-            }
-
-            return new FeatureWebAppBuilder(app, assemblies);
+            throw new ArgumentException(
+                "At least one assembly is required.",
+                nameof(assemblyMarkers));
         }
+
+        Assembly[] assemblies = assemblyMarkers.Select(marker => marker.Assembly).ToArray();
+
+        return new FeatureWebAppBuilder(app, assemblies);
     }
 }
