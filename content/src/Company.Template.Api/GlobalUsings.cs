@@ -9,7 +9,9 @@ global using Company.Template.Composition.Abstractions.Contracts;
 global using Company.Template.Composition.Abstractions.FeatureCatalog;
 global using Company.Template.Composition.AspNetCore.Contexts;
 global using Company.Template.Composition.AspNetCore.Contracts;
+//#if (auth == "Keycloak")
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
+//#endif
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Diagnostics;
@@ -20,5 +22,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
+//#if (auth == "Keycloak")
 global using Microsoft.IdentityModel.Tokens;
+//#endif
 global using Microsoft.OpenApi;
