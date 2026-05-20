@@ -247,6 +247,9 @@
                 "*.DotSettings.user",
                 "Directory.Build.local.props",
                 "infra/keycloak/**/*",
+                "src/Company.Template.Application/Abstractions/Security/ICurrentUser.cs",
+                "src/Company.Template.Api/ApiAdapterServiceModule.cs",
+                "src/Company.Template.Api/CurrentUser/HttpCurrentUser.cs",
                 "src/Company.Template.Api/Options/AuthenticationOptions.cs",
                 "src/Company.Template.Api/Security/AuthenticationExtensions.cs",
                 "src/Company.Template.Api/Security/TemplatePolicies.cs",
@@ -254,12 +257,8 @@
                 "src/Company.Template.Api/OpenApi/AuthorizationOperationTransformer.cs",
                 "src/Company.Template.Api/OpenApi/BearerSecuritySchemeTransformer.cs",
                 "src/Company.Template.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs",
-                "src/Company.Template.AppHost/AppHostNames.cs",
-                "src/Company.Template.AppHost/AppHostNames.None.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
-                "src/Company.Template.AppHost/Program.cs",
-                "src/Company.Template.AppHost/Program.None.cs",
                 "src/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
@@ -279,14 +278,10 @@
             "target": "./",
             "condition": "(auth == \"None\")",
             "include": [
-                "src/Company.Template.AppHost/AppHostNames.None.cs",
-                "src/Company.Template.AppHost/Program.None.cs",
                 "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.Composition/appsettings.None.json"
             ],
             "rename": {
-                "src/Company.Template.AppHost/AppHostNames.None.cs": "src/Company.Template.AppHost/AppHostNames.cs",
-                "src/Company.Template.AppHost/Program.None.cs": "src/Company.Template.AppHost/Program.cs",
                 "src/Company.Template.AppHost/appsettings.None.json": "src/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.Composition/appsettings.None.json": "src/Company.Template.Composition/appsettings.json"
             }
@@ -297,6 +292,9 @@
             "condition": "(auth == \"Keycloak\")",
             "include": [
                 "infra/keycloak/realms/__KEYCLOAK_REALM__-realm.json",
+                "src/Company.Template.Application/Abstractions/Security/ICurrentUser.cs",
+                "src/Company.Template.Api/ApiAdapterServiceModule.cs",
+                "src/Company.Template.Api/CurrentUser/HttpCurrentUser.cs",
                 "src/Company.Template.Api/Options/AuthenticationOptions.cs",
                 "src/Company.Template.Api/Security/AuthenticationExtensions.cs",
                 "src/Company.Template.Api/Security/TemplatePolicies.cs",
@@ -304,10 +302,8 @@
                 "src/Company.Template.Api/OpenApi/AuthorizationOperationTransformer.cs",
                 "src/Company.Template.Api/OpenApi/BearerSecuritySchemeTransformer.cs",
                 "src/Company.Template.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs",
-                "src/Company.Template.AppHost/AppHostNames.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
-                "src/Company.Template.AppHost/Program.cs",
                 "src/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.Composition/appsettings.json"
             ]
