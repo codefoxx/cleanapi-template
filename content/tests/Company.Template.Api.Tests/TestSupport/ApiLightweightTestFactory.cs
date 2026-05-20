@@ -2,6 +2,7 @@ using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Composition;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Company.Template.Api.Tests.TestSupport;
@@ -25,6 +26,7 @@ public sealed class ApiLightweightTestFactory : WebApplicationFactory<Compositio
             RemoveApplicationDbContextRegistration(services);
 
             services.AddScoped<IDomainEventDispatcher, NoOpDomainEventDispatcher>();
+            services.AddTestAuthentication();
 
             services.AddDbContext<ApplicationDbContext>(_ =>
             {
@@ -52,5 +54,19 @@ public sealed class ApiLightweightTestFactory : WebApplicationFactory<Compositio
         {
             return Task.CompletedTask;
         }
+    }
+}
+
+file static class TestAuthenticationRegistration
+{
+    public static IServiceCollection AddTestAuthentication(this IServiceCollection services)
+    {
+        services
+           .AddAuthentication(TestAuthenticationHandler.SchemeName)
+           .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+                TestAuthenticationHandler.SchemeName,
+                _ => { });
+
+        return services;
     }
 }
