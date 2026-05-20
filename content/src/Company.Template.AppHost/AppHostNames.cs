@@ -10,7 +10,6 @@ internal static class AppHostNames
     private const string RawKeycloakRealm = "__KEYCLOAK_REALM__";
     private const string RawKeycloakResourceName = "__KEYCLOAK_RESOURCE_NAME__";
     private const string RawMigrationServiceResourceName = "__MIGRATION_SERVICE_RESOURCE_NAME__";
-    private const string RawPgAdminResourceName = "__PGADMIN_RESOURCE_NAME__";
 
     public static string ApiResourceName { get; } = Normalize(RawApiResourceName);
     public static string AuthAudience { get; } = Normalize(RawAuthAudience);
@@ -18,7 +17,6 @@ internal static class AppHostNames
     public static string KeycloakRealm { get; } = Normalize(RawKeycloakRealm);
     public static string KeycloakResourceName { get; } = Normalize(RawKeycloakResourceName);
     public static string MigrationServiceResourceName { get; } = Normalize(RawMigrationServiceResourceName);
-    public static string PgAdminResourceName { get; } = Normalize(RawPgAdminResourceName);
 
     private static string Normalize(string value)
     {
