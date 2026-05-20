@@ -11,7 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!--#if (auth == "Keycloak") -->
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
+        <!--#endif -->
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     </ItemGroup>
 
