@@ -32,7 +32,13 @@ public static class FeatureCompositionExtensions
                 nameof(assemblyMarkers));
         }
 
-        Assembly[] assemblies = assemblyMarkers.Select(marker => marker.Assembly)
+        Assembly[] assemblies = assemblyMarkers
+            .Select(marker =>
+            {
+                ArgumentNullException.ThrowIfNull(marker);
+
+                return marker.Assembly;
+            })
             .ToArray();
 
         return new FeatureServiceBuilder(services, assemblies);
