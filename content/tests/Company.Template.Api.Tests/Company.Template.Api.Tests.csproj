@@ -12,6 +12,7 @@
         <ProjectReference Include="..\Company.Template.TestSupport\Company.Template.TestSupport.csproj"/>
     </ItemGroup>
 
+    <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
         <Compile Remove="TestSupport\TestDatabase.PostgreSql.cs"/>
     </ItemGroup>
@@ -19,12 +20,17 @@
     <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
         <Compile Remove="TestSupport\TestDatabase.SqlServer.cs"/>
     </ItemGroup>
+    <!--#endif -->
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="Testcontainers.PostgreSql" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageReference Include="Testcontainers.MsSql" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
+        <!--#if (db == "PostgreSql") -->
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+        <!--#endif -->
+        <!--#if (db == "SqlServer") -->
+        <PackageReference Include="Testcontainers.MsSql"/>
+        <!--#endif -->
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.runner.visualstudio">
