@@ -22,5 +22,116 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Validate provider-clean template output
-        run: bash scripts/validate-template-materialization.sh
+      - name: Install template
+        run: dotnet new install ./content --force
+
+      - name: Materialize PostgreSQL template
+        run: dotnet new cleanapi -n Validation.PostgreSql --db PostgreSql -o /tmp/cleanapi-template-validation/postgresql --force
+
+      - name: Materialize SQL Server template
+        run: dotnet new cleanapi -n Validation.SqlServer --db SqlServer -o /tmp/cleanapi-template-validation/sqlserver --force
+
+      - name: Validate provider-specific filenames are absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          assert_no_provider_suffixes() {
+            local project="$1"
+            local label="$2"
+
+            echo "Checking $label"
+
+            findings="$({
+              find "$project" -type f \( \
+                -name "*.PostgreSql.cs" \
+                -o -name "*.SqlServer.cs" \
+                -o -name "PostgreSqlAspireDatabase.cs" \
+                -o -name "SqlServerAspireDatabase.cs" \
+              \) -print
+            })"
+
+            if [ -n "$findings" ]; then
+              echo "$findings"
+              exit 1
+            fi
+          }
+
+          assert_no_provider_suffixes /tmp/cleanapi-template-validation/postgresql "PostgreSQL output"
+          assert_no_provider_suffixes /tmp/cleanapi-template-validation/sqlserver "SQL Server output"
+
+      - name: Validate neutral provider files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          assert_file_exists() {
+            local file="$1"
+
+            if [ ! -f "$file" ]; then
+              echo "Expected file does not exist: $file"
+              exit 1
+            fi
+          }
+
+          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/Validation.PostgreSql.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/Validation.PostgreSql.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
+          assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseProvider.cs
+          assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseServer.cs
+
+          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/Validation.SqlServer.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/Validation.SqlServer.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
+          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseProvider.cs
+          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseServer.cs
+
+      - name: Validate authoring conditions are absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          assert_no_authoring_conditions() {
+            local project="$1"
+            local label="$2"
+
+            echo "Checking $label"
+
+            if grep -RInE 'EffectiveDbProvider|Condition=.*PostgreSql|Condition=.*SqlServer' \
+              "$project" \
+              --include='*.csproj' \
+              --include='*.props'; then
+              exit 1
+            fi
+          }
+
+          assert_no_authoring_conditions /tmp/cleanapi-template-validation/postgresql "PostgreSQL output"
+          assert_no_authoring_conditions /tmp/cleanapi-template-validation/sqlserver "SQL Server output"
+
+      - name: Validate wrong-provider packages are absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          assert_no_wrong_provider_packages() {
+            local project="$1"
+            local label="$2"
+            local pattern="$3"
+
+            echo "Checking $label"
+
+            if grep -RInE "$pattern" \
+              "$project" \
+              --include='*.csproj' \
+              --include='*.props'; then
+              exit 1
+            fi
+          }
+
+          assert_no_wrong_provider_packages \
+            /tmp/cleanapi-template-validation/postgresql \
+            "PostgreSQL output" \
+            'Aspire\.Hosting\.SqlServer|Microsoft\.Data\.SqlClient|Microsoft\.EntityFrameworkCore\.SqlServer|Testcontainers\.MsSql'
+
+          assert_no_wrong_provider_packages \
+            /tmp/cleanapi-template-validation/sqlserver \
+            "SQL Server output" \
+            'Aspire\.Hosting\.PostgreSQL|Npgsql|Testcontainers\.PostgreSql'
