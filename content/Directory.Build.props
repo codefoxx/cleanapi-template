@@ -17,10 +17,10 @@
     <!--#if (db == "TemplateAuthoringOnly") -->
     <PropertyGroup>
         <!--
-          Raw template development can provide EffectiveDbProvider through Directory.Build.local.props.
+          Raw template development can override EffectiveDbProvider through Directory.Build.local.props.
           Generated projects materialize only the selected provider and do not need this authoring property.
         -->
-        <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">__DB_PROVIDER__</EffectiveDbProvider>
+        <EffectiveDbProvider Condition="'$(EffectiveDbProvider)' == ''">PostgreSql</EffectiveDbProvider>
     </PropertyGroup>
     <!--#endif -->
 
