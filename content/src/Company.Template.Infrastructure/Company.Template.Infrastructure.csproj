@@ -6,6 +6,7 @@
         <ProjectReference Include="..\Company.Template.Domain\Company.Template.Domain.csproj"/>
     </ItemGroup>
 
+    <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
         <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.PostgreSql.cs"/>
     </ItemGroup>
@@ -13,6 +14,7 @@
     <ItemGroup Condition="'$(EffectiveDbProvider)' != 'SqlServer'">
         <Compile Remove="Persistence\Providers\DatabaseProviderConfigurator.SqlServer.cs"/>
     </ItemGroup>
+    <!--#endif -->
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
@@ -21,10 +23,12 @@
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
-
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-
+        <!--#if (db == "PostgreSql") -->
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+        <!--#endif -->
+        <!--#if (db == "SqlServer") -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+        <!--#endif -->
         <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="all"/>
     </ItemGroup>
 
