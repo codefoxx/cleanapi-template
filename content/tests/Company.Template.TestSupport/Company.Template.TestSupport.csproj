@@ -19,17 +19,20 @@
         <PackageReference Include="xunit"/>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'PostgreSql'">
+    <!--#if (db == "PostgreSql") -->
+    <ItemGroup>
         <PackageReference Include="Npgsql"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="Testcontainers.PostgreSql"/>
     </ItemGroup>
-
-    <ItemGroup Condition="'$(EffectiveDbProvider)' == 'SqlServer'">
+    <!--#endif -->
+    <!--#if (db == "SqlServer") -->
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
         <PackageReference Include="Testcontainers.MsSql"/>
     </ItemGroup>
-
+    <!--#endif -->
+    <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup Condition="'$(EffectiveDbProvider)' != 'PostgreSql'">
         <Compile Remove="Database\TestDatabase.PostgreSql.cs"/>
         <Compile Remove="Database\TestDatabaseServer.PostgreSql.cs"/>
@@ -39,5 +42,6 @@
         <Compile Remove="Database\TestDatabase.SqlServer.cs"/>
         <Compile Remove="Database\TestDatabaseServer.SqlServer.cs"/>
     </ItemGroup>
+    <!--#endif -->
 
 </Project>
