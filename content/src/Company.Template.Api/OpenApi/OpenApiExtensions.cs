@@ -6,11 +6,15 @@ internal static class OpenApiRegistrationExtensions
     {
         services.AddOpenApi(options =>
         {
+            //#if (auth == "Keycloak")
             options.AddDocumentTransformer(AuthenticationOpenApiTransformers.TransformDocumentAsync);
             options.AddOperationTransformer(AuthenticationOpenApiTransformers.TransformOperationAsync);
+            //#endif
         });
 
+        //#if (auth == "Keycloak")
         services.AddSingleton<OAuth2SecuritySchemeTransformer>();
+        //#endif
 
         return services;
     }
