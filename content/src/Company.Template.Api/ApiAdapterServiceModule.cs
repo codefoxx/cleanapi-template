@@ -1,5 +1,7 @@
 using Company.Template.Api.CurrentUser;
+//#if (auth == "Keycloak")
 using Company.Template.Api.Security;
+//#endif
 using Company.Template.Application.Abstractions.Security;
 
 namespace Company.Template.Api;
@@ -16,7 +18,9 @@ public sealed class ApiAdapterServiceModule : IFeatureServiceModule<ApiAdapterFe
     {
         context.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 
+        //#if (auth == "Keycloak")
         context.Services.AddTemplateAuthentication();
         context.Services.AddTemplateAuthorization();
+        //#endif
     }
 }
