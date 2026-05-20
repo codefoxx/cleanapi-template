@@ -7,8 +7,12 @@
     <ItemGroup Label="Aspire">
         <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.3.0"/>
         <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.3.0-preview.1.26256.5"/>
-        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.3.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
+        <!--#if (db == "PostgreSql") -->
+        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0"/>
+        <!--#endif -->
+        <!--#if (db == "SqlServer") -->
+        <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.3.0"/>
+        <!--#endif -->
     </ItemGroup>
 
     <!-- ASP.NET Core / Microsoft Extensions -->
@@ -35,13 +39,19 @@
 
     <!-- Entity Framework Core / Database Providers -->
     <ItemGroup Label="Entity Framework Core and Database Providers">
-        <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.3" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
+        <!--#if (db == "SqlServer") -->
+        <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.3"/>
+        <!--#endif -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-        <PackageVersion Include="Npgsql" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
+        <!--#if (db == "SqlServer") -->
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0"/>
+        <!--#endif -->
+        <!--#if (db == "PostgreSql") -->
+        <PackageVersion Include="Npgsql" Version="10.0.0"/>
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+        <!--#endif -->
     </ItemGroup>
 
     <!-- OpenTelemetry / Aspire Service Defaults -->
@@ -65,8 +75,12 @@
 
     <!-- Testcontainers -->
     <ItemGroup Label="Testcontainers">
-        <PackageVersion Include="Testcontainers.MsSql" Version="4.8.0" Condition="'$(EffectiveDbProvider)' == 'SqlServer'"/>
-        <PackageVersion Include="Testcontainers.PostgreSql" Version="4.8.0" Condition="'$(EffectiveDbProvider)' == 'PostgreSql'"/>
+        <!--#if (db == "SqlServer") -->
+        <PackageVersion Include="Testcontainers.MsSql" Version="4.8.0"/>
+        <!--#endif -->
+        <!--#if (db == "PostgreSql") -->
+        <PackageVersion Include="Testcontainers.PostgreSql" Version="4.8.0"/>
+        <!--#endif -->
     </ItemGroup>
 
     <!-- Testing -->
