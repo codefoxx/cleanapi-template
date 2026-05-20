@@ -23,6 +23,25 @@ The goal is to avoid changing code before we understand which parts are:
 - runtime-toggle mechanics
 - generated-output leftovers that should disappear for `--auth None`
 
+## Auth mode decision
+
+The story has a clear materialization decision:
+
+```text
+--auth None
+  means no authentication artifacts in the materialized project.
+
+--auth Keycloak
+  means authentication is enforced, JWT bearer is configured for the sample Keycloak realm,
+  and AppHost starts a Keycloak instance for the selected database provider.
+```
+
+This is stricter than the current runtime-toggle model.
+
+A `None` project must not look like a Keycloak project with authentication disabled.
+
+A `Keycloak` project must not require the developer to manually enable authentication after generation. It should be structurally and operationally configured for the Keycloak sample setup.
+
 ## Current runtime model
 
 Authentication is currently a runtime setting, not a template materialization choice.
@@ -80,9 +99,16 @@ Authentication:RequireHttpsMetadata = false
 Authentication:RoleClaimType = roles
 ```
 
-For `--auth None`, this section should probably disappear entirely unless the runtime code still requires `Authentication:Enabled=false`.
+Required materialized behavior:
 
-For `--auth Keycloak`, this section should stay and be materialized with the selected project names/placeholders.
+```text
+--auth None
+  remove the Authentication section and all Keycloak/JWT settings.
+
+--auth Keycloak
+  keep the Authentication section, set Enabled=true, and configure Authority/Audience
+  for the generated Keycloak sample realm.
+```
 
 ### AppHost appsettings
 
@@ -98,11 +124,19 @@ For `--auth Keycloak`, this section should stay and be materialized with the sel
 }
 ```
 
-`StartKeycloak` is a runtime switch for local orchestration.
+`StartKeycloak` is currently a runtime switch for local orchestration.
 
-For `--auth None`, the Keycloak-related AppHost settings should disappear.
+Required materialized behavior:
 
-For `--auth Keycloak`, they should stay because local Keycloak orchestration remains useful.
+```text
+--auth None
+  remove Keycloak-related AppHost settings.
+
+--auth Keycloak
+  keep Keycloak-related AppHost settings and default StartKeycloak=true.
+```
+
+Because Keycloak mode means auth is enforced, AppHost should start the Keycloak instance by default.
 
 ## API service registration
 
@@ -129,12 +163,17 @@ context.Services.AddTemplateAuthorization();
 
 Authentication and authorization services are always registered.
 
-For `--auth None`, there are two possible designs:
+Required materialized behavior:
 
-1. remove these calls and possibly remove the auth extension/options files entirely
-2. keep minimal no-op auth infrastructure and disable it by options
+```text
+--auth None
+  remove authentication/authorization registration and exclude Keycloak/JWT-specific files.
 
-The story goal favors option 1 if feasible.
+--auth Keycloak
+  keep authentication/authorization registration and enforce the configured JWT setup.
+```
+
+`ICurrentUser` may remain auth-neutral if the application still needs a current-user abstraction, but it must not drag in JWT/Keycloak artifacts for `--auth None`.
 
 ### ApiAdapterWebAppModule
 
@@ -152,11 +191,17 @@ if (authenticationOptions.Enabled)
 }
 ```
 
-The pipeline uses runtime options to decide whether middleware is active.
+The pipeline currently uses runtime options to decide whether middleware is active.
 
-For `--auth None`, this should ideally become a simple root endpoint mapping without resolving `AuthenticationOptions`.
+Required materialized behavior:
 
-For `--auth Keycloak`, current behavior can remain.
+```text
+--auth None
+  no auth middleware and no AuthenticationOptions dependency.
+
+--auth Keycloak
+  always use authentication and authorization middleware.
+```
 
 ## Endpoint authorization metadata
 
@@ -175,13 +220,15 @@ RequireTemplatePolicy(policy, authenticationOptions.Enabled) conditionally calls
 
 This gives runtime toggling.
 
-For `--auth None`, generated endpoints should probably not depend on `AuthenticationOptions` and should not call `RequireTemplatePolicy`.
+Required materialized behavior:
 
-For `--auth Keycloak`, the current conditional policy behavior is still useful because the appsettings default keeps auth disabled unless explicitly enabled.
+```text
+--auth None
+  endpoints should not depend on AuthenticationOptions and should not call RequireAuthorization.
 
-Open question:
-
-Should a Keycloak-materialized project still support runtime `Authentication:Enabled=false`, or should Keycloak mode mean authentication is structurally enabled?
+--auth Keycloak
+  endpoints should require authorization according to the sample policies.
+```
 
 ## API authentication implementation
 
@@ -200,13 +247,16 @@ Current responsibilities:
 - Configures `JwtBearerOptions` from `AuthenticationOptions`.
 - `AddTemplateAuthorization()` adds product read/write policies.
 
-Classification:
+Required materialized behavior:
 
 ```text
-Keycloak/JWT-specific enough to exclude from --auth None if possible.
-```
+--auth None
+  exclude this file or replace it with an auth-free equivalent if needed.
 
-However, `ICurrentUser` / `HttpCurrentUser` may remain useful as auth-neutral infrastructure if use cases depend on it.
+--auth Keycloak
+  keep JWT bearer authentication, remove runtime-disabled behavior where practical,
+  and validate Keycloak configuration as required startup configuration.
+```
 
 ## Authentication options
 
@@ -232,9 +282,15 @@ internal sealed class AuthenticationOptions
 }
 ```
 
-For `--auth None`, this file should probably be excluded if no generated code references it.
+Required materialized behavior:
 
-For `--auth Keycloak`, this file stays.
+```text
+--auth None
+  exclude this file if no generated code references it.
+
+--auth Keycloak
+  keep this file, but consider whether Enabled is still needed once Keycloak mode is enforced.
+```
 
 ## OpenAPI auth metadata
 
@@ -254,9 +310,15 @@ Current behavior:
 - The transformers check `AuthenticationOptions.Enabled` before adding auth metadata.
 - OAuth2 metadata points to the configured Keycloak authority.
 
-For `--auth None`, OpenAPI should not register auth transformers and should not depend on `AuthenticationOptions`.
+Required materialized behavior:
 
-For `--auth Keycloak`, current behavior can remain.
+```text
+--auth None
+  no auth OpenAPI transformers and no AuthenticationOptions dependency.
+
+--auth Keycloak
+  OpenAPI should include Bearer/OAuth2 metadata for the Keycloak sample realm.
+```
 
 Potential materialization strategy:
 
@@ -288,18 +350,26 @@ Current behavior:
 - If enabled, AppHost creates Keycloak and passes authentication environment variables to the API.
 - AppHost project always references `Aspire.Hosting.Keycloak`.
 
-For `--auth None`, generated AppHost should not contain:
+Required materialized behavior:
 
 ```text
-StartKeycloak
-KeycloakUseDataVolume
-Keycloak resource names
-Keycloak package reference
-Keycloak container extension files
-Keycloak environment variable setup
+--auth None
+  generated AppHost should not contain Keycloak resource names, Keycloak package references,
+  Keycloak container files, Keycloak environment variables, or StartKeycloak settings.
+
+--auth Keycloak
+  generated AppHost should start Keycloak by default and wire API auth environment variables
+  to the generated Keycloak realm/resource names.
 ```
 
-For `--auth Keycloak`, current behavior can stay.
+Keycloak should use the selected database provider where possible.
+
+That means the AppHost behavior for Keycloak must be checked against both generated database modes:
+
+```text
+PostgreSql + Keycloak
+SqlServer  + Keycloak
+```
 
 ## Keycloak realm file
 
@@ -309,9 +379,15 @@ Relevant file:
 content/infra/keycloak/realms/__KEYCLOAK_REALM__-realm.json
 ```
 
-For `--auth None`, the generated project should not contain `infra/keycloak`.
+Required materialized behavior:
 
-For `--auth Keycloak`, the realm file should remain and placeholders should be materialized.
+```text
+--auth None
+  generated project should not contain infra/keycloak.
+
+--auth Keycloak
+  generated project should contain the realm file with placeholders replaced for the generated sample realm.
+```
 
 ## Package references
 
@@ -330,9 +406,15 @@ Aspire.Hosting.Keycloak
 Microsoft.AspNetCore.Authentication.JwtBearer
 ```
 
-For `--auth None`, these should be absent from generated `.props` / `.csproj` files.
+Required materialized behavior:
 
-For `--auth Keycloak`, they should remain.
+```text
+--auth None
+  these package references should be absent from generated .props / .csproj files.
+
+--auth Keycloak
+  these package references should be present.
+```
 
 ## Smoke scripts and docs
 
@@ -355,13 +437,16 @@ AUTH_MODE=none
 AUTH_MODE=keycloak
 ```
 
-This runtime smoke distinction is still useful, but after template materialization we also need generated-output checks for `--auth None` and `--auth Keycloak`.
-
-Docs should distinguish:
+After this story, docs and smoke behavior should distinguish:
 
 ```text
 Template option: --auth None / --auth Keycloak
-Runtime switch inside Keycloak-generated projects: Authentication:Enabled / AppHost:StartKeycloak
+
+--auth None:
+  no authentication artifacts exist in the generated project.
+
+--auth Keycloak:
+  authentication is enforced and AppHost starts Keycloak by default.
 ```
 
 ## Suggested implementation strategy
@@ -377,72 +462,72 @@ Recommended order:
 5. Extend validation matrix.
 6. Update docs.
 
-## Design questions to answer before code changes
+## Design decisions
 
 ### 1. Default auth mode
 
 Options:
 
 ```text
-Keycloak  // preserves current generated behavior most closely
+Keycloak  // preserves the richer sample setup
 None      // creates lighter default projects
 ```
 
-Recommendation for now:
+Decision still open.
+
+Recommendation to decide before implementation:
 
 ```text
-Keycloak
+Prefer None for a minimal default template, or Keycloak if preserving the current full sample is more important.
 ```
-
-Reason: lower migration risk while introducing the switch. We can change the default later if desired.
 
 ### 2. No-auth generated API shape
 
-Should `--auth None` remove auth code entirely?
-
-Recommendation:
+Decision:
 
 ```text
-Yes, where practical.
+--auth None removes auth artifacts from the materialized project.
 ```
 
-Reason: generated projects should not look like Keycloak projects with runtime auth disabled.
+This includes Keycloak, JWT bearer, OpenAPI auth metadata, and auth-specific appsettings.
 
 ### 3. Runtime disabling inside Keycloak mode
 
-Should `--auth Keycloak` still allow `Authentication:Enabled=false`?
-
-Recommendation:
+Decision:
 
 ```text
-Yes, at least initially.
+--auth Keycloak enforces authentication.
 ```
 
-Reason: current local development and smoke-test behavior depends on authentication being disabled by default unless explicitly enabled.
+Do not keep `Authentication:Enabled=false` as the default in Keycloak-generated projects.
+
+If `Enabled` remains in the options model temporarily, the generated Keycloak configuration must set it to `true`.
 
 ### 4. OpenAPI files
 
-Should OpenAPI auth transformers be removed for `None`?
-
-Recommendation:
+Decision:
 
 ```text
-Yes.
+OpenAPI auth transformers are removed for --auth None and present for --auth Keycloak.
 ```
 
-Reason: a no-auth OpenAPI document should not contain OAuth2/Bearer-related implementation paths.
+A no-auth OpenAPI document should not contain OAuth2/Bearer implementation paths.
 
 ### 5. `ICurrentUser`
 
-Should `ICurrentUser` remain for `None`?
+Open question:
+
+```text
+Should ICurrentUser remain for --auth None?
+```
 
 Recommendation:
 
 ```text
-Probably yes.
+Probably yes, if a neutral anonymous/system current-user implementation is useful.
 ```
 
-Reason: use cases may depend on current-user abstraction even if the template starts with anonymous/system user behavior. This should be checked before removing any current-user infrastructure.
+But it must not drag in JWT/Keycloak artifacts for `--auth None`.
 
 ## Validation additions needed later
 
@@ -458,6 +543,8 @@ BearerSecuritySchemeTransformer
 OAuth2SecuritySchemeTransformer
 __KEYCLOAK_REALM__
 __KEYCLOAK_RESOURCE_NAME__
+StartKeycloak
+KeycloakUseDataVolume
 ```
 
 Generated `--auth Keycloak` projects should be checked for expected Keycloak assets:
@@ -466,8 +553,11 @@ Generated `--auth Keycloak` projects should be checked for expected Keycloak ass
 infra/keycloak/realms/<realm>-realm.json
 Aspire.Hosting.Keycloak
 Microsoft.AspNetCore.Authentication.JwtBearer
-Authentication section
-AppHost:StartKeycloak
+Authentication section with Enabled=true
+AppHost:StartKeycloak=true
+Keycloak AppHost container wiring
+OpenAPI auth metadata
+endpoint authorization metadata
 ```
 
 ## Non-goals
