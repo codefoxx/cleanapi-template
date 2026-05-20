@@ -22,7 +22,9 @@
         <!--#if (db == "SqlServer") -->
         <PackageReference Include="Aspire.Hosting.SqlServer"/>
         <!--#endif -->
+        <!--#if (auth == "Keycloak") -->
         <PackageReference Include="Aspire.Hosting.Keycloak"/>
+        <!--#endif -->
     </ItemGroup>
 
     <ItemGroup>
