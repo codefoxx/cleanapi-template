@@ -270,14 +270,40 @@
                 ".idea/**/*",
                 "*.DotSettings.user",
                 "Directory.Build.local.props",
+                "src/Company.Template.AppHost/appsettings.json",
+                "src/Company.Template.AppHost/appsettings.NoAuth.json",
                 "src/Company.Template.AppHost/Providers/PostgreSqlAspireDatabase.cs",
                 "src/Company.Template.AppHost/Providers/SqlServerAspireDatabase.cs",
+                "src/Company.Template.Composition/appsettings.json",
+                "src/Company.Template.Composition/appsettings.None.json",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
+            ]
+        },
+        {
+            "source": "./",
+            "target": "./",
+            "condition": "(auth == \"None\")",
+            "include": [
+                "src/Company.Template.AppHost/appsettings.NoAuth.json",
+                "src/Company.Template.Composition/appsettings.None.json"
+            ],
+            "rename": {
+                "src/Company.Template.AppHost/appsettings.NoAuth.json": "src/Company.Template.AppHost/appsettings.json",
+                "src/Company.Template.Composition/appsettings.None.json": "src/Company.Template.Composition/appsettings.json"
+            }
+        },
+        {
+            "source": "./",
+            "target": "./",
+            "condition": "(auth == \"Keycloak\")",
+            "include": [
+                "src/Company.Template.AppHost/appsettings.json",
+                "src/Company.Template.Composition/appsettings.json"
             ]
         },
         {
