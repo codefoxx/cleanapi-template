@@ -5,7 +5,6 @@ using Projects;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-bool startPgAdmin = builder.Configuration.GetValue<bool>("AppHost:StartPgAdmin");
 bool startKeycloak = builder.Configuration.GetValue<bool>("AppHost:StartKeycloak");
 
 IResourceBuilder<IResourceWithConnectionString> database = AspireDatabase.Create(builder);
@@ -22,11 +21,6 @@ IResourceBuilder<ProjectResource> api = builder
                                        .WaitFor(database)
                                        .WaitForCompletion(migrationService)
                                        .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
-
-if (startPgAdmin)
-{
-    builder.AddPgAdminContainer();
-}
 
 if (startKeycloak)
 {
