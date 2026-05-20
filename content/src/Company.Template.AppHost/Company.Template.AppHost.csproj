@@ -6,21 +6,18 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
-
     <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup>
         <Compile Remove="Providers\AspireDatabase.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
         <Compile Remove="Providers\AspireDatabase.SqlServer.cs" Condition="'$(EffectiveDbProvider)' != 'SqlServer'"/>
     </ItemGroup>
     <!--#endif -->
-
     <!--#if (auth == "TemplateAuthoringOnly") -->
     <ItemGroup>
         <Compile Remove="Containers\KeycloakContainerExtensions.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
         <Compile Remove="Containers\KeycloakContainerOptions.cs" Condition="'$(EffectiveAuthProvider)' != 'Keycloak'"/>
     </ItemGroup>
     <!--#endif -->
-
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost"/>
         <!--#if (db == "PostgreSql") -->
