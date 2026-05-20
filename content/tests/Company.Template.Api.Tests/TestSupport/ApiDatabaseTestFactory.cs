@@ -2,6 +2,7 @@ using Company.Template.Application.Abstractions.DomainEvents;
 using Company.Template.Composition;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.TestSupport.Application.DomainEvents;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Company.Template.Api.Tests.TestSupport;
@@ -32,6 +33,7 @@ public sealed class ApiDatabaseTestFactory : WebApplicationFactory<CompositionAs
             RemoveApplicationDbContextRegistration(services);
 
             services.AddScoped<IDomainEventDispatcher, NoOpDomainEventDispatcher>();
+            services.AddTestAuthentication();
             services.AddDbContext<ApplicationDbContext>(_database.Configure);
         });
     }
@@ -45,5 +47,19 @@ public sealed class ApiDatabaseTestFactory : WebApplicationFactory<CompositionAs
         {
             services.Remove(dbContextDescriptor);
         }
+    }
+}
+
+file static class TestAuthenticationRegistration
+{
+    public static IServiceCollection AddTestAuthentication(this IServiceCollection services)
+    {
+        services
+           .AddAuthentication(TestAuthenticationHandler.SchemeName)
+           .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+                TestAuthenticationHandler.SchemeName,
+                _ => { });
+
+        return services;
     }
 }
