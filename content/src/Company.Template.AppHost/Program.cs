@@ -1,5 +1,7 @@
 using Company.Template.AppHost;
+//#if (auth == "Keycloak")
 using Company.Template.AppHost.Containers;
+//#endif
 using Company.Template.AppHost.Providers;
 using Projects;
 
@@ -20,8 +22,10 @@ IResourceBuilder<ProjectResource> api = builder
                                        .WaitForCompletion(migrationService)
                                        .WithEnvironment("Database__Provider", AppHostNames.DatabaseProvider);
 
+//#if (auth == "Keycloak")
 KeycloakResourceRegistration keycloak = builder.AddTemplateKeycloak();
 
 api.WithTemplateKeycloakAuthentication(keycloak);
+//#endif
 
 builder.Build().Run();
