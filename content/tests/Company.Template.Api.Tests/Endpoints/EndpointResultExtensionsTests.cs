@@ -1,17 +1,14 @@
 using System.Text.Json.Nodes;
 using Company.Template.Api.Endpoints;
+using Company.Template.Api.Tests.TestSupport;
 using Company.Template.Application.Common;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Company.Template.Api.Tests.Endpoints;
 
-public sealed class EndpointResultExtensionsTests
+public sealed class EndpointResultExtensionsTests : IDisposable
 {
-    private static readonly IServiceProvider Services = new ServiceCollection()
-        .AddLogging()
-        .AddProblemDetails()
-        .BuildServiceProvider();
+    private readonly ApiLightweightTestFactory _factory = new();
 
     [Fact]
     public async Task ToHttpResult_WithSuccessfulValueResult_UsesSuccessMapping()
@@ -140,6 +137,11 @@ public sealed class EndpointResultExtensionsTests
         response.RequiredBody["value"]!.GetValue<string>().ShouldBe("value");
     }
 
+    public void Dispose()
+    {
+        _factory.Dispose();
+    }
+
     private static Error CreateError(ErrorType type, string code, string message)
     {
         ErrorCode errorCode = ErrorCode.Create(code);
@@ -153,11 +155,11 @@ public sealed class EndpointResultExtensionsTests
         };
     }
 
-    private static async Task<HttpResponseCapture> ExecuteAsync(IResult result)
+    private async Task<HttpResponseCapture> ExecuteAsync(IResult result)
     {
         DefaultHttpContext context = new()
         {
-            RequestServices = Services
+            RequestServices = _factory.Services
         };
 
         await using MemoryStream responseBody = new();
