@@ -3,18 +3,24 @@
 > Production-oriented .NET Web API templates packaged for `dotnet new`.
 
 This repository currently contains the Clean Architecture template in `content/`.
-The generated project README and architecture documentation are stored there because they are copied into new projects.
 
-The current template focuses on a production-oriented Clean Architecture Web API with pragmatic Ports-and-Adapters
-boundaries, DDD-style domain modeling, explicit result handling, a thin EF Core-backed persistence boundary, and a
-Minimal API HTTP adapter.
+The template is still evolving, but the goal is stable: provide a realistic .NET Web API starting point with Clean Architecture, pragmatic Ports-and-Adapters boundaries, DDD-style domain modeling, explicit expected-failure handling, EF Core persistence, Aspire orchestration, Minimal APIs, and optional authentication materialization.
+
+The documentation in `content/` is copied into generated projects. Repository planning notes live under `docs/`.
 
 ## Quick start
 
 Create a project from the installed template:
 
 ```bash
-dotnet new cleanapi -n Company.Template --db PostgreSql
+dotnet new cleanapi -n MyCompany.Products --db PostgreSql --auth Keycloak
+```
+
+Available template options:
+
+```text
+--db    PostgreSql | SqlServer   (default: PostgreSql)
+--auth  None | Keycloak          (default: Keycloak)
 ```
 
 Restore packages:
@@ -27,8 +33,8 @@ Create the initial migration:
 
 ```bash
 dotnet ef migrations add InitialCreate \
-  --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Api \
+  --project src/MyCompany.Products.Infrastructure \
+  --startup-project src/MyCompany.Products.Composition \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -36,7 +42,7 @@ dotnet ef migrations add InitialCreate \
 Run the local Aspire AppHost:
 
 ```bash
-dotnet run --project src/Company.Template.AppHost
+dotnet run --project src/MyCompany.Products.AppHost
 ```
 
 Run tests:
@@ -45,24 +51,39 @@ Run tests:
 dotnet test
 ```
 
-## Generated project structure
+## Project status and roadmap
 
-```text
-src/
-  Company.Template.Api
-  Company.Template.Application
-  Company.Template.Domain
-  Company.Template.Infrastructure
-  Company.Template.MigrationService
-  Company.Template.ServiceDefaults
-  Company.Template.AppHost
+### Completed
 
-tests/
-  Company.Template.Domain.Tests
-  Company.Template.Application.Tests
-  Company.Template.Infrastructure.Tests
-  Company.Template.Api.Tests
-```
+- ✅ Clean Architecture template baseline
+- ✅ EF Core-backed persistence boundary
+- ✅ PostgreSQL and SQL Server generation-time provider materialization
+- ✅ Optional authentication materialization with `--auth None` and `--auth Keycloak`
+- ✅ Keycloak AppHost integration for local development
+- ✅ Result / Option based expected-failure flow
+- ✅ Feature-oriented composition model
+- ✅ Template materialization validation in CI
+- ✅ Root repository documentation and generated project documentation split
+
+### Intentionally not included
+
+- 🚫 pgAdmin container support
+  - Removed intentionally to keep the Aspire setup focused and avoid template bloat.
+- 🚫 Runtime database provider switching
+  - Provider selection is a generation-time template choice.
+- 🚫 Runtime authentication on/off switches
+  - Authentication is a generation-time template choice.
+
+### Planned / under consideration
+
+- ⬜ Refresh solution, folder, and file structure documentation
+- ⬜ Improve documentation for adding and removing features
+- ⬜ Revisit health checks and root endpoint behavior
+- ⬜ Add architecture boundary tests
+- ⬜ Consider stronger template materialization tests
+- ⬜ Consider a second Vertical Slice Architecture template later
+
+For more detail, see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Generated documentation
 
@@ -76,12 +97,13 @@ tests/
 | [content/PERSISTENCE.md](content/PERSISTENCE.md) | Persistence ports, EF Core adapters, command/query boundaries |
 | [content/OBSERVABILITY.md](content/OBSERVABILITY.md) | OpenTelemetry, logs, traces, metrics |
 | [content/DATABASE.md](content/DATABASE.md) | Provider selection, generated provider configuration |
-| [content/ASPIRE.md](content/ASPIRE.md) | Local orchestration, startup order, pgAdmin |
+| [content/ASPIRE.md](content/ASPIRE.md) | Local orchestration and startup order |
 | [content/AUTHENTICATION.md](content/AUTHENTICATION.md) | Optional Keycloak authentication and local realm setup |
 | [content/OPENAPI.md](content/OPENAPI.md) | OpenAPI document, response metadata, OAuth metadata |
 | [content/MIGRATIONS.md](content/MIGRATIONS.md) | EF Core migrations and production migration bundles |
 | [content/TESTING.md](content/TESTING.md) | Unit, integration, Testcontainers, API problem tests, smoke tests |
 | [content/FEATURES.md](content/FEATURES.md) | How to add a new feature to the template |
+| [content/docs/FEATURE_COMPOSITION.md](content/docs/FEATURE_COMPOSITION.md) | Feature composition, markers, decorators, and web pipeline composition |
 
 ## Core design principles
 
@@ -95,13 +117,6 @@ tests/
 - Use thin EF Core-friendly persistence ports for commands and named query ports for reads.
 - Use relational integration tests instead of EF Core InMemory.
 - Treat observability as a production concern, not an afterthought.
-
-## Roadmap
-
-The package is intended to contain more than one template over time.
-
-The Clean Architecture template is finished first. A second Vertical Slice Architecture template can then be added with
-the same production-oriented baseline but a different application structure.
 
 ## Central package management
 
