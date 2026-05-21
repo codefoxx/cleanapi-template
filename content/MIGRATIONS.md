@@ -15,7 +15,7 @@ After generating a project, create the initial migration once:
 ```bash
 dotnet ef migrations add InitialCreate \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
+  --startup-project src/Company.Template.CompositionRoot \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -49,7 +49,7 @@ After changing the EF Core model, add a new migration:
 ```bash
 dotnet ef migrations add DescribeYourChange \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
+  --startup-project src/Company.Template.CompositionRoot \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -65,7 +65,7 @@ You can also apply migrations manually:
 ```bash
 dotnet ef database update \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
+  --startup-project src/Company.Template.CompositionRoot \
   --context ApplicationDbContext
 ```
 
@@ -80,7 +80,7 @@ Create a migration bundle:
 ```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
+  --startup-project src/Company.Template.CompositionRoot \
   --context ApplicationDbContext \
   --output artifacts/efbundle
 ```
@@ -90,7 +90,7 @@ For a Linux self-contained bundle:
 ```bash
 dotnet ef migrations bundle \
   --project src/Company.Template.Infrastructure \
-  --startup-project src/Company.Template.Composition \
+  --startup-project src/Company.Template.CompositionRoot \
   --context ApplicationDbContext \
   --self-contained \
   --runtime linux-x64 \
