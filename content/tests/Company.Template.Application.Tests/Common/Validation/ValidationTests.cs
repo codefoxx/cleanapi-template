@@ -128,7 +128,7 @@ public sealed class ValidationTests
 
         // Act
         Action action = () => TemplateValidation.For(request)
-            .RuleFor(value => value.Name.Length, _ => null);
+            .RuleFor(value => value.Amount + 1, _ => null);
 
         // Assert
         action.ShouldThrow<ArgumentException>();
