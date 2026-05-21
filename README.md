@@ -76,11 +76,34 @@ dotnet test
 
 ### Planned / under consideration
 
-- ⬜ Refresh solution, folder, and file structure documentation
-- ⬜ Improve documentation for adding and removing features
-- ⬜ Revisit health checks and root endpoint behavior
-- ⬜ Add architecture boundary tests
-- ⬜ Consider stronger template materialization tests
+#### Foundation and structure
+
+- ⬜ Simplify generated solution structure
+- ⬜ Rename executable Composition project to `CompositionRoot`
+- ⬜ Split feature catalog by ownership
+
+#### Application model
+
+- ⬜ Make command/query handler and decorator model explicit
+- ⬜ Keep the MediatR-style pipeline small and dependency-free
+
+#### Production behavior
+
+- ⬜ Add transactional outbox baseline for domain events
+- ⬜ Expand structured logging and telemetry
+- ⬜ Revisit EF Core persistence and read-model options
+- ⬜ Harden configuration, API security, and API versioning decisions
+
+#### Template quality and documentation
+
+- ⬜ Add generated-template contract tests
+- ⬜ Improve generated project first-use experience
+- ⬜ Make the `Products` sample easy to remove
+- ⬜ Introduce lightweight ADRs and production deployment notes
+
+#### Future template family
+
+- ⬜ Consider production containerization support
 - ⬜ Consider a second Vertical Slice Architecture template later
 
 For more detail, see [docs/ROADMAP.md](docs/ROADMAP.md).
