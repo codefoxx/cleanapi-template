@@ -1,7 +1,7 @@
 {
     "$schema": "https://json.schemastore.org/launchsettings.json",
     "profiles": {
-        "Company.Template.Composition": {
+        "Company.Template.CompositionRoot": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,

@@ -1,5 +1,5 @@
 using Company.Template.Application.Abstractions.DomainEvents;
-using Company.Template.Composition;
+using Company.Template.CompositionRoot;
 using Company.Template.Domain.Common;
 using Company.Template.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +15,7 @@ namespace Company.Template.Api.Tests.TestSupport;
 ///     such as root endpoint checks and OpenAPI tests. Database-backed endpoint tests should
 ///     use <see cref="ApiDatabaseTestFactory" /> through <see cref="ApiTestContext" />.
 /// </remarks>
-public sealed class ApiLightweightTestFactory : WebApplicationFactory<CompositionAssemblyMarker>
+public sealed class ApiLightweightTestFactory : WebApplicationFactory<CompositionRootAssemblyMarker>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -62,8 +62,8 @@ file static class TestAuthenticationRegistration
     public static IServiceCollection AddTestAuthentication(this IServiceCollection services)
     {
         services
-           .AddAuthentication(TestAuthenticationHandler.SchemeName)
-           .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+            .AddAuthentication(TestAuthenticationHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
                 TestAuthenticationHandler.SchemeName,
                 _ => { });
 

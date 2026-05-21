@@ -117,8 +117,8 @@ The current `main` snapshot contains auth-related content in several areas.
 ```text
 content/src/Company.Template.AppHost/appsettings.json
 content/src/Company.Template.AppHost/appsettings.Development.json
-content/src/Company.Template.Composition/appsettings.json
-content/src/Company.Template.Composition/appsettings.Development.json
+content/src/Company.Template.CompositionRoot/appsettings.json
+content/src/Company.Template.CompositionRoot/appsettings.Development.json
 content/src/Company.Template.MigrationService/appsettings.json
 content/src/Company.Template.MigrationService/appsettings.Development.json
 ```

@@ -263,8 +263,8 @@
                 "src/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
                 "src/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs",
-                "src/Company.Template.Composition/appsettings.json",
-                "src/Company.Template.Composition/appsettings.None.json",
+                "src/Company.Template.CompositionRoot/appsettings.json",
+                "src/Company.Template.CompositionRoot/appsettings.None.json",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
@@ -279,11 +279,11 @@
             "condition": "(auth == \"None\")",
             "include": [
                 "src/Company.Template.AppHost/appsettings.None.json",
-                "src/Company.Template.Composition/appsettings.None.json"
+                "src/Company.Template.CompositionRoot/appsettings.None.json"
             ],
             "rename": {
                 "src/Company.Template.AppHost/appsettings.None.json": "src/Company.Template.AppHost/appsettings.json",
-                "src/Company.Template.Composition/appsettings.None.json": "src/Company.Template.Composition/appsettings.json"
+                "src/Company.Template.CompositionRoot/appsettings.None.json": "src/Company.Template.CompositionRoot/appsettings.json"
             }
         },
         {
@@ -305,7 +305,7 @@
                 "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
                 "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
                 "src/Company.Template.AppHost/appsettings.json",
-                "src/Company.Template.Composition/appsettings.json"
+                "src/Company.Template.CompositionRoot/appsettings.json"
             ]
         },
         {

@@ -1,4 +1,4 @@
-namespace Company.Template.Composition.Features;
+namespace Company.Template.CompositionRoot.Features;
 
 /// <summary>
 ///     Defines the Products feature catalog used by the generated template.
