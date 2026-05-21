@@ -6,9 +6,9 @@ It is not a release plan and it is not meant to document every past story. The r
 
 ## Current focus
 
-Refresh the repository documentation after the provider and authentication materialization work.
+The current focus is hardening the Clean Architecture template after the generated solution structure cleanup.
 
-The root README should explain the current state without over-documenting unstable generated solution structure. Deeper generated-project documentation stays under `content/` because it is copied into new projects.
+The root README should stay a short entry point. Deeper generated-project documentation stays under `content/` because it is copied into new projects. Longer planning notes stay in this file.
 
 ## Completed
 
@@ -24,40 +24,15 @@ The root README should explain the current state without over-documenting unstab
 - ✅ Feature-oriented composition model.
 - ✅ Template materialization validation in CI.
 - ✅ Root repository documentation and generated project documentation split.
+- ✅ Simplified generated solution structure.
+- ✅ Renamed the executable Composition project to `CompositionRoot`.
+- ✅ Moved reusable composition mechanics under `src/composition`.
+- ✅ Moved Aspire/local-development support under `src/aspire`.
+- ✅ Split concrete feature markers by ownership.
 
-## Intentionally not included
+## Structure decisions from the completed simplification story
 
-- 🚫 pgAdmin container support.
-
-  Removed intentionally to keep the Aspire setup focused and avoid growing the base template into a local tooling bundle.
-
-- 🚫 Runtime database provider switching.
-
-  Database provider selection is a template materialization choice. A generated project should contain the selected provider implementation, not a runtime abstraction that pretends every provider is interchangeable.
-
-- 🚫 Runtime authentication on/off switches.
-
-  Authentication is a template materialization choice. `--auth None` should produce a clean no-auth project, while `--auth Keycloak` should produce a Keycloak-enabled project. Old runtime switches such as `Authentication:Enabled`, `StartKeycloak`, and `KeycloakUseDataVolume` should not return.
-
-## Planned / under consideration
-
-### Foundation and generated solution structure
-
-#### Simplify generated solution structure
-
-The generated solution currently contains many projects at the same visual level. That makes the architecture harder to understand than it needs to be.
-
-A later story should review whether generated projects can be grouped so the core Clean Architecture projects stay visually prominent:
-
-- `Api`
-- `Application`
-- `Domain`
-- `Infrastructure`
-- `CompositionRoot`
-
-Composition-related mechanics should move under a dedicated composition folder, and Aspire/local-development projects should move under a dedicated Aspire folder.
-
-Possible target shape:
+The generated solution now keeps the core application projects visually prominent at the root of `src`:
 
 ```text
 src/
@@ -77,37 +52,39 @@ src/aspire/
   Company.Template.MigrationService/
 ```
 
-#### Rename the executable Composition project to CompositionRoot
+`CompositionRoot` is the executable ASP.NET Core entry point. It references the application projects and activates the selected features, but no project should reference `CompositionRoot`.
 
-The current `Composition` project is the executable ASP.NET Core entry point. The name is too close to the reusable composition mechanism.
+`Composition.Abstractions` and `Composition.AspNetCore` contain the reusable composition mechanism shown as source. They should stay free of concrete template feature markers.
 
-The preferred direction is:
+Concrete technical feature markers live with the owning assembly:
 
-```text
-Company.Template.Composition
-  -> Company.Template.CompositionRoot
-```
+- API-owned markers live in `Api/FeatureCatalog`.
+- Application-owned technical markers live in `Application/FeatureCatalog`.
+- Infrastructure-owned markers live in `Infrastructure/FeatureCatalog`.
+- Domain owns no composition feature markers.
+- CompositionRoot owns no feature markers.
 
-`CompositionRoot` should mean:
+Business/sample feature markers stay inside their feature slice when that better preserves removability. For example, `ProductsFeature` stays under `Application/Products` instead of a central `FeatureCatalog` folder.
 
-- executable ASP.NET Core entry point,
-- application startup and module activation,
-- the place that references API, Application, Domain, and Infrastructure,
-- not the reusable composition mechanism itself.
+The former broad `CrossCuttingConcerns` marker was split into narrower API and Infrastructure markers to avoid ownership leaks between layers.
 
-#### Split feature catalog by ownership
+These decisions should eventually move into ADRs once the ADR story exists.
 
-The feature catalog should not live in the reusable composition abstraction package.
+## Intentionally not included
 
-When the generated solution structure is simplified, feature markers should move to the assemblies that own the corresponding concern:
+- 🚫 pgAdmin container support.
 
-- API-owned HTTP/OpenAPI/endpoint features live in `Api`.
-- Application-owned handler/decorator features live in `Application`.
-- Infrastructure-owned persistence/event features live in `Infrastructure`.
-- Composition-root-only defaults live in `CompositionRoot`.
-- Domain should stay free of composition feature markers.
+  Removed intentionally to keep the Aspire setup focused and avoid growing the base template into a local tooling bundle.
 
-This keeps `Composition.Abstractions` generic while allowing the executable `CompositionRoot` project to reference all application layers and activate the desired features.
+- 🚫 Runtime database provider switching.
+
+  Database provider selection is a template materialization choice. A generated project should contain the selected provider implementation, not a runtime abstraction that pretends every provider is interchangeable.
+
+- 🚫 Runtime authentication on/off switches.
+
+  Authentication is a template materialization choice. `--auth None` should produce a clean no-auth project, while `--auth Keycloak` should produce a Keycloak-enabled project. Old runtime switches such as `Authentication:Enabled`, `StartKeycloak`, and `KeycloakUseDataVolume` should not return.
+
+## Planned / under consideration
 
 ### Application model
 
@@ -299,6 +276,17 @@ A later story should verify and document how to remove the sample feature cleanl
 
 This is important because a generated template should not trap real projects inside the sample domain.
 
+#### Review generated test project structure
+
+The current generated test projects should be reviewed by actual test behavior before they are split into test families.
+
+A later story should classify existing tests carefully:
+
+- pure domain/application tests can move under UnitTests only when they do not use real infrastructure
+- Testcontainers and WebApplicationFactory based tests belong under IntegrationTests
+- test classes should not be moved based on project name alone
+- empty test-family folders should not be created just to show a taxonomy
+
 #### Review dependency footprint
 
 The generated project should keep dependencies intentional.
@@ -312,12 +300,6 @@ A later story should review:
 - whether a dependency can be replaced by a small explicit pattern without hurting clarity
 
 ### Documentation
-
-#### Refresh solution, folder, and file structure documentation
-
-The root README should not deeply document the generated structure until the structure is stable enough.
-
-A later documentation story should explain the generated solution shape, project responsibilities, and file layout in a way that is useful but not brittle.
 
 #### Improve documentation for adding and removing features
 
@@ -344,6 +326,7 @@ Potential ADRs:
 - use EF Core as an explicit Infrastructure adapter
 - keep composition mechanics as source instead of a NuGet black box
 - use a transactional outbox for domain events
+- document the generated solution structure and FeatureCatalog ownership decisions
 
 ADRs should stay short and useful. They should explain decisions and trade-offs, not become essays.
 
