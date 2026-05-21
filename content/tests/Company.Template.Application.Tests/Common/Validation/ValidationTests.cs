@@ -1,6 +1,8 @@
 using Company.Template.Application.Common;
 using Company.Template.Application.Common.Validation;
 
+using TemplateValidation = Company.Template.Application.Common.Validation.Validation;
+
 namespace Company.Template.Application.Tests.Common.Validation;
 
 public sealed class ValidationTests
@@ -9,7 +11,7 @@ public sealed class ValidationTests
     public void For_WithNullValue_ThrowsArgumentNullException()
     {
         // Act
-        Action action = () => Validation.For<string>(null!);
+        Action action = () => TemplateValidation.For<string>(null!);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -22,7 +24,7 @@ public sealed class ValidationTests
         TestRequest request = new("Valid name", 42);
 
         // Act
-        ValidationResult<string> result = Validation.For(request)
+        ValidationResult<string> result = TemplateValidation.For(request)
             .Rule(value => value.Name.Length > 0
                 ? null
                 : Error.Validation("Name is required."))
@@ -44,7 +46,7 @@ public sealed class ValidationTests
         bool mapperWasCalled = false;
 
         // Act
-        ValidationResult<string> result = Validation.For(request)
+        ValidationResult<string> result = TemplateValidation.For(request)
             .Rule(value => string.IsNullOrWhiteSpace(value.Name)
                 ? Error.Validation("Name is required.")
                 : null)
@@ -66,7 +68,7 @@ public sealed class ValidationTests
         TestRequest request = new("", -1);
 
         // Act
-        ValidationResult<string> result = Validation.For(request)
+        ValidationResult<string> result = TemplateValidation.For(request)
             .Rule(value => string.IsNullOrWhiteSpace(value.Name)
                 ? Error.Validation("Name is required.")
                 : null)
@@ -89,7 +91,7 @@ public sealed class ValidationTests
         TestRequest request = new("Valid name", -1);
 
         // Act
-        ValidationResult<string> result = Validation.For(request)
+        ValidationResult<string> result = TemplateValidation.For(request)
             .RuleFor(value => value.Amount, amount => amount < 0
                 ? Error.Validation("Amount cannot be negative.")
                 : null)
@@ -107,7 +109,7 @@ public sealed class ValidationTests
         TestRequest request = new("Valid name", -1);
 
         // Act
-        ValidationResult<string> result = Validation.For(request)
+        ValidationResult<string> result = TemplateValidation.For(request)
             .RuleFor(value => value.Amount, amount => amount < 0
                 ? Error.Validation(ErrorCodes.ValidationError, "Amount cannot be negative.", "customAmount")
                 : null)
@@ -125,7 +127,7 @@ public sealed class ValidationTests
         TestRequest request = new("Valid name", 42);
 
         // Act
-        Action action = () => Validation.For(request)
+        Action action = () => TemplateValidation.For(request)
             .RuleFor(value => value.Name.Length, _ => null);
 
         // Assert
@@ -140,7 +142,7 @@ public sealed class ValidationTests
         Func<TestRequest, Error?> rule = null!;
 
         // Act
-        Action action = () => Validation.For(request).Rule(rule);
+        Action action = () => TemplateValidation.For(request).Rule(rule);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -154,7 +156,7 @@ public sealed class ValidationTests
         Func<int, Error?> rule = _ => null;
 
         // Act
-        Action action = () => Validation.For(request).RuleFor(null!, rule);
+        Action action = () => TemplateValidation.For(request).RuleFor(null!, rule);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -168,7 +170,7 @@ public sealed class ValidationTests
         Func<int, Error?> rule = null!;
 
         // Act
-        Action action = () => Validation.For(request).RuleFor(value => value.Amount, rule);
+        Action action = () => TemplateValidation.For(request).RuleFor(value => value.Amount, rule);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
@@ -182,7 +184,7 @@ public sealed class ValidationTests
         Func<TestRequest, string> map = null!;
 
         // Act
-        Action action = () => Validation.For(request).Map(map);
+        Action action = () => TemplateValidation.For(request).Map(map);
 
         // Assert
         action.ShouldThrow<ArgumentNullException>();
