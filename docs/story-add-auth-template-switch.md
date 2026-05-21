@@ -115,12 +115,12 @@ The current `main` snapshot contains auth-related content in several areas.
 ### Runtime configuration
 
 ```text
-content/src/Company.Template.AppHost/appsettings.json
-content/src/Company.Template.AppHost/appsettings.Development.json
+content/src/aspire/Company.Template.AppHost/appsettings.json
+content/src/aspire/Company.Template.AppHost/appsettings.Development.json
 content/src/Company.Template.CompositionRoot/appsettings.json
 content/src/Company.Template.CompositionRoot/appsettings.Development.json
-content/src/Company.Template.MigrationService/appsettings.json
-content/src/Company.Template.MigrationService/appsettings.Development.json
+content/src/aspire/Company.Template.MigrationService/appsettings.json
+content/src/aspire/Company.Template.MigrationService/appsettings.Development.json
 ```
 
 Auth is currently switched through runtime configuration, so `appsettings` must be treated as first-class story scope.
@@ -146,12 +146,12 @@ content/src/Company.Template.Api/Security/AuthenticationExtensions.cs
 ### AppHost and Keycloak container wiring
 
 ```text
-content/src/Company.Template.AppHost/AppHostNames.cs
-content/src/Company.Template.AppHost/Company.Template.AppHost.csproj
-content/src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs
-content/src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs
-content/src/Company.Template.AppHost/Program.cs
-content/src/Company.Template.AppHost/appsettings.json
+content/src/aspire/Company.Template.AppHost/AppHostNames.cs
+content/src/aspire/Company.Template.AppHost/Company.Template.AppHost.csproj
+content/src/aspire/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs
+content/src/aspire/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs
+content/src/aspire/Company.Template.AppHost/Program.cs
+content/src/aspire/Company.Template.AppHost/appsettings.json
 ```
 
 ### Keycloak realm files

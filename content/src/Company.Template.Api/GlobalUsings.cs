@@ -6,7 +6,8 @@ global using System.Threading;
 global using System.Threading.Tasks;
 global using Company.Template.Composition.Abstractions.Contexts;
 global using Company.Template.Composition.Abstractions.Contracts;
-global using Company.Template.Composition.Abstractions.FeatureCatalog;
+global using Company.Template.Api.FeatureCatalog;
+global using Company.Template.Application.Products;
 global using Company.Template.Composition.AspNetCore.Contexts;
 global using Company.Template.Composition.AspNetCore.Contracts;
 //#if (auth == "Keycloak")

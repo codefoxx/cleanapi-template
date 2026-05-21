@@ -1,6 +1,4 @@
-using Company.Template.Composition.Abstractions.Contracts;
-
-namespace Company.Template.Composition.Abstractions.FeatureCatalog;
+namespace Company.Template.Application.FeatureCatalog;
 
 /// <summary>
 ///     Identifies telemetry decoration for application use-case services.

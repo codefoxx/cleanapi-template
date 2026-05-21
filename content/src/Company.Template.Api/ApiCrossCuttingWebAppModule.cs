@@ -6,7 +6,7 @@ namespace Company.Template.Api;
 /// <remarks>
 ///     Feature-specific endpoint mapping, security, authorization, and OpenAPI pipeline behavior are activated separately.
 /// </remarks>
-public sealed class ApiCrossCuttingWebAppModule : IFeatureWebAppModule<CrossCuttingConcerns>
+public sealed class ApiCrossCuttingWebAppModule : IFeatureWebAppModule<ApiCrossCuttingFeature>
 {
     public void Use(FeatureWebAppContext context)
     {
