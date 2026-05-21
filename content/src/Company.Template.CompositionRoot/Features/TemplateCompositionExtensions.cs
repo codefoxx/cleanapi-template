@@ -1,4 +1,4 @@
-namespace Company.Template.Composition.Features;
+namespace Company.Template.CompositionRoot.Features;
 
 /// <summary>
 ///     Defines the default technical features used by the generated template.
@@ -12,11 +12,11 @@ public static class TemplateCompositionExtensions
             ArgumentNullException.ThrowIfNull(context);
 
             return context
-                  .Add<ApiAdapterFeature>()
-                  .Add<PersistenceFeature>()
-                  .Add<OpenApiFeature>()
-                  .Add<DomainEventsFeature>()
-                  .Add<CrossCuttingConcerns>();
+                .Add<ApiAdapterFeature>()
+                .Add<PersistenceFeature>()
+                .Add<OpenApiFeature>()
+                .Add<DomainEventsFeature>()
+                .Add<CrossCuttingConcerns>();
         }
 
         public FeatureCompositionContext DecorateUseCasesWithTelemetry()
