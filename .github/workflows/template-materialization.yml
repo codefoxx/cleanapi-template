@@ -78,12 +78,12 @@ jobs:
             fi
           }
 
-          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/Validation.PostgreSql.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/aspire/Validation.PostgreSql.AppHost/Providers/AspireDatabase.cs
           assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/Validation.PostgreSql.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
           assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseProvider.cs
           assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseServer.cs
 
-          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/Validation.SqlServer.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/aspire/Validation.SqlServer.AppHost/Providers/AspireDatabase.cs
           assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/Validation.SqlServer.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
           assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseProvider.cs
           assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseServer.cs
@@ -190,7 +190,7 @@ jobs:
           set -euo pipefail
 
           if grep -RInE 'Keycloak|keycloak|StartKeycloak|__KEYCLOAK|__AUTH_AUDIENCE__|Authentication__' \
-            "$NONE_PROJECT/src/Auth.AppHost.None.AppHost"; then
+            "$NONE_PROJECT/src/aspire/Auth.AppHost.None.AppHost"; then
             echo "ERROR: no-auth AppHost contains Keycloak/Auth leftovers."
             exit 1
           fi
@@ -215,7 +215,7 @@ jobs:
           set -euo pipefail
 
           grep -RInE 'AddTemplateKeycloak|WithTemplateKeycloakAuthentication|Authentication__Authority|Authentication__Audience|auth-apphost-keycloak' \
-            "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.AppHost" \
+            "$KEYCLOAK_PROJECT/src/aspire/Auth.AppHost.Keycloak.AppHost" \
             "$KEYCLOAK_PROJECT/infra"
 
       - name: Verify old auth runtime switches are absent
@@ -224,7 +224,7 @@ jobs:
           set -euo pipefail
 
           if grep -RInE 'StartKeycloak|Authentication__Enabled' \
-            "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.AppHost" \
+            "$KEYCLOAK_PROJECT/src/aspire/Auth.AppHost.Keycloak.AppHost" \
             "$KEYCLOAK_PROJECT/infra"; then
             echo "ERROR: old auth runtime switch leftovers found."
             exit 1
