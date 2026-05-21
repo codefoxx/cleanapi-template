@@ -60,7 +60,7 @@ run_provider_template_test() {
   with_generated_context "$db_provider" "Keycloak" "$project_name" run_generated_project_test_without_install
 }
 
-run_all() {
+run_all_common_setup() {
   clean_test_output
 
   build_template_content
@@ -69,6 +69,10 @@ run_all() {
   pack_template
   install_template
   restore_dotnet_tools
+}
+
+run_all() {
+  run_all_common_setup
 
   run_provider_template_test "PostgreSql" "Acme.PostgreSql"
   run_provider_template_test "SqlServer" "Acme.SqlServer"
@@ -77,6 +81,24 @@ run_all() {
   validate_auth_materialization
 
   echo "==> Full template validation succeeded"
+}
+
+run_all_postgres() {
+  run_all_common_setup
+
+  run_provider_template_test "PostgreSql" "Acme.PostgreSql"
+  validate_auth_materialization
+
+  echo "==> PostgreSQL template validation succeeded"
+}
+
+run_all_sqlserver() {
+  run_all_common_setup
+
+  run_provider_template_test "SqlServer" "Acme.SqlServer"
+  validate_provider_materialization
+
+  echo "==> SQL Server template validation succeeded"
 }
 
 main() {
@@ -88,7 +110,7 @@ main() {
   local command=""
 
   case "$1" in
-    pack|install|create|migrate|build|test|all|clean)
+    pack|install|create|migrate|build|test|all|all-postgres|all-sqlserver|clean)
       command="$1"
       shift
       ;;
@@ -134,6 +156,12 @@ main() {
       ;;
     all)
       run_all
+      ;;
+    all-postgres)
+      run_all_postgres
+      ;;
+    all-sqlserver)
+      run_all_sqlserver
       ;;
     clean)
       clean_test_output
