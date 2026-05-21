@@ -4,11 +4,9 @@ on:
   pull_request:
     branches:
       - main
-      - story/add-auth-template-switch
   push:
     branches:
       - main
-      - story/add-auth-template-switch
   workflow_dispatch:
 
 jobs:
