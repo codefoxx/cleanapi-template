@@ -46,15 +46,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\content\src\Company.Template.Application\Abstractions\IApplicationDbContext.cs">
-            <Link>src\Company.Template.Application\Abstractions\IApplicationDbContext.cs</Link>
-        </Compile>
-        <Compile Include="..\content\src\Company.Template.Infrastructure\GlobalUsings.cs">
-            <Link>src\Company.Template.Infrastructure\GlobalUsings.cs</Link>
-        </Compile>
-        <Compile Include="..\content\tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs">
-            <Link>tests\Company.Template.Infrastructure.Tests\GlobalUsings.cs</Link>
-        </Compile>
         <Compile Include="GlobalUsings.cs"/>
     </ItemGroup>
 
