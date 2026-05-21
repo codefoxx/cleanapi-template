@@ -1,10 +1,9 @@
 using Company.Template.AppHost;
+//#if (auth == "Keycloak")
 using Company.Template.AppHost.Containers;
+//#endif
 using Company.Template.AppHost.Providers;
 using Projects;
-
-//#if (auth == "Keycloak")
-//#endif
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
