@@ -4,9 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - story/add-auth-template-switch
   push:
     branches:
       - main
+      - story/add-auth-template-switch
+  workflow_dispatch:
 
 jobs:
   validate-template-materialization:
@@ -135,3 +138,111 @@ jobs:
             /tmp/cleanapi-template-validation/sqlserver \
             "SQL Server output" \
             'Aspire\.Hosting\.PostgreSQL|Npgsql|Testcontainers\.PostgreSql'
+
+  validate-auth-materialization:
+    name: Validate auth materialization
+    runs-on: ubuntu-latest
+
+    env:
+      OUTPUT_ROOT: /tmp/auth-apphost-validation
+      NONE_PROJECT: /tmp/auth-apphost-validation/none
+      KEYCLOAK_PROJECT: /tmp/auth-apphost-validation/keycloak
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build raw template content
+        run: dotnet build content
+
+      - name: Install template
+        run: dotnet new install ./content --force
+
+      - name: Materialize no-auth template
+        run: dotnet new cleanapi -n Auth.AppHost.None --auth None -o "$NONE_PROJECT" --force
+
+      - name: Materialize Keycloak template
+        run: dotnet new cleanapi -n Auth.AppHost.Keycloak --auth Keycloak -o "$KEYCLOAK_PROJECT" --force
+
+      - name: Verify no-auth excludes auth artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test ! -d "$NONE_PROJECT/infra"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/ApiAdapterServiceModule.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Application/Abstractions/Security/ICurrentUser.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/CurrentUser/HttpCurrentUser.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Options/AuthenticationOptions.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Security/AuthenticationExtensions.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Security/TemplatePolicies.cs"
+          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
+
+      - name: Verify no-auth has no Keycloak leftovers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if grep -RInE 'Keycloak|keycloak|StartKeycloak|__KEYCLOAK|__AUTH_AUDIENCE__|Authentication__' \
+            "$NONE_PROJECT/src/Auth.AppHost.None.AppHost"; then
+            echo "ERROR: no-auth AppHost contains Keycloak/Auth leftovers."
+            exit 1
+          fi
+
+      - name: Verify Keycloak includes auth artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f "$KEYCLOAK_PROJECT/infra/keycloak/realms/auth-apphost-keycloak-realm.json"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/ApiAdapterServiceModule.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Application/Abstractions/Security/ICurrentUser.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/CurrentUser/HttpCurrentUser.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Options/AuthenticationOptions.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Security/AuthenticationExtensions.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Security/TemplatePolicies.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
+
+      - name: Verify Keycloak AppHost wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          grep -RInE 'AddTemplateKeycloak|WithTemplateKeycloakAuthentication|Authentication__Authority|Authentication__Audience|auth-apphost-keycloak' \
+            "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.AppHost" \
+            "$KEYCLOAK_PROJECT/infra"
+
+      - name: Verify old auth runtime switches are absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if grep -RInE 'StartKeycloak|Authentication__Enabled' \
+            "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.AppHost" \
+            "$KEYCLOAK_PROJECT/infra"; then
+            echo "ERROR: old auth runtime switch leftovers found."
+            exit 1
+          fi
+
+      - name: Verify source variant leftovers are absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if find "$NONE_PROJECT" "$KEYCLOAK_PROJECT" \
+            \( -name '*.None.cs' -o -name '*.PostgreSql.cs' -o -name '*.SqlServer.cs' \) \
+            -print | grep -q .; then
+            echo "ERROR: source variant leftovers found."
+            exit 1
+          fi
+
+      - name: Build no-auth generated project
+        run: dotnet build "$NONE_PROJECT"
+
+      - name: Build Keycloak generated project
+        run: dotnet build "$KEYCLOAK_PROJECT"
