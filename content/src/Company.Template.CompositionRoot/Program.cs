@@ -32,7 +32,7 @@ app.UseSerilogRequestLogging();
 app.MapDefaultEndpoints();
 
 app.UseFeaturesFromAssemblies(typeof(ApiAssemblyMarker))
-    .Use<CrossCuttingConcerns>()
+    .Use<ApiCrossCuttingFeature>()
     .Use<OpenApiFeature>()
     .Use<ApiAdapterFeature>()
     .Use<ProductsFeature>();

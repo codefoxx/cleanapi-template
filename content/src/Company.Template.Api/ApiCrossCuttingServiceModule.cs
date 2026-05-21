@@ -8,7 +8,7 @@ namespace Company.Template.Api;
 /// <remarks>
 ///     Security, authorization, OpenAPI, and feature-specific endpoint registrations are activated separately.
 /// </remarks>
-public sealed class ApiCrossCuttingServiceModule : IFeatureServiceModule<CrossCuttingConcerns>
+public sealed class ApiCrossCuttingServiceModule : IFeatureServiceModule<ApiCrossCuttingFeature>
 {
     public void Register(FeatureServiceContext context)
     {

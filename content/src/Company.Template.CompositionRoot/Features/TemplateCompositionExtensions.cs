@@ -16,7 +16,8 @@ public static class TemplateCompositionExtensions
                 .Add<PersistenceFeature>()
                 .Add<OpenApiFeature>()
                 .Add<DomainEventsFeature>()
-                .Add<CrossCuttingConcerns>();
+                .Add<ApiCrossCuttingFeature>()
+                .Add<InfrastructureCrossCuttingFeature>();
         }
 
         public FeatureCompositionContext DecorateUseCasesWithTelemetry()

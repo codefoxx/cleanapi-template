@@ -1,6 +1,4 @@
-using Company.Template.Composition.Abstractions.Contracts;
-
-namespace Company.Template.Composition.Abstractions.FeatureCatalog;
+namespace Company.Template.Api.FeatureCatalog;
 
 /// <summary>
 ///     Identifies the HTTP API adapter boundary.
