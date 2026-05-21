@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 TEMPLATE_PROJECT="$REPO_ROOT/template-package/Codefox.CleanApi.Template.csproj"
-TEST_ROOT="${TEST_ROOT:-/tmp/cleanapi-template-test}"
+TEST_ROOT="${TEST_ROOT:-/tmp/cleanapi-template}"
 PROJECT_NAME="${PROJECT_NAME:-Acme.Products}"
 DB_PROVIDER="${DB_PROVIDER:-PostgreSql}"
 CONFIGURATION="${CONFIGURATION:-Release}"
@@ -22,19 +22,19 @@ Commands:
   build      Install, create, migrate and build the generated project.
   test       Build the generated project and run all tests.
   all        Pack the template, build the generated project and run all tests.
-  clean      Remove generated test output.
+  clean      Remove generated validation output.
 
 Options:
   --db <provider>       Database provider: PostgreSql, SqlServer
   --name <name>         Generated project name
-  --test-root <path>    Test output folder
+  --test-root <path>    Root folder for generated validation projects
   -c|--configuration    Build configuration
   -h|--help             Show help
 
 Environment variables:
   DB_PROVIDER           Default: PostgreSql
   PROJECT_NAME          Default: Acme.Products
-  TEST_ROOT             Default: /tmp/cleanapi-template-test
+  TEST_ROOT             Default: /tmp/cleanapi-template
   CONFIGURATION         Default: Release
 
 Examples:
@@ -133,7 +133,7 @@ install_template() {
 }
 
 clean_test_output() {
-  echo "==> Cleaning test output"
+  echo "==> Cleaning generated validation output"
 
   rm -rf "$TEST_ROOT"
   mkdir -p "$TEST_ROOT"
