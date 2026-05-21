@@ -6,9 +6,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Company.Template.Api.Tests.Endpoints;
 
-public sealed class EndpointResultExtensionsTests : IDisposable
+public sealed class EndpointResultExtensionsTests : IClassFixture<ApiLightweightTestFactory>
 {
-    private readonly ApiLightweightTestFactory _factory = new();
+    private readonly ApiLightweightTestFactory _factory;
+
+    public EndpointResultExtensionsTests(ApiLightweightTestFactory factory)
+    {
+        _factory = factory;
+    }
 
     [Fact]
     public async Task ToHttpResult_WithSuccessfulValueResult_UsesSuccessMapping()
@@ -135,11 +140,6 @@ public sealed class EndpointResultExtensionsTests : IDisposable
         // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status200OK);
         response.RequiredBody["value"]!.GetValue<string>().ShouldBe("value");
-    }
-
-    public void Dispose()
-    {
-        _factory.Dispose();
     }
 
     private static Error CreateError(ErrorType type, string code, string message)
