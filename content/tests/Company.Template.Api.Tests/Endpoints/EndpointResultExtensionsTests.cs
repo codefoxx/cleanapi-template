@@ -2,11 +2,17 @@ using System.Text.Json.Nodes;
 using Company.Template.Api.Endpoints;
 using Company.Template.Application.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Company.Template.Api.Tests.Endpoints;
 
 public sealed class EndpointResultExtensionsTests
 {
+    private static readonly IServiceProvider Services = new ServiceCollection()
+        .AddLogging()
+        .AddProblemDetails()
+        .BuildServiceProvider();
+
     [Fact]
     public async Task ToHttpResult_WithSuccessfulValueResult_UsesSuccessMapping()
     {
@@ -149,7 +155,11 @@ public sealed class EndpointResultExtensionsTests
 
     private static async Task<HttpResponseCapture> ExecuteAsync(IResult result)
     {
-        DefaultHttpContext context = new();
+        DefaultHttpContext context = new()
+        {
+            RequestServices = Services
+        };
+
         await using MemoryStream responseBody = new();
         context.Response.Body = responseBody;
 
