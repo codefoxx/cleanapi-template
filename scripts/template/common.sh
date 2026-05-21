@@ -12,14 +12,16 @@ Usage:
   ./scripts/template.sh <command> [options]
 
 Commands:
-  pack       Build the template NuGet package.
-  install    Pack and install the template locally.
-  create     Create a generated validation project from the installed template.
-  migrate    Create an EF Core migration in the generated validation project.
-  build      Install, create, migrate and build the generated project.
-  test       Build the generated project and run all tests.
-  all        Run local validation close to the CI/materialization workflows.
-  clean      Remove generated validation output.
+  pack          Build the template NuGet package.
+  install       Pack and install the template locally.
+  create        Create a generated validation project from the installed template.
+  migrate       Create an EF Core migration in the generated validation project.
+  build         Install, create, migrate and build the generated project.
+  test          Build the generated project and run all tests.
+  all           Run full local validation close to the CI/materialization workflows.
+  all-postgres  Run local validation for PostgreSQL-generated projects only.
+  all-sqlserver Run local validation for SQL Server-generated projects only.
+  clean         Remove generated validation output.
 
 Options:
   --db <provider>       Database provider: PostgreSql, SqlServer
@@ -46,6 +48,8 @@ Examples:
   ./scripts/template.sh test --db SqlServer --name Acme.SqlServer
   ./scripts/template.sh build --db PostgreSql --auth None --name Acme.NoAuth
   ./scripts/template.sh all
+  ./scripts/template.sh all-postgres
+  ./scripts/template.sh all-sqlserver
 EOF
 }
 
