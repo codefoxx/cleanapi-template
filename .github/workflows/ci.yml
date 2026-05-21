@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TEST_ROOT: /tmp/cleanapi-template-test
+      TEST_ROOT: /tmp/cleanapi-template
       PROJECT_NAME: Acme.Products
       DB_PROVIDER: PostgreSql
       CONFIGURATION: Release
@@ -94,7 +94,7 @@ jobs:
           dotnet new cleanapi -n "$PROJECT_NAME" --db "$DB_PROVIDER"
 
       - name: Check unresolved template placeholders
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: |
           if grep -R "Company.Template\|__DB_PROVIDER__\|__API_RESOURCE_NAME__\|__DATABASE_RESOURCE_NAME__\|__MIGRATION_SERVICE_RESOURCE_NAME__\|__PGADMIN_RESOURCE_NAME__\|__KEYCLOAK_RESOURCE_NAME__\|__KEYCLOAK_REALM__\|__AUTH_AUDIENCE__" . \
             --exclude-dir=bin \
@@ -105,7 +105,7 @@ jobs:
           fi
 
       - name: Verify generated project structure
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: |
           test -f "src/aspire/$PROJECT_NAME.MigrationService/$PROJECT_NAME.MigrationService.csproj"
 
@@ -114,11 +114,11 @@ jobs:
           find . -name "TestDatabase*.cs" -print
 
       - name: Restore generated project
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: dotnet restore
 
       - name: Create initial EF Core migration
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         env:
           Database__Provider: PostgreSql
           ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=dummy;Username=dummy;Password=dummy
@@ -130,12 +130,12 @@ jobs:
             --output-dir Persistence/Migrations
 
       - name: Clean EF Core design-time build artifacts
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: |
           find . -type d -name "BuildHost-*" -prune -exec rm -rf {} +
 
       - name: Verify migration files
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: |
           if ! find "src/$PROJECT_NAME.Infrastructure/Persistence/Migrations" -name "*InitialCreate*.cs" | grep -q .; then
             echo "ERROR: InitialCreate migration was not created."
@@ -148,7 +148,7 @@ jobs:
           fi
 
       - name: Verify no build host artifacts
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: |
           if find . -type d -name "BuildHost-*" -print | grep -q .; then
             echo "ERROR: BuildHost artifacts found."
@@ -156,9 +156,9 @@ jobs:
           fi
 
       - name: Build generated project
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: dotnet build --no-restore
 
       - name: Test generated project
-        working-directory: /tmp/cleanapi-template-test/Acme.Products
+        working-directory: /tmp/cleanapi-template/Acme.Products
         run: dotnet test --no-build
