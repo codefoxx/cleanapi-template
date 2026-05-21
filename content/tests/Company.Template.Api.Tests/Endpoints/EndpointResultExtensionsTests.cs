@@ -10,10 +10,13 @@ public sealed class EndpointResultExtensionsTests
     [Fact]
     public async Task ToHttpResult_WithSuccessfulValueResult_UsesSuccessMapping()
     {
+        // Arrange
         Result<string> result = Result<string>.Success("created");
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(result.ToHttpResult(value => Results.Ok(new TestResponse(value))));
 
+        // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status200OK);
         response.RequiredBody["value"]!.GetValue<string>().ShouldBe("created");
     }
@@ -21,10 +24,13 @@ public sealed class EndpointResultExtensionsTests
     [Fact]
     public async Task ToHttpResult_WithSuccessfulResultWithoutValue_ReturnsNoContent()
     {
+        // Arrange
         Result result = Result.Success();
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(result.ToHttpResult());
 
+        // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status204NoContent);
         response.Body.ShouldBeNull();
     }
@@ -38,11 +44,14 @@ public sealed class EndpointResultExtensionsTests
         int expectedStatusCode,
         string expectedTitle)
     {
+        // Arrange
         Error error = CreateError(errorType, "example_error", "Example failure.");
         Result<string> result = Result<string>.Failure(error);
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(result.ToHttpResult(_ => Results.Ok()));
 
+        // Assert
         response.StatusCode.ShouldBe(expectedStatusCode);
         response.RequiredBody["title"]!.GetValue<string>().ShouldBe(expectedTitle);
         response.RequiredBody["detail"]!.GetValue<string>().ShouldBe("Example failure.");
@@ -52,11 +61,14 @@ public sealed class EndpointResultExtensionsTests
     [Fact]
     public async Task ToHttpResult_WithSingleValidationError_ReturnsValidationProblemForRequest()
     {
+        // Arrange
         Error error = Error.Validation(ErrorCode.Create("name_required"), "Name is required.");
         Result<string> result = Result<string>.Failure(error);
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(result.ToHttpResult(_ => Results.Ok()));
 
+        // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status422UnprocessableEntity);
         response.RequiredBody["title"]!.GetValue<string>().ShouldBe("Validation failed.");
         response.RequiredBody["detail"]!.GetValue<string>().ShouldBe("Name is required.");
@@ -68,6 +80,7 @@ public sealed class EndpointResultExtensionsTests
     [Fact]
     public async Task ToHttpResult_WithValidationDetails_GroupsErrorsByTarget()
     {
+        // Arrange
         Error[] details =
         [
             Error.Validation(ErrorCode.Create("name_required"), "Name is required.", "name"),
@@ -82,8 +95,10 @@ public sealed class EndpointResultExtensionsTests
 
         Result<string> result = Result<string>.Failure(error);
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(result.ToHttpResult(_ => Results.Ok()));
 
+        // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status422UnprocessableEntity);
         response.RequiredBody["errors"]!["name"]!.AsArray().Select(value => value!.GetValue<string>())
             .ShouldBe(["Name is required.", "Name is too short."]);
@@ -94,21 +109,27 @@ public sealed class EndpointResultExtensionsTests
     [Fact]
     public void ToProblemResult_WithSuccessfulResult_ThrowsInvalidOperationException()
     {
+        // Arrange
         Result<string> result = Result<string>.Success("value");
 
+        // Act
         Action action = () => result.ToProblemResult();
 
+        // Assert
         action.ShouldThrow<InvalidOperationException>();
     }
 
     [Fact]
     public async Task ToHttpResultAsync_WithTaskResult_ReturnsMappedResponse()
     {
+        // Arrange
         Task<Result<string>> resultTask = Task.FromResult(Result<string>.Success("value"));
 
+        // Act
         HttpResponseCapture response = await ExecuteAsync(
             await resultTask.ToHttpResultAsync(value => Results.Ok(new TestResponse(value))));
 
+        // Assert
         response.StatusCode.ShouldBe(StatusCodes.Status200OK);
         response.RequiredBody["value"]!.GetValue<string>().ShouldBe("value");
     }
