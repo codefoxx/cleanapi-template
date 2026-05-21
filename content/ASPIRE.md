@@ -7,7 +7,7 @@
 Run:
 
 ```bash
-dotnet run --project src/Company.Template.AppHost
+dotnet run --project src/aspire/Company.Template.AppHost
 ```
 
 Aspire starts the selected database container, runs the migration service, and then starts the API.

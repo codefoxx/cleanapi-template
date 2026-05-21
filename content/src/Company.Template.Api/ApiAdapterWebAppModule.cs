@@ -1,5 +1,7 @@
 //#if (auth == "Keycloak")
+
 using Company.Template.Api.Options;
+
 //#endif
 
 namespace Company.Template.Api;
@@ -16,8 +18,8 @@ public sealed class ApiAdapterWebAppModule : IFeatureWebAppModule<ApiAdapterFeat
     {
         //#if (auth == "Keycloak")
         AuthenticationOptions authenticationOptions = context.App.Services
-                                                             .GetRequiredService<IOptions<AuthenticationOptions>>()
-                                                             .Value;
+            .GetRequiredService<IOptions<AuthenticationOptions>>()
+            .Value;
 
         if (authenticationOptions.Enabled)
         {

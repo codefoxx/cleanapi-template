@@ -37,7 +37,7 @@ EF Core only needs to:
 After the initial migration exists, run the AppHost:
 
 ```bash
-dotnet run --project src/Company.Template.AppHost
+dotnet run --project src/aspire/Company.Template.AppHost
 ```
 
 The migration service will apply the migration automatically during Aspire startup.

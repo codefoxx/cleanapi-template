@@ -19,8 +19,8 @@ public static class KeycloakContainerExtensions
         Validate(options);
 
         IResourceBuilder<KeycloakResource> keycloak = builder
-                                                     .AddKeycloak(options.ResourceName, options.Port)
-                                                     .WithRealmImport(options.RealmImportPath);
+            .AddKeycloak(options.ResourceName, options.Port)
+            .WithRealmImport(options.RealmImportPath);
 
         if (options.UseDataVolume)
         {
@@ -35,10 +35,10 @@ public static class KeycloakContainerExtensions
         KeycloakResourceRegistration keycloak)
     {
         return api
-              .WithReference(keycloak.Resource)
-              .WaitFor(keycloak.Resource)
-              .WithEnvironment("Authentication__Authority", keycloak.Options.Authority)
-              .WithEnvironment("Authentication__Audience", keycloak.Options.Audience);
+            .WithReference(keycloak.Resource)
+            .WaitFor(keycloak.Resource)
+            .WithEnvironment("Authentication__Authority", keycloak.Options.Authority)
+            .WithEnvironment("Authentication__Audience", keycloak.Options.Audience);
     }
 
     private static void Validate(KeycloakContainerOptions options)

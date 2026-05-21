@@ -12,10 +12,10 @@ internal static class MigrationHostExtensions
         using IServiceScope scope = host.Services.CreateScope();
 
         ApplicationDbContext dbContext = scope.ServiceProvider
-                                              .GetRequiredService<ApplicationDbContext>();
+            .GetRequiredService<ApplicationDbContext>();
 
         ILogger<Program> logger = scope.ServiceProvider
-                                       .GetRequiredService<ILogger<Program>>();
+            .GetRequiredService<ILogger<Program>>();
 
 #pragma warning disable CA1031 // Process boundary: log migration failure and return non-zero exit code.
         try

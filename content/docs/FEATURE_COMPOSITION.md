@@ -37,7 +37,7 @@ string names or folder conventions.
 Markers live in the feature catalog:
 
 ```text
-src/Company.Template.Composition.Abstractions/FeatureCatalog/
+src/composition/Company.Template.Composition.Abstractions/FeatureCatalog/
 ```
 
 This keeps feature identities in one shared place while avoiding dependencies from Application or Infrastructure to
