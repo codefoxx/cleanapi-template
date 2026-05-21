@@ -10,7 +10,7 @@
 | `Company.Template.Application` | Use cases, application ports, result handling, command/query contracts |
 | `Company.Template.Infrastructure` | EF Core DbContext, persistence adapters, provider-specific setup |
 | `Company.Template.Api` | HTTP adapter, endpoint modules, request validation, authentication, OpenAPI |
-| `Company.Template.Composition` | Executable entry point and composition root for the HTTP API process |
+| `Company.Template.CompositionRoot` | Executable entry point and composition root for the HTTP API process |
 | `Company.Template.Composition.Abstractions` | Pure service-composition feature contracts and markers |
 | `Company.Template.Composition.AspNetCore` | ASP.NET Core pipeline feature-composition contracts |
 | `Company.Template.MigrationService` | One-shot EF Core migration runner |
