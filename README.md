@@ -34,7 +34,7 @@ Create the initial migration:
 ```bash
 dotnet ef migrations add InitialCreate \
   --project src/MyCompany.Products.Infrastructure \
-  --startup-project src/MyCompany.Products.Composition \
+  --startup-project src/MyCompany.Products.CompositionRoot \
   --context ApplicationDbContext \
   --output-dir Persistence/Migrations
 ```
@@ -42,7 +42,7 @@ dotnet ef migrations add InitialCreate \
 Run the local Aspire AppHost:
 
 ```bash
-dotnet run --project src/MyCompany.Products.AppHost
+dotnet run --project src/aspire/MyCompany.Products.AppHost
 ```
 
 Run tests:
@@ -62,6 +62,10 @@ dotnet test
 - ✅ Keycloak AppHost integration for local development
 - ✅ Result / Option based expected-failure flow
 - ✅ Feature-oriented composition model
+- ✅ Simplified generated solution structure
+- ✅ `CompositionRoot` executable entry point naming
+- ✅ Composition and Aspire support project grouping
+- ✅ Feature catalog split by ownership
 - ✅ Template materialization validation in CI
 - ✅ Root repository documentation and generated project documentation split
 
@@ -75,12 +79,6 @@ dotnet test
   - Authentication is a generation-time template choice.
 
 ### Planned / under consideration
-
-#### Foundation and structure
-
-- ⬜ Simplify generated solution structure
-- ⬜ Rename executable Composition project to `CompositionRoot`
-- ⬜ Split feature catalog by ownership
 
 #### Application model
 
