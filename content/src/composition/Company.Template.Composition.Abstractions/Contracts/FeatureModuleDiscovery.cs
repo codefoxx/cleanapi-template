@@ -11,13 +11,13 @@ public static class FeatureModuleDiscovery
         ArgumentNullException.ThrowIfNull(assemblies);
 
         return assemblies
-              .Distinct()
-              .SelectMany(assembly => assembly.DefinedTypes)
-              .Where(type => type is { IsAbstract: false, IsInterface: false })
-              .Where(type => typeof(TModule).IsAssignableFrom(type))
-              .OrderBy(type => type.FullName, StringComparer.Ordinal)
-              .Select(CreateModule<TModule>)
-              .ToArray();
+            .Distinct()
+            .SelectMany(assembly => assembly.DefinedTypes)
+            .Where(type => type is { IsAbstract: false, IsInterface: false })
+            .Where(type => typeof(TModule).IsAssignableFrom(type))
+            .OrderBy(type => type.FullName, StringComparer.Ordinal)
+            .Select(CreateModule<TModule>)
+            .ToArray();
     }
 
     internal static IReadOnlyList<FeatureServiceDecoratorModule> CreateServiceDecoratorModules(
@@ -28,12 +28,12 @@ public static class FeatureModuleDiscovery
         ArgumentNullException.ThrowIfNull(decoratorFeature);
 
         return assemblies
-              .Distinct()
-              .SelectMany(assembly => assembly.DefinedTypes)
-              .Where(type => type is { IsAbstract: false, IsInterface: false })
-              .SelectMany(type => CreateServiceDecoratorModules(type, decoratorFeature))
-              .OrderBy(module => module.ModuleType.FullName, StringComparer.Ordinal)
-              .ToArray();
+            .Distinct()
+            .SelectMany(assembly => assembly.DefinedTypes)
+            .Where(type => type is { IsAbstract: false, IsInterface: false })
+            .SelectMany(type => CreateServiceDecoratorModules(type, decoratorFeature))
+            .OrderBy(module => module.ModuleType.FullName, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static TModule CreateModule<TModule>(TypeInfo type)
@@ -66,9 +66,10 @@ public static class FeatureModuleDiscovery
                 ?? throw new InvalidOperationException(
                     $"Feature module '{type.FullName}' must have a public parameterless constructor.");
 
-            MethodInfo decorateMethod = type.AsType().GetMethod(
-                    nameof(IFeatureServiceDecoratorModule<IFeature, IFeature>.Decorate),
-                    [typeof(FeatureServiceContext)])
+            MethodInfo decorateMethod = type.AsType()
+                    .GetMethod(
+                        nameof(IFeatureServiceDecoratorModule<IFeature, IFeature>.Decorate),
+                        [typeof(FeatureServiceContext)])
                 ?? throw new InvalidOperationException(
                     $"Feature decorator module '{type.FullName}' must define a public Decorate method.");
 

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\Company.Template.Composition.Abstractions\Company.Template.Composition.Abstractions.csproj"/>
         <ProjectReference Include="..\Company.Template.Domain\Company.Template.Domain.csproj"/>
+        <ProjectReference Include="..\composition\Company.Template.Composition.Abstractions\Company.Template.Composition.Abstractions.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

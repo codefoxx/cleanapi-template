@@ -11,4 +11,6 @@ public sealed class KeycloakContainerOptions
     public bool UseDataVolume { get; set; } = true;
 }
 
-public sealed record KeycloakResourceRegistration(IResourceBuilder<KeycloakResource> Resource, KeycloakContainerOptions Options);
+public sealed record KeycloakResourceRegistration(
+    IResourceBuilder<KeycloakResource> Resource,
+    KeycloakContainerOptions Options);

@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Company.Template.CompositionRoot\Company.Template.CompositionRoot.csproj"/>
+        <ProjectReference Include="..\..\Company.Template.CompositionRoot\Company.Template.CompositionRoot.csproj"/>
         <ProjectReference Include="..\Company.Template.MigrationService\Company.Template.MigrationService.csproj"/>
     </ItemGroup>
 
