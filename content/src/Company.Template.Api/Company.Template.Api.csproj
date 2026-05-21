@@ -2,8 +2,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Company.Template.Application\Company.Template.Application.csproj"/>
-        <ProjectReference Include="..\Company.Template.Composition.Abstractions\Company.Template.Composition.Abstractions.csproj"/>
-        <ProjectReference Include="..\Company.Template.Composition.AspNetCore\Company.Template.Composition.AspNetCore.csproj"/>
+        <ProjectReference Include="..\composition\Company.Template.Composition.AspNetCore\Company.Template.Composition.AspNetCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

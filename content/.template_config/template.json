@@ -257,12 +257,12 @@
                 "src/Company.Template.Api/OpenApi/AuthorizationOperationTransformer.cs",
                 "src/Company.Template.Api/OpenApi/BearerSecuritySchemeTransformer.cs",
                 "src/Company.Template.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs",
-                "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
-                "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
-                "src/Company.Template.AppHost/appsettings.json",
-                "src/Company.Template.AppHost/appsettings.None.json",
-                "src/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
-                "src/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs",
+                "src/aspire/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
+                "src/aspire/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
+                "src/aspire/Company.Template.AppHost/appsettings.json",
+                "src/aspire/Company.Template.AppHost/appsettings.None.json",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs",
                 "src/Company.Template.CompositionRoot/appsettings.json",
                 "src/Company.Template.CompositionRoot/appsettings.None.json",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
@@ -278,11 +278,11 @@
             "target": "./",
             "condition": "(auth == \"None\")",
             "include": [
-                "src/Company.Template.AppHost/appsettings.None.json",
+                "src/aspire/Company.Template.AppHost/appsettings.None.json",
                 "src/Company.Template.CompositionRoot/appsettings.None.json"
             ],
             "rename": {
-                "src/Company.Template.AppHost/appsettings.None.json": "src/Company.Template.AppHost/appsettings.json",
+                "src/aspire/Company.Template.AppHost/appsettings.None.json": "src/aspire/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.CompositionRoot/appsettings.None.json": "src/Company.Template.CompositionRoot/appsettings.json"
             }
         },
@@ -302,9 +302,9 @@
                 "src/Company.Template.Api/OpenApi/AuthorizationOperationTransformer.cs",
                 "src/Company.Template.Api/OpenApi/BearerSecuritySchemeTransformer.cs",
                 "src/Company.Template.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs",
-                "src/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
-                "src/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
-                "src/Company.Template.AppHost/appsettings.json",
+                "src/aspire/Company.Template.AppHost/Containers/KeycloakContainerExtensions.cs",
+                "src/aspire/Company.Template.AppHost/Containers/KeycloakContainerOptions.cs",
+                "src/aspire/Company.Template.AppHost/appsettings.json",
                 "src/Company.Template.CompositionRoot/appsettings.json"
             ]
         },
@@ -313,13 +313,13 @@
             "target": "./",
             "condition": "(db == \"PostgreSql\")",
             "include": [
-                "src/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs"
             ],
             "rename": {
-                "src/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs": "src/Company.Template.AppHost/Providers/AspireDatabase.cs",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.PostgreSql.cs": "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.PostgreSql.cs": "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.PostgreSql.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseProvider.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.PostgreSql.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseServer.cs"
@@ -330,13 +330,13 @@
             "target": "./",
             "condition": "(db == \"SqlServer\")",
             "include": [
-                "src/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs"
             ],
             "rename": {
-                "src/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs": "src/Company.Template.AppHost/Providers/AspireDatabase.cs",
+                "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.SqlServer.cs": "src/aspire/Company.Template.AppHost/Providers/AspireDatabase.cs",
                 "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.SqlServer.cs": "src/Company.Template.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabase.SqlServer.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseProvider.cs",
                 "tests/Company.Template.TestSupport/Database/TestDatabaseServer.SqlServer.cs": "tests/Company.Template.TestSupport/Database/TestDatabaseServer.cs"

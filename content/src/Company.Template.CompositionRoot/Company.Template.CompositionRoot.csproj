@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <ItemGroup>
+        <ProjectReference Include="..\aspire\Company.Template.ServiceDefaults\Company.Template.ServiceDefaults.csproj"/>
         <ProjectReference Include="..\Company.Template.Api\Company.Template.Api.csproj"/>
         <ProjectReference Include="..\Company.Template.Application\Company.Template.Application.csproj"/>
-        <ProjectReference Include="..\Company.Template.Composition.Abstractions\Company.Template.Composition.Abstractions.csproj"/>
         <ProjectReference Include="..\Company.Template.Infrastructure\Company.Template.Infrastructure.csproj"/>
-        <ProjectReference Include="..\Company.Template.ServiceDefaults\Company.Template.ServiceDefaults.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

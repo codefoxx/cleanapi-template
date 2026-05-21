@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -55,7 +54,7 @@ public static class Extensions
         return path.StartsWithSegments(
                 HealthEndpointPath,
                 StringComparison.OrdinalIgnoreCase)
-         || path.StartsWithSegments(
+            || path.StartsWithSegments(
                 AlivenessEndpointPath,
                 StringComparison.OrdinalIgnoreCase);
     }
@@ -93,8 +92,8 @@ public static class Extensions
         private TBuilder ConfigureOpenTelemetry()
         {
             ServiceDefaultsOpenTelemetryOptions openTelemetry = builder.Configuration
-                                                                       .GetSection(ServiceDefaultsOpenTelemetryOptions.SectionName)
-                                                                       .Get<ServiceDefaultsOpenTelemetryOptions>() ?? new ServiceDefaultsOpenTelemetryOptions();
+                .GetSection(ServiceDefaultsOpenTelemetryOptions.SectionName)
+                .Get<ServiceDefaultsOpenTelemetryOptions>() ?? new ServiceDefaultsOpenTelemetryOptions();
 
             builder.Logging.AddOpenTelemetry(logging =>
             {
@@ -103,29 +102,29 @@ public static class Extensions
             });
 
             builder.Services.AddOpenTelemetry()
-                   .WithMetrics(metrics =>
-                    {
-                        metrics
-                           .AddMeter(openTelemetry.Meters)
-                           .AddAspNetCoreInstrumentation()
-                           .AddHttpClientInstrumentation()
-                           .AddRuntimeInstrumentation();
-                    })
-                   .WithTracing(tracing =>
-                    {
-                        tracing
-                           .AddSource(builder.Environment.ApplicationName)
-                           .AddSource(openTelemetry.Sources)
-                           .AddAspNetCoreInstrumentation(options =>
-                            {
-                                // Exclude health check requests from tracing
-                                options.Filter = context => !IsHealthCheckRequest(context.Request.Path);
-                            })
-                            // Uncomment the following line to enable gRPC instrumentation.
-                            // Requires the OpenTelemetry.Instrumentation.GrpcNetClient package.
-                            // .AddGrpcClientInstrumentation()
-                           .AddHttpClientInstrumentation();
-                    });
+                .WithMetrics(metrics =>
+                {
+                    metrics
+                        .AddMeter(openTelemetry.Meters)
+                        .AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddRuntimeInstrumentation();
+                })
+                .WithTracing(tracing =>
+                {
+                    tracing
+                        .AddSource(builder.Environment.ApplicationName)
+                        .AddSource(openTelemetry.Sources)
+                        .AddAspNetCoreInstrumentation(options =>
+                        {
+                            // Exclude health check requests from tracing
+                            options.Filter = context => !IsHealthCheckRequest(context.Request.Path);
+                        })
+                        // Uncomment the following line to enable gRPC instrumentation.
+                        // Requires the OpenTelemetry.Instrumentation.GrpcNetClient package.
+                        // .AddGrpcClientInstrumentation()
+                        .AddHttpClientInstrumentation();
+                });
 
             builder.AddOpenTelemetryExporters();
 
@@ -135,8 +134,8 @@ public static class Extensions
         private TBuilder AddDefaultHealthChecks()
         {
             builder.Services.AddHealthChecks()
-                    // Add a default liveness check to ensure app is responsive
-                   .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+                // Add a default liveness check to ensure app is responsive
+                .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
             return builder;
         }

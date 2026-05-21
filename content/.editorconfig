@@ -15,11 +15,11 @@ dotnet_diagnostic.IDE0161.severity = none
 
 # Composition abstraction namespaces intentionally omit the Abstractions
 # project segment so consumers import the conceptual API.
-[src/Company.Template.Composition.Abstractions/Framework/*.cs]
+[src/composition/Company.Template.Composition.Abstractions/Framework/*.cs]
 dotnet_diagnostic.IDE0130.severity = none
 resharper_check_namespace_highlighting = none
 
-[src/Company.Template.Composition.Abstractions/Features/*.cs]
+[src/composition/Company.Template.Composition.Abstractions/Features/*.cs]
 dotnet_diagnostic.IDE0130.severity = none
 resharper_check_namespace_highlighting = none
 

@@ -63,7 +63,8 @@ public sealed class FeatureServiceBuilder
         if (_decoratorFeatures.Contains(decoratorFeature))
         {
             throw new InvalidOperationException(
-                $"Decorator feature '{decoratorFeature.FullName}' was queued more than once in this composition scope. " +
+                $"Decorator feature '{decoratorFeature.FullName}' was queued more than once in this composition scope. "
+                +
                 "Queue each decorator feature once, or consolidate the composition extension that applies it.");
         }
 
