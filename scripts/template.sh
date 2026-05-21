@@ -177,7 +177,7 @@ list_provider_specific_files() {
 verify_migration_service_exists() {
   echo "==> Verifying migration service project exists"
 
-  test -f "src/$PROJECT_NAME.MigrationService/$PROJECT_NAME.MigrationService.csproj"
+  test -f "src/aspire/$PROJECT_NAME.MigrationService/$PROJECT_NAME.MigrationService.csproj"
 }
 
 restore_test_project() {
@@ -214,7 +214,7 @@ create_initial_migration() {
 
   dotnet ef migrations add InitialCreate \
     --project "src/$PROJECT_NAME.Infrastructure/$PROJECT_NAME.Infrastructure.csproj" \
-    --startup-project "src/$PROJECT_NAME.MigrationService/$PROJECT_NAME.MigrationService.csproj" \
+    --startup-project "src/aspire/$PROJECT_NAME.MigrationService/$PROJECT_NAME.MigrationService.csproj" \
     --context ApplicationDbContext \
     --output-dir Persistence/Migrations
 
