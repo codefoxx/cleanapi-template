@@ -30,10 +30,10 @@ jobs:
         run: dotnet new install ./content --force
 
       - name: Materialize PostgreSQL template
-        run: dotnet new cleanapi -n Validation.PostgreSql --db PostgreSql -o /tmp/cleanapi-template-validation/postgresql --force
+        run: dotnet new cleanapi -n Acme.PostgreSql --db PostgreSql -o /tmp/cleanapi-template/materialization/postgresql --force
 
       - name: Materialize SQL Server template
-        run: dotnet new cleanapi -n Validation.SqlServer --db SqlServer -o /tmp/cleanapi-template-validation/sqlserver --force
+        run: dotnet new cleanapi -n Acme.SqlServer --db SqlServer -o /tmp/cleanapi-template/materialization/sqlserver --force
 
       - name: Validate provider-specific filenames are absent
         shell: bash
@@ -61,8 +61,8 @@ jobs:
             fi
           }
 
-          assert_no_provider_suffixes /tmp/cleanapi-template-validation/postgresql "PostgreSQL output"
-          assert_no_provider_suffixes /tmp/cleanapi-template-validation/sqlserver "SQL Server output"
+          assert_no_provider_suffixes /tmp/cleanapi-template/materialization/postgresql "PostgreSQL output"
+          assert_no_provider_suffixes /tmp/cleanapi-template/materialization/sqlserver "SQL Server output"
 
       - name: Validate neutral provider files exist
         shell: bash
@@ -78,15 +78,15 @@ jobs:
             fi
           }
 
-          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/aspire/Validation.PostgreSql.AppHost/Providers/AspireDatabase.cs
-          assert_file_exists /tmp/cleanapi-template-validation/postgresql/src/Validation.PostgreSql.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
-          assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseProvider.cs
-          assert_file_exists /tmp/cleanapi-template-validation/postgresql/tests/Validation.PostgreSql.TestSupport/Database/TestDatabaseServer.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/postgresql/src/aspire/Acme.PostgreSql.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/postgresql/src/Acme.PostgreSql.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/postgresql/tests/Acme.PostgreSql.TestSupport/Database/TestDatabaseProvider.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/postgresql/tests/Acme.PostgreSql.TestSupport/Database/TestDatabaseServer.cs
 
-          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/aspire/Validation.SqlServer.AppHost/Providers/AspireDatabase.cs
-          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/src/Validation.SqlServer.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
-          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseProvider.cs
-          assert_file_exists /tmp/cleanapi-template-validation/sqlserver/tests/Validation.SqlServer.TestSupport/Database/TestDatabaseServer.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/sqlserver/src/aspire/Acme.SqlServer.AppHost/Providers/AspireDatabase.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/sqlserver/src/Acme.SqlServer.Infrastructure/Persistence/Providers/DatabaseProviderConfigurator.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/sqlserver/tests/Acme.SqlServer.TestSupport/Database/TestDatabaseProvider.cs
+          assert_file_exists /tmp/cleanapi-template/materialization/sqlserver/tests/Acme.SqlServer.TestSupport/Database/TestDatabaseServer.cs
 
       - name: Validate authoring conditions are absent
         shell: bash
@@ -107,8 +107,8 @@ jobs:
             fi
           }
 
-          assert_no_authoring_conditions /tmp/cleanapi-template-validation/postgresql "PostgreSQL output"
-          assert_no_authoring_conditions /tmp/cleanapi-template-validation/sqlserver "SQL Server output"
+          assert_no_authoring_conditions /tmp/cleanapi-template/materialization/postgresql "PostgreSQL output"
+          assert_no_authoring_conditions /tmp/cleanapi-template/materialization/sqlserver "SQL Server output"
 
       - name: Validate wrong-provider packages are absent
         shell: bash
@@ -131,12 +131,12 @@ jobs:
           }
 
           assert_no_wrong_provider_packages \
-            /tmp/cleanapi-template-validation/postgresql \
+            /tmp/cleanapi-template/materialization/postgresql \
             "PostgreSQL output" \
             'Aspire\.Hosting\.SqlServer|Microsoft\.Data\.SqlClient|Microsoft\.EntityFrameworkCore\.SqlServer|Testcontainers\.MsSql'
 
           assert_no_wrong_provider_packages \
-            /tmp/cleanapi-template-validation/sqlserver \
+            /tmp/cleanapi-template/materialization/sqlserver \
             "SQL Server output" \
             'Aspire\.Hosting\.PostgreSQL|Npgsql|Testcontainers\.PostgreSql'
 
@@ -145,9 +145,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      OUTPUT_ROOT: /tmp/auth-apphost-validation
-      NONE_PROJECT: /tmp/auth-apphost-validation/none
-      KEYCLOAK_PROJECT: /tmp/auth-apphost-validation/keycloak
+      OUTPUT_ROOT: /tmp/cleanapi-template/auth-materialization
+      NONE_PROJECT: /tmp/cleanapi-template/auth-materialization/none
+      KEYCLOAK_PROJECT: /tmp/cleanapi-template/auth-materialization/keycloak
 
     steps:
       - name: Checkout
@@ -165,10 +165,10 @@ jobs:
         run: dotnet new install ./content --force
 
       - name: Materialize no-auth template
-        run: dotnet new cleanapi -n Auth.AppHost.None --auth None -o "$NONE_PROJECT" --force
+        run: dotnet new cleanapi -n Acme.NoAuth --auth None -o "$NONE_PROJECT" --force
 
       - name: Materialize Keycloak template
-        run: dotnet new cleanapi -n Auth.AppHost.Keycloak --auth Keycloak -o "$KEYCLOAK_PROJECT" --force
+        run: dotnet new cleanapi -n Acme.Keycloak --auth Keycloak -o "$KEYCLOAK_PROJECT" --force
 
       - name: Verify no-auth excludes auth artifacts
         shell: bash
@@ -176,13 +176,13 @@ jobs:
           set -euo pipefail
 
           test ! -d "$NONE_PROJECT/infra"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/ApiAdapterServiceModule.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Application/Abstractions/Security/ICurrentUser.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/CurrentUser/HttpCurrentUser.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Options/AuthenticationOptions.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Security/AuthenticationExtensions.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/Security/TemplatePolicies.cs"
-          test ! -f "$NONE_PROJECT/src/Auth.AppHost.None.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/ApiAdapterServiceModule.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Application/Abstractions/Security/ICurrentUser.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/CurrentUser/HttpCurrentUser.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/Options/AuthenticationOptions.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/Security/AuthenticationExtensions.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/Security/TemplatePolicies.cs"
+          test ! -f "$NONE_PROJECT/src/Acme.NoAuth.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
 
       - name: Verify no-auth has no Keycloak leftovers
         shell: bash
@@ -190,7 +190,7 @@ jobs:
           set -euo pipefail
 
           if grep -RInE 'Keycloak|keycloak|StartKeycloak|__KEYCLOAK|__AUTH_AUDIENCE__|Authentication__' \
-            "$NONE_PROJECT/src/aspire/Auth.AppHost.None.AppHost"; then
+            "$NONE_PROJECT/src/aspire/Acme.NoAuth.AppHost"; then
             echo "ERROR: no-auth AppHost contains Keycloak/Auth leftovers."
             exit 1
           fi
@@ -200,22 +200,22 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -f "$KEYCLOAK_PROJECT/infra/keycloak/realms/auth-apphost-keycloak-realm.json"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/ApiAdapterServiceModule.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Application/Abstractions/Security/ICurrentUser.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/CurrentUser/HttpCurrentUser.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Options/AuthenticationOptions.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Security/AuthenticationExtensions.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/Security/TemplatePolicies.cs"
-          test -f "$KEYCLOAK_PROJECT/src/Auth.AppHost.Keycloak.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
+          test -f "$KEYCLOAK_PROJECT/infra/keycloak/realms/acme-keycloak-realm.json"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/ApiAdapterServiceModule.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Application/Abstractions/Security/ICurrentUser.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/CurrentUser/HttpCurrentUser.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/Options/AuthenticationOptions.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/Security/AuthenticationExtensions.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/Security/TemplatePolicies.cs"
+          test -f "$KEYCLOAK_PROJECT/src/Acme.Keycloak.Api/OpenApi/OAuth2SecuritySchemeTransformer.cs"
 
       - name: Verify Keycloak AppHost wiring
         shell: bash
         run: |
           set -euo pipefail
 
-          grep -RInE 'AddTemplateKeycloak|WithTemplateKeycloakAuthentication|Authentication__Authority|Authentication__Audience|auth-apphost-keycloak' \
-            "$KEYCLOAK_PROJECT/src/aspire/Auth.AppHost.Keycloak.AppHost" \
+          grep -RInE 'AddTemplateKeycloak|WithTemplateKeycloakAuthentication|Authentication__Authority|Authentication__Audience|acme-keycloak' \
+            "$KEYCLOAK_PROJECT/src/aspire/Acme.Keycloak.AppHost" \
             "$KEYCLOAK_PROJECT/infra"
 
       - name: Verify old auth runtime switches are absent
@@ -224,7 +224,7 @@ jobs:
           set -euo pipefail
 
           if grep -RInE 'StartKeycloak|Authentication__Enabled' \
-            "$KEYCLOAK_PROJECT/src/aspire/Auth.AppHost.Keycloak.AppHost" \
+            "$KEYCLOAK_PROJECT/src/aspire/Acme.Keycloak.AppHost" \
             "$KEYCLOAK_PROJECT/infra"; then
             echo "ERROR: old auth runtime switch leftovers found."
             exit 1
