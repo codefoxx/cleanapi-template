@@ -1,6 +1,4 @@
-using Company.Template.Composition.Abstractions.Contracts;
-
-namespace Company.Template.Composition.Abstractions.FeatureCatalog;
+namespace Company.Template.Infrastructure.FeatureCatalog;
 
 /// <summary>
 ///     Identifies the persistence adapter used by application workflows.

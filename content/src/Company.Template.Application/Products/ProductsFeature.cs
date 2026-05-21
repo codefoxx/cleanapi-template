@@ -1,6 +1,4 @@
-using Company.Template.Composition.Abstractions.Contracts;
-
-namespace Company.Template.Composition.Abstractions.FeatureCatalog;
+namespace Company.Template.Application.Products;
 
 /// <summary>
 ///     Identifies the Products feature for explicit composition module activation.

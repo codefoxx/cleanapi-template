@@ -10,7 +10,7 @@ namespace Company.Template.Infrastructure;
 ///     The system clock is a technical cross-cutting service that keeps time access testable and independent from direct
 ///     system calls in application workflows.
 /// </remarks>
-public sealed class InfrastructureCrossCuttingModule : IFeatureServiceModule<CrossCuttingConcerns>
+public sealed class InfrastructureCrossCuttingModule : IFeatureServiceModule<InfrastructureCrossCuttingFeature>
 {
     public void Register(FeatureServiceContext context)
     {
