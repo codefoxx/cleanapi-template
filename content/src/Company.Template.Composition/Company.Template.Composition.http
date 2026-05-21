@@ -1,4 +1,0 @@
-@Company.Template.Composition_HostAddress = http://localhost:5080
-
-GET {{Company.Template.Composition_HostAddress}}/
-Accept: application/json

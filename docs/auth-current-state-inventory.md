@@ -77,8 +77,8 @@ For a template option, that is not clean enough.
 Relevant files:
 
 ```text
-content/src/Company.Template.Composition/appsettings.json
-content/src/Company.Template.Composition/appsettings.Development.json
+content/src/Company.Template.CompositionRoot/appsettings.json
+content/src/Company.Template.CompositionRoot/appsettings.Development.json
 content/src/Company.Template.AppHost/appsettings.json
 content/src/Company.Template.AppHost/appsettings.Development.json
 content/src/Company.Template.MigrationService/appsettings.json

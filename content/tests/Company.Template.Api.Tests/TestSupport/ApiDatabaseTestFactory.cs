@@ -1,5 +1,5 @@
 using Company.Template.Application.Abstractions.DomainEvents;
-using Company.Template.Composition;
+using Company.Template.CompositionRoot;
 using Company.Template.Infrastructure.Persistence;
 using Company.Template.TestSupport.Application.DomainEvents;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +15,7 @@ namespace Company.Template.Api.Tests.TestSupport;
 ///     The factory receives a lightweight logical <see cref="TestDatabase" />; the expensive database
 ///     server container is shared outside this factory.
 /// </remarks>
-public sealed class ApiDatabaseTestFactory : WebApplicationFactory<CompositionAssemblyMarker>
+public sealed class ApiDatabaseTestFactory : WebApplicationFactory<CompositionRootAssemblyMarker>
 {
     private readonly TestDatabase _database;
 
@@ -55,8 +55,8 @@ file static class TestAuthenticationRegistration
     public static IServiceCollection AddTestAuthentication(this IServiceCollection services)
     {
         services
-           .AddAuthentication(TestAuthenticationHandler.SchemeName)
-           .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+            .AddAuthentication(TestAuthenticationHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
                 TestAuthenticationHandler.SchemeName,
                 _ => { });
 
