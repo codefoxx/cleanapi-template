@@ -96,6 +96,34 @@ public sealed class ResultTests
     }
 
     [Fact]
+    public void Match_WithNullSuccessDelegate_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Result<string> result = Result<string>.Success("ok");
+        Func<string, string> success = null!;
+
+        // Act
+        Action action = () => result.Match(success, error => $"failure:{error.Code}");
+
+        // Assert
+        action.ShouldThrow<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Match_WithNullFailureDelegate_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Result<string> result = Result<string>.Failure(Error.Validation("Invalid input."));
+        Func<Error, string> failure = null!;
+
+        // Act
+        Action action = () => result.Match(text => $"success:{text}", failure);
+
+        // Assert
+        action.ShouldThrow<ArgumentNullException>();
+    }
+
+    [Fact]
     public void Map_WithSuccess_ReturnsMappedResult()
     {
         // Arrange
@@ -122,6 +150,25 @@ public sealed class ResultTests
         // Assert
         mapped.IsFailure.ShouldBeTrue();
         mapped.Error.ShouldBe(error);
+    }
+
+    [Fact]
+    public void Map_WithFailure_DoesNotInvokeMapper()
+    {
+        // Arrange
+        Result<string> result = Result<string>.Failure(Error.Validation("Invalid input."));
+        bool mapperWasCalled = false;
+
+        // Act
+        Result<int> mapped = result.Map(_ =>
+        {
+            mapperWasCalled = true;
+            return 42;
+        });
+
+        // Assert
+        mapped.IsFailure.ShouldBeTrue();
+        mapperWasCalled.ShouldBeFalse();
     }
 
     [Fact]
@@ -168,6 +215,25 @@ public sealed class ResultTests
     }
 
     [Fact]
+    public void Bind_WithFailure_DoesNotInvokeBinder()
+    {
+        // Arrange
+        Result<string> result = Result<string>.Failure(Error.Validation("Invalid input."));
+        bool binderWasCalled = false;
+
+        // Act
+        Result<int> bound = result.Bind(_ =>
+        {
+            binderWasCalled = true;
+            return Result<int>.Success(42);
+        });
+
+        // Assert
+        bound.IsFailure.ShouldBeTrue();
+        binderWasCalled.ShouldBeFalse();
+    }
+
+    [Fact]
     public void Bind_WithNullDelegate_ThrowsArgumentNullException()
     {
         // Arrange
@@ -208,6 +274,25 @@ public sealed class ResultTests
         // Assert
         bound.IsFailure.ShouldBeTrue();
         bound.Error.ShouldBe(error);
+    }
+
+    [Fact]
+    public async Task BindAsync_WithFailure_DoesNotInvokeBinder()
+    {
+        // Arrange
+        Result<string> result = Result<string>.Failure(Error.Validation("Invalid input."));
+        bool binderWasCalled = false;
+
+        // Act
+        Result<int> bound = await result.BindAsync(_ =>
+        {
+            binderWasCalled = true;
+            return Task.FromResult(Result<int>.Success(42));
+        });
+
+        // Assert
+        bound.IsFailure.ShouldBeTrue();
+        binderWasCalled.ShouldBeFalse();
     }
 
     [Fact]
@@ -289,5 +374,33 @@ public sealed class ResultTests
 
         // Assert
         value.ShouldBe("failure:conflict");
+    }
+
+    [Fact]
+    public void NonGenericMatch_WithNullSuccessDelegate_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Result result = Result.Success();
+        Func<string> success = null!;
+
+        // Act
+        Action action = () => result.Match(success, error => $"failure:{error.Code}");
+
+        // Assert
+        action.ShouldThrow<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void NonGenericMatch_WithNullFailureDelegate_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Result result = Result.Failure(Error.Conflict("Conflict."));
+        Func<Error, string> failure = null!;
+
+        // Act
+        Action action = () => result.Match(() => "success", failure);
+
+        // Assert
+        action.ShouldThrow<ArgumentNullException>();
     }
 }
