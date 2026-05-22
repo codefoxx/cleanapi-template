@@ -5,11 +5,16 @@
 ## Provider selection
 
 The provider is selected when the project is generated:
-
+<!--#if (db == "PostgreSql") -->
 ```bash
 dotnet new cleanapi -n Company.Template --db PostgreSql
 ```
-
+<!--#endif -->
+<!--#if (db == "SqlServer") -->
+```bash
+dotnet new cleanapi -n Company.Template --db SqlServer
+```
+<!--#endif -->
 Valid provider values:
 
 - `PostgreSql`
