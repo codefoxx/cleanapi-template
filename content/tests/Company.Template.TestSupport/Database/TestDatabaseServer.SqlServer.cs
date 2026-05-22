@@ -1,3 +1,4 @@
+using Docker.DotNet.Models;
 using Microsoft.Data.SqlClient;
 using Testcontainers.MsSql;
 
@@ -13,11 +14,24 @@ namespace Company.Template.TestSupport.Database;
 public sealed class TestDatabaseServer : IAsyncLifetime
 {
     private const string MasterDatabase = "master";
+    private const long SqlServerContainerMemoryLimitBytes = 4L * 1024 * 1024 * 1024;
+    private const string SqlServerMemoryLimitMb = "3072";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder()
-                                                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-                                                .WithPassword("yourStrong(!)Password")
-                                                .Build();
+        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+        .WithPassword("yourStrong(!)Password")
+        .WithEnvironment("MSSQL_MEMORY_LIMIT_MB", SqlServerMemoryLimitMb)
+        .WithCreateParameterModifier(parameters =>
+        {
+            parameters.HostConfig ??= new HostConfig();
+
+            parameters.HostConfig.Memory = SqlServerContainerMemoryLimitBytes;
+
+            // Docker supports this and it prevents slow swap-heavy test runs.
+            // Some Docker-compatible runtimes may handle swap limits differently.
+            parameters.HostConfig.MemorySwap = SqlServerContainerMemoryLimitBytes;
+        })
+        .Build();
 
     public Task InitializeAsync()
     {
@@ -51,12 +65,12 @@ public sealed class TestDatabaseServer : IAsyncLifetime
 
         await using SqlCommand command = connection.CreateCommand();
         command.CommandText = $"""
-            IF DB_ID({QuoteLiteral(databaseName)}) IS NOT NULL
-            BEGIN
-                ALTER DATABASE {QuoteIdentifier(databaseName)} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                DROP DATABASE {QuoteIdentifier(databaseName)};
-            END
-            """;
+                               IF DB_ID({QuoteLiteral(databaseName)}) IS NOT NULL
+                               BEGIN
+                                   ALTER DATABASE {QuoteIdentifier(databaseName)} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                                   DROP DATABASE {QuoteIdentifier(databaseName)};
+                               END
+                               """;
 
         await command.ExecuteNonQueryAsync();
     }
