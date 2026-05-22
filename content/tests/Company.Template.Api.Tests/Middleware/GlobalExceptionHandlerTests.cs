@@ -2,7 +2,9 @@ using System.Text;
 using System.Text.Json.Nodes;
 using Company.Template.Api.Middleware;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Primitives;
 
 namespace Company.Template.Api.Tests.Middleware;
 
@@ -80,9 +82,8 @@ public sealed class GlobalExceptionHandlerTests
     {
         // Arrange
         GlobalExceptionHandler handler = CreateHandler();
-        DefaultHttpContext context = CreateHttpContext("/api/failing");
+        DefaultHttpContext context = CreateStartedHttpContext("/api/failing");
         InvalidOperationException exception = new("Sensitive internal failure.");
-        await context.Response.StartAsync();
 
         // Act
         bool handled = await handler.TryHandleAsync(context, exception, CancellationToken.None);
@@ -96,9 +97,8 @@ public sealed class GlobalExceptionHandlerTests
     {
         // Arrange
         GlobalExceptionHandler handler = CreateHandler();
-        DefaultHttpContext context = CreateHttpContext("/api/failing");
+        DefaultHttpContext context = CreateStartedHttpContext("/api/failing");
         InvalidOperationException exception = new("Sensitive internal failure.");
-        await context.Response.StartAsync();
 
         // Act
         await handler.TryHandleAsync(context, exception, CancellationToken.None);
@@ -159,6 +159,18 @@ public sealed class GlobalExceptionHandlerTests
         return context;
     }
 
+    private static DefaultHttpContext CreateStartedHttpContext(string path)
+    {
+        StartedResponseFeature response = new();
+        FeatureCollection features = new();
+        features.Set<IHttpResponseFeature>(response);
+
+        DefaultHttpContext context = new(features);
+        context.Request.Path = path;
+
+        return context;
+    }
+
     private static async Task<JsonNode> ReadRequiredJsonBodyAsync(HttpContext context)
     {
         string body = await ReadBodyAsync(context);
@@ -173,5 +185,26 @@ public sealed class GlobalExceptionHandlerTests
         using StreamReader reader = new(context.Response.Body, Encoding.UTF8, leaveOpen: true);
 
         return await reader.ReadToEndAsync();
+    }
+
+    private sealed class StartedResponseFeature : IHttpResponseFeature
+    {
+        public int StatusCode { get; set; } = StatusCodes.Status200OK;
+
+        public string? ReasonPhrase { get; set; }
+
+        public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
+
+        public Stream Body { get; set; } = new MemoryStream();
+
+        public bool HasStarted => true;
+
+        public void OnCompleted(Func<object, Task> callback, object state)
+        {
+        }
+
+        public void OnStarting(Func<object, Task> callback, object state)
+        {
+        }
     }
 }
