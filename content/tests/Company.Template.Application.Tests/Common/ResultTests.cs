@@ -1,3 +1,5 @@
 namespace Company.Template.Application.Tests.Common;
 
-public sealed partial class ResultTests;
+public sealed partial class ResultTests
+{
+}
