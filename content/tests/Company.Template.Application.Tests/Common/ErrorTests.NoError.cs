@@ -7,6 +7,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void None_ReturnsNoneError()
     {
+        // Arrange
+
         // Act
         Error error = Error.None;
 

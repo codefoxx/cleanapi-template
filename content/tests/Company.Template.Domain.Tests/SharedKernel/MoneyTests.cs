@@ -97,6 +97,8 @@ public sealed class MoneyTests
     [Fact]
     public void Create_WithUnsupportedStringCurrency_ThrowsArgumentException()
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Money.Create(12.50m, "ABC"));
 
@@ -498,6 +500,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithValidAmountAndCurrency_ReturnsTrueAndMoney()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -516,6 +520,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithNullCurrency_ReturnsCurrencyRequired()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -533,6 +539,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithNegativeAmount_ReturnsAmountNegative()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             -0.01m,
@@ -550,6 +558,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithZeroAmountAndCurrency_ReturnsTrueAndZeroMoney()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             0m,
@@ -569,6 +579,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithTooManyDecimalPlaces_ReturnsAmountTooManyDecimalPlaces()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.999m,
@@ -586,6 +598,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithValidAmountAndCurrencyCode_ReturnsTrueAndMoney()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -604,6 +618,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithInvalidCurrencyCodeFormat_ReturnsCurrencyInvalidFormat()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -621,6 +637,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithUnsupportedCurrencyCode_ReturnsCurrencyUnsupported()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -638,6 +656,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithMissingCurrencyCode_ReturnsCurrencyRequired()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             99.90m,
@@ -655,6 +675,8 @@ public sealed class MoneyTests
     [Fact]
     public void TryCreate_WithNegativeAmountAndInvalidCurrencyCode_ReturnsCurrencyInvalidFormat()
     {
+        // Arrange
+
         // Act
         bool result = Money.TryCreate(
             -0.01m,

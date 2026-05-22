@@ -7,6 +7,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Conflict_WithMessage_ReturnsConflictError()
     {
+        // Arrange
+
         // Act
         Error error = Error.Conflict("Product already exists.");
 
@@ -19,6 +21,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Conflict_WithCodeAndMessage_ReturnsConflictError()
     {
+        // Arrange
+
         // Act
         Error error = Error.Conflict(ErrorCodes.Conflict, "Product already exists.");
 

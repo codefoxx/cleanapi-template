@@ -7,6 +7,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Unknown_WithCodeAndMessage_ReturnsUnknownError()
     {
+        // Arrange
+
         // Act
         Error error = Error.Unknown(ErrorCode.Create("unexpected_error"), "Unexpected error.");
 

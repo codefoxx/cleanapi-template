@@ -311,6 +311,8 @@ public sealed class ProductTests
     [Fact]
     public void TryCreate_WithValidValues_ReturnsTrueAndProduct()
     {
+        // Arrange
+
         // Act
         bool result = Product.TryCreate(
             "Keyboard",
@@ -333,6 +335,8 @@ public sealed class ProductTests
     [Fact]
     public void TryCreate_WithMissingName_ReturnsFalseAndDomainError()
     {
+        // Arrange
+
         // Act
         bool result = Product.TryCreate(
             " ",
@@ -353,6 +357,8 @@ public sealed class ProductTests
     [Fact]
     public void TryCreate_WithInvalidPrice_ReturnsFalseAndDomainError()
     {
+        // Arrange
+
         // Act
         bool result = Product.TryCreate(
             "Keyboard",

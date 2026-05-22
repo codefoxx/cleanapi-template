@@ -21,6 +21,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLowercaseCode_NormalizesCodeToUppercase()
     {
+        // Arrange
+
         // Act
         Currency currency = Currency.Create("chf");
 
@@ -32,6 +34,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLeadingAndTrailingWhitespace_TrimsCode()
     {
+        // Arrange
+
         // Act
         Currency currency = Currency.Create("  chf  ");
 
@@ -46,6 +50,8 @@ public sealed class CurrencyTests
     [InlineData("\t")]
     public void Create_WithMissingCode_ThrowsArgumentException(string code)
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code));
 
@@ -72,6 +78,8 @@ public sealed class CurrencyTests
     [InlineData("12!")]
     public void Create_WithInvalidCodeFormat_ThrowsArgumentException(string code)
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code));
 
@@ -82,6 +90,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithUnsupportedCode_ThrowsArgumentException()
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("ABC"));
 
@@ -92,6 +102,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithValidCodeAndSymbol_ReturnsCurrency()
     {
+        // Arrange
+
         // Act
         Currency currency = Currency.Create("CHF", "Fr.");
 
@@ -103,6 +115,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLowercaseCodeAndSymbol_NormalizesCodeOnly()
     {
+        // Arrange
+
         // Act
         Currency currency = Currency.Create("chf", "Fr.");
 
@@ -114,6 +128,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithLeadingAndTrailingWhitespaceAroundSymbol_TrimsSymbol()
     {
+        // Arrange
+
         // Act
         Currency currency = Currency.Create("CHF", "  Fr.  ");
 
@@ -128,6 +144,8 @@ public sealed class CurrencyTests
     [InlineData("\t")]
     public void Create_WithMissingSymbol_ThrowsArgumentException(string symbol)
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("CHF", symbol));
 
@@ -154,6 +172,8 @@ public sealed class CurrencyTests
     [InlineData("12!")]
     public void Create_WithSymbolAndInvalidCodeFormat_ThrowsArgumentException(string code)
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create(code, "Fr."));
 
@@ -164,6 +184,8 @@ public sealed class CurrencyTests
     [Fact]
     public void Create_WithSymbolAndUnsupportedCode_ThrowsArgumentException()
     {
+        // Arrange
+
         // Act
         ArgumentException exception = Should.Throw<ArgumentException>(() => Currency.Create("ABC", "ABC"));
 
@@ -217,6 +239,8 @@ public sealed class CurrencyTests
     [Fact]
     public void TryCreate_WithValidCode_ReturnsTrueAndCurrency()
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             " chf ",
@@ -234,6 +258,8 @@ public sealed class CurrencyTests
     [Fact]
     public void TryCreate_WithValidCodeAndSymbol_ReturnsTrueAndCurrency()
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             " usd ",
@@ -256,6 +282,8 @@ public sealed class CurrencyTests
     [InlineData("\t")]
     public void TryCreate_WithMissingCode_ReturnsCurrencyRequired(string? code)
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             code,
@@ -275,6 +303,8 @@ public sealed class CurrencyTests
     [InlineData("12!")]
     public void TryCreate_WithInvalidCodeFormat_ReturnsCurrencyInvalidFormat(string code)
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             code,
@@ -291,6 +321,8 @@ public sealed class CurrencyTests
     [Fact]
     public void TryCreate_WithUnsupportedCode_ReturnsCurrencyUnsupported()
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             "ABC",
@@ -311,6 +343,8 @@ public sealed class CurrencyTests
     [InlineData("\t")]
     public void TryCreate_WithMissingSymbol_ReturnsCurrencySymbolRequired(string? symbol)
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             "CHF",
@@ -331,6 +365,8 @@ public sealed class CurrencyTests
     [InlineData("12!")]
     public void TryCreate_WithSymbolAndInvalidCodeFormat_ReturnsCurrencyInvalidFormat(string code)
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             code,
@@ -348,6 +384,8 @@ public sealed class CurrencyTests
     [Fact]
     public void TryCreate_WithSymbolAndUnsupportedCode_ReturnsCurrencyUnsupported()
     {
+        // Arrange
+
         // Act
         bool result = Currency.TryCreate(
             "ABC",

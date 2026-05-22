@@ -8,6 +8,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void ErrorCodeCreate_WithRegularValue_ReturnsCode()
     {
+        // Arrange
+
         // Act
         ErrorCode code = ErrorCode.Create("custom_error");
 
@@ -20,6 +22,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void ErrorCodeCreate_WithNoneValue_ReturnsNoneCode()
     {
+        // Arrange
+
         // Act
         ErrorCode code = ErrorCode.Create("none");
 
@@ -34,6 +38,8 @@ public sealed partial class ErrorTests
     [InlineData("\t")]
     public void ErrorCodeCreate_WithMissingValue_ThrowsArgumentException(string value)
     {
+        // Arrange
+
         // Act
         Action action = () => ErrorCode.Create(value);
 
@@ -57,6 +63,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void ErrorCodeFromDomain_WithNullDomainCode_ThrowsArgumentNullException()
     {
+        // Arrange
+
         // Act
         Action action = () => ErrorCode.FromDomain(null!);
 
