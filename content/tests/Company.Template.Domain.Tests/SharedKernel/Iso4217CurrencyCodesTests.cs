@@ -7,6 +7,8 @@ public sealed class Iso4217CurrencyCodesTests
     [Fact]
     public void Chf_ReturnsSwissFranc()
     {
+        // Arrange
+
         // Act
         Currency currency = Iso4217CurrencyCodes.Chf;
 
@@ -18,6 +20,8 @@ public sealed class Iso4217CurrencyCodesTests
     [Fact]
     public void Eur_ReturnsEuro()
     {
+        // Arrange
+
         // Act
         Currency currency = Iso4217CurrencyCodes.Eur;
 
@@ -29,6 +33,8 @@ public sealed class Iso4217CurrencyCodesTests
     [Fact]
     public void Usd_ReturnsUsDollar()
     {
+        // Arrange
+
         // Act
         Currency currency = Iso4217CurrencyCodes.Usd;
 

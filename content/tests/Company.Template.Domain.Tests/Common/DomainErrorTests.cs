@@ -5,6 +5,8 @@ public sealed class DomainErrorTests
     [Fact]
     public void None_ReturnsNoneDomainError()
     {
+        // Arrange
+
         // Act
         DomainError error = DomainError.None;
 
@@ -17,6 +19,8 @@ public sealed class DomainErrorTests
     [Fact]
     public void Create_WithCodeAndMessage_ReturnsDomainError()
     {
+        // Arrange
+
         // Act
         DomainError error = DomainError.Create(
             DomainErrorCodes.AmountNegative,
@@ -31,6 +35,8 @@ public sealed class DomainErrorTests
     [Fact]
     public void Create_WithNullCode_ThrowsArgumentNullException()
     {
+        // Arrange
+
         // Act
         Action action = () => DomainError.Create(null!, "Amount cannot be negative.");
 
@@ -41,6 +47,8 @@ public sealed class DomainErrorTests
     [Fact]
     public void Create_WithNoneCode_ThrowsArgumentException()
     {
+        // Arrange
+
         // Act
         Action action = () => DomainError.Create(
             DomainErrorCode.None,
@@ -56,6 +64,8 @@ public sealed class DomainErrorTests
     [InlineData("\t")]
     public void Create_WithMissingMessage_ThrowsArgumentException(string message)
     {
+        // Arrange
+
         // Act
         Action action = () => DomainError.Create(DomainErrorCodes.AmountNegative, message);
 

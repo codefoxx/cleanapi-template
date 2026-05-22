@@ -7,6 +7,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Validation_WithMessage_ReturnsValidationError()
     {
+        // Arrange
+
         // Act
         Error error = Error.Validation("Invalid input.");
 
@@ -20,6 +22,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Validation_WithCodeAndMessage_ReturnsValidationError()
     {
+        // Arrange
+
         // Act
         Error error = Error.Validation(ErrorCodes.ProductNameRequired, "Product name is required.");
 
@@ -32,6 +36,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Validation_WithTarget_PreservesTarget()
     {
+        // Arrange
+
         // Act
         Error error = Error.Validation(ErrorCodes.ProductNameRequired, "Product name is required.", "name");
 
@@ -67,6 +73,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void Validation_WithNoneCode_ThrowsArgumentException()
     {
+        // Arrange
+
         // Act
         Action action = () => Error.Validation(ErrorCode.None, "Invalid input.");
 
@@ -80,6 +88,8 @@ public sealed partial class ErrorTests
     [InlineData("\t")]
     public void Validation_WithMissingCode_ThrowsArgumentException(string code)
     {
+        // Arrange
+
         // Act
         Action action = () => Error.Validation(ErrorCode.Create(code), "Invalid input.");
 
@@ -93,6 +103,8 @@ public sealed partial class ErrorTests
     [InlineData("\t")]
     public void Validation_WithMissingMessage_ThrowsArgumentException(string message)
     {
+        // Arrange
+
         // Act
         Action action = () => Error.Validation(ErrorCodes.ValidationError, message);
 

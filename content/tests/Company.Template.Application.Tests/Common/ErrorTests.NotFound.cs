@@ -7,6 +7,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void NotFound_WithMessage_ReturnsNotFoundError()
     {
+        // Arrange
+
         // Act
         Error error = Error.NotFound("Product was not found.");
 
@@ -19,6 +21,8 @@ public sealed partial class ErrorTests
     [Fact]
     public void NotFound_WithCodeAndMessage_ReturnsNotFoundError()
     {
+        // Arrange
+
         // Act
         Error error = Error.NotFound(ErrorCodes.NotFound, "Product was not found.");
 
