@@ -163,6 +163,7 @@ public sealed class GlobalExceptionHandlerTests
     {
         StartedResponseFeature response = new();
         FeatureCollection features = new();
+        features.Set<IHttpRequestFeature>(new HttpRequestFeature());
         features.Set<IHttpResponseFeature>(response);
 
         DefaultHttpContext context = new(features);
