@@ -162,9 +162,11 @@ public sealed class GlobalExceptionHandlerTests
     private static DefaultHttpContext CreateStartedHttpContext(string path)
     {
         StartedResponseFeature response = new();
+        StreamResponseBodyFeature body = new(response.Body);
         FeatureCollection features = new();
         features.Set<IHttpRequestFeature>(new HttpRequestFeature());
         features.Set<IHttpResponseFeature>(response);
+        features.Set<IHttpResponseBodyFeature>(body);
 
         DefaultHttpContext context = new(features);
         context.Request.Path = path;
