@@ -30,6 +30,75 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Update="Common\ResultTests.SuccessFailure.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ResultTests.Match.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ResultTests.Map.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ResultTests.Bind.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ResultTests.BindAsync.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ResultTests.NonGeneric.cs">
+            <DependentUpon>ResultTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.Construction.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.Match.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.Map.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.Bind.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.Where.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.WhereNot.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.OrElse.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.FromNullable.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\OptionTests.TryGetValue.cs">
+            <DependentUpon>OptionTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.None.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.ErrorCode.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.Validation.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.NotFound.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.Conflict.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.Unknown.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Common\ErrorTests.DomainMapping.cs">
+            <DependentUpon>ErrorTests.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
     <!--#if (db == "TemplateAuthoringOnly") -->
     <ItemGroup>
         <Compile Remove="TestSupport\TestDatabase.PostgreSql.cs" Condition="'$(EffectiveDbProvider)' != 'PostgreSql'"/>
