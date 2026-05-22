@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Nodes;
 using Company.Template.Api.Middleware;
 using Microsoft.AspNetCore.Http;
@@ -169,7 +170,7 @@ public sealed class GlobalExceptionHandlerTests
     private static async Task<string> ReadBodyAsync(HttpContext context)
     {
         context.Response.Body.Position = 0;
-        using StreamReader reader = new(context.Response.Body, leaveOpen: true);
+        using StreamReader reader = new(context.Response.Body, Encoding.UTF8, leaveOpen: true);
 
         return await reader.ReadToEndAsync();
     }
