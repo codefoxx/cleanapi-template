@@ -76,7 +76,7 @@
         <Compile Update="Common\OptionTests.TryGetValue.cs">
             <DependentUpon>OptionTests.cs</DependentUpon>
         </Compile>
-        <Compile Update="Common\ErrorTests.None.cs">
+        <Compile Update="Common\ErrorTests.NoError.cs">
             <DependentUpon>ErrorTests.cs</DependentUpon>
         </Compile>
         <Compile Update="Common\ErrorTests.ErrorCode.cs">
